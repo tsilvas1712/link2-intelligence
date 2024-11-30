@@ -1,0 +1,143 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('datasys', function (Blueprint $table) {
+            $table->id('datasys_id')->autoIncrement();
+            $table->text('id')->nullable();
+            $table->text('GSM')->nullable();
+            $table->text('CNPJ_x0020_Filial')->nullable();
+            $table->text('GSMPortado')->nullable();
+            $table->text('Contrato')->nullable();
+            $table->text('Area')->nullable();
+            $table->text('Regional')->nullable();
+            $table->text('Filial')->nullable();
+            $table->text('Numero_x0020_Pedido')->nullable();
+            $table->text('Data_x0020_pedido')->nullable();
+            $table->text('Tipo_x0020_Pedido')->nullable();
+            $table->text('Cupom_x0020_Fiscal')->nullable();
+            $table->text('Nota_x0020_Fiscal')->nullable();
+            $table->text('Cod_x0020_produto')->nullable();
+            $table->text('Descr_x0020_Comercial')->nullable();
+            $table->text('Descricao')->nullable();
+            $table->text('NCM')->nullable();
+            $table->text('Grupo_x0020_Estoque')->nullable();
+            $table->text('SubGrupo')->nullable();
+            $table->text('Familia')->nullable();
+            $table->text('Fabricante')->nullable();
+            $table->text('Categoria')->nullable();
+            $table->text('Tipo_x0020_Produto')->nullable();
+            $table->text('Serial')->nullable();
+            $table->text('Qtde')->nullable();
+            $table->text('Valor_x0020_Tabela')->nullable();
+            $table->text('Valor_x0020_Plano')->nullable();
+            $table->text('Valor_x0020_Caixa')->nullable();
+            $table->text('Descontos')->nullable();
+            $table->text('Juros')->nullable();
+            $table->text('Total_x0020_Item')->nullable();
+            $table->text('voucher')->nullable();
+            $table->text('Custo_x0020_Inicial')->nullable();
+            $table->text('Impostos')->nullable();
+            $table->text('Desconto_x0020_Compra')->nullable();
+            $table->text('Custo_x0020_Total')->nullable();
+            $table->text('Fornecedor')->nullable();
+            $table->text('DT_x0020_Compra')->nullable();
+            $table->text('NF_x0020_Compra')->nullable();
+            $table->text('Financeira')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_1')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_1')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_2')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_2')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_3')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_3')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_4')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_4')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_5')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_5')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_6')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_6')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_7')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_7')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_8')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_8')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_9')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_9')->nullable();
+            $table->text('Forma_x0020_Pgto_x0020_10')->nullable();
+            $table->text('Valor_x0020_Pgto_x0020_10')->nullable();
+            $table->text('CPF_x0020_Vendedor')->nullable();
+            $table->text('Nome_x0020_Vendedor')->nullable();
+            $table->text('CPF_x0020_Cliente')->nullable();
+            $table->text('Nome_x0020_Cliente')->nullable();
+            $table->text('UF_x0020_Cliente')->nullable();
+            $table->text('Cidade_x0020_Cliente')->nullable();
+            $table->text('Email_x0020_Cliente')->nullable();
+            $table->text('Fone_x0020_Cliente')->nullable();
+            $table->text('Plano_x0020_Habilitacao')->nullable();
+            $table->text('CLARO_x0020_SIM')->nullable();
+            $table->text('Tipo_x0020_Habilitacao')->nullable();
+            $table->text('Grade_x0020_Precos')->nullable();
+            $table->text('Tipo_x0020_Pacote')->nullable();
+            $table->text('Modalidade_x0020_Venda')->nullable();
+            $table->text('Operadora')->nullable();
+            $table->text('Desconto_x0020_Plano')->nullable();
+            $table->text('MP_x0020_do_x0020_BEM')->nullable();
+            $table->text('VALOR_x0020_PRE')->nullable();
+            $table->text('COMBO')->nullable();
+            $table->text('Logradouro')->nullable();
+            $table->text('numero')->nullable();
+            $table->text('Complemento')->nullable();
+            $table->text('bairro')->nullable();
+            $table->text('Cidade')->nullable();
+            $table->text('cep')->nullable();
+            $table->text('uf')->nullable();
+            $table->text('TV')->nullable();
+            $table->text('FIXO')->nullable();
+            $table->text('MOVEL')->nullable();
+            $table->text('INTERNET')->nullable();
+            $table->text('Item')->nullable();
+            $table->text('MPB')->nullable();
+            $table->text('Protocolo_x0020_Claro_x0020_Clube')->nullable();
+            $table->text('Valor_x0020_Plano_x0020_Anterior')->nullable();
+            $table->text('PedidoAnterior')->nullable();
+            $table->text('Qtde_x0020_Pontos')->nullable();
+            $table->text('Score_x0020_Cliente')->nullable();
+            $table->text('Plano_x0020_Antigo')->nullable();
+            $table->text('Observacao')->nullable();
+            $table->text('DiaVencimento')->nullable();
+            $table->text('Operadora_x0020_Origem')->nullable();
+            $table->text('Numero_x0020_Voucher')->nullable();
+            $table->text('BASE_x0020_FATURAMENTO_x0020_COMPRA')->nullable();
+            $table->text('BASE_x0020_FATURAMENTO_x0020_VENDA')->nullable();
+            $table->text('Fidelizacao')->nullable();
+            $table->text('VoucherLoja')->nullable();
+            $table->text('ValorFranquia')->nullable();
+            $table->text('Plugin')->nullable();
+            $table->text('Fidelizacao_x0020_Plano')->nullable();
+            $table->text('Valor_x0020_Unitario')->nullable();
+            $table->text('Biometria')->nullable();
+            $table->text('TipoTHAB')->nullable();
+            $table->text('EAN')->nullable();
+            $table->text('RecargaGWCELL')->nullable();
+            $table->text('NumeroOrdemSiebel')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('datasys');
+    }
+};
