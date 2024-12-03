@@ -13,4 +13,9 @@ class Vendedor extends Model
     {
         return $this->hasMany(DadosVendedor::class);
     }
+
+    public function vendas()
+    {
+        return $this->hasMany(Venda::class);
+    }
 }

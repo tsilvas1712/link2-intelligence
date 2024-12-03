@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Filial;
 use App\Models\Venda;
 use App\Models\Vendedor;
 use Carbon\Carbon;
@@ -43,6 +44,56 @@ class ImagemTelecomService
     public function meta()
     {
         return 'Faturamento';
+    }
+
+    public function rankingVendedores()
+    {
+        return $this->vendas->query()
+        ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
+        ->whereMonth('data_pedido', '=', '05')
+        ->groupBy('vendedor_id')
+        ->orderBy('total', 'desc')
+        ->limit(10)
+        ->get();
+    }
+
+    public function rankingFiliais()
+    {
+        return $this->vendas->query()
+        ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
+        ->where('tipo_pedido', 'Venda')
+        ->whereMonth('data_pedido', '=', '05')
+        ->groupBy('filial_id')
+        ->orderBy('total', 'desc')
+        ->limit(10)
+        ->get();
+    }
+
+    public function rankingFabricantes()
+    {
+        return $this->vendas->query()
+        ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
+        ->where('tipo_pedido', 'Venda')
+        ->where('grupo_estoque', 'APARELHO')
+        ->where('fabricante','<>','')
+        ->whereMonth('data_pedido', '=', '05')
+        ->groupBy('fabricante')
+        ->orderBy('total', 'desc')
+        ->limit(10)
+        ->get();
+    }
+
+    public function faturamento($mes,$ano): float
+    {
+        $total =  $this->vendas->query()
+                ->where('tipo_pedido', 'Venda')
+                ->whereMonth('data_pedido', '=', $mes)
+                ->whereYear('data_pedido', '=', $ano)
+                ->sum('valor_caixa');
+
+
+        return floatVal($total);
+
     }
 
 
@@ -96,6 +147,11 @@ class ImagemTelecomService
         return $media * count($totalDias);
     }
 
+    public function metaFilial($filial_id): float
+    {
+        return 300000;
+    }
+
     public function topVendedores()
     {
         $topVendedores =  Cache::remember('topVendedores', 60, function () {
@@ -119,6 +175,16 @@ class ImagemTelecomService
             ->first();
 
         return $vendedor->nome;
+    }
+
+    public function getNomeFilial($filial_id)
+    {
+        $filial = Filial::query()
+            ->select('filial')
+            ->where('id', $filial_id)
+            ->first();
+
+        return $filial->filial;
     }
 
     public function tendenciaVendedor($vendedor_id)

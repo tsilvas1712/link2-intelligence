@@ -10,14 +10,15 @@ class ExecImportDatasysJob implements ShouldQueue
 {
     use Queueable;
 
-    public $timeout = 300;
+    public $timeout = 600;
+    public $days = 1;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct($days)
     {
-        //
+    $this->days = $days;
     }
 
     /**
@@ -25,8 +26,9 @@ class ExecImportDatasysJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $datasys = new DatasysService();
 
-        $datasys->getDatasysData();
+        $datasys = new DatasysService();
+        $datasys->getDatasysData($this->days);
+
     }
 }

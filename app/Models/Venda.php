@@ -55,4 +55,14 @@ class Venda extends Model
         'biometria',
         'status_linha',
     ];
+
+    public function filial()
+    {
+        return $this->belongsTo(Filial::class);
+    }
+
+    public function vendedor()
+    {
+        return $this->belongsTo(Vendedor::class);
+    }
 }

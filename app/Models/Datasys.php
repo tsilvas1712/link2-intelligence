@@ -126,5 +126,6 @@ class Datasys extends Model
         'TipoTHAB',
         'EAN',
         'RecargaGWCELL',
+        'transfered'
     ];
 }

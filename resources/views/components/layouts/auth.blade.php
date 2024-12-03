@@ -12,14 +12,11 @@
 
 </head>
 
-<body class="min-h-screen font-sans antialiased">
-    <div class=" max-w-6xl flex m-auto bg-gray-100 p-2 rounded">
-        {{-- MAIN --}}
-        <x-main full-width>
-            <x-slot:content>
-                {{ $slot }}
-            </x-slot:content>
-        </x-main>
+<body class="min-h-screen font-sans antialiased ">
+    <div class="max-w-7xl flex m-auto">
+        {{ $slot }}
+
+
 
         {{--  TOAST area --}}
         <x-toast />

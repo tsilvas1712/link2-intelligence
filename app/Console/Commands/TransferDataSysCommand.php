@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\TransferDatasysJob;
+use App\Models\Datasys;
 use App\Models\Filial;
 use App\Models\Import;
 use App\Models\Vendedor;
@@ -100,6 +101,63 @@ class TransferDataSysCommand extends Command
                     'status_linha' => $item->status_linha,
                 ];
                 TransferDatasysJob::dispatch($venda, $item->id);
+            }
+        });
+
+        Datasys::where('transfered', false)->chunk(1000, function ($datasys) {
+            foreach ($datasys as $item) {
+                $filial = $this->getFilial(str_replace(" ","",$item->Filial));
+
+                $vendedor = $this->getVendedor($item->CPF_x0020_Vendedor);
+                $venda = [
+                    'area' => $item->Area,
+                    'regional' => $item->Regional,
+                    'filial_id' => $filial->id,
+                    'vendedor_id' => $vendedor->id,
+                    'gsm' => $item->GSM,
+                    'gsm_portado' => $item->GSMPortado,
+                    'contrato' => $item->Contrato,
+                    'numero_pv' => $item->Numero_x0020_Pedido,
+                    'data_pedido' => $item->Data_x0020_pedido,
+                    'tipo_pedido' => $item->Tipo_x0020_Pedido,
+                    'nota_fiscal' => $item->Nota_x0020_Fiscal,
+                    'cod_produto' => $item->Cod_x0020_produto,
+                    'descricao_comercial' => $item->Descr_x0020_Comercial,
+                    'descricao' => $item->Descricao,
+                    'grupo_estoque' => $item->Grupo_x0020_Estoque,
+                    'sub_grupo' => $item->SubGrupo,
+                    'familia' => $item->Familia,
+                    'fabricante' => $item->Fabricante,
+                    'categoria' => $item->Categoria,
+                    'tipo_produto'  => $item->Tipo_x0020_Produto,
+                    'serial' => $item->Serial,
+                    'qtde' => $item->Qtde,
+                    'valor_tabela' => $item->Valor_x0020_Tabela,
+                    'valor_plano' => $item->Valor_x0020_Plano,
+                    'valor_caixa'   => $item->Valor_x0020_Caixa,
+                    'descontos' => $item->Descontos,
+                    'juros' => $item->Juros,
+                    'total_item' => $item->Total_x0020_Item,
+                    'valor_franquia' => $item->ValorFranquia,
+                    'desconto_compra' => $item->Descontos_x0020_Compra,
+                    'custo_total' => $item->Custo_x0020_Total,
+                    'cpf_cliente' => $item->CPF_x0020_Cliente,
+                    'nome_cliente' => $item->Nome_x0020_Cliente,
+                    'uf_cliente'    => $item->UF_x0020_Cliente,
+                    'cidade_cliente' => $item->Cidade_x0020_Cliente,
+                    'fone_cliente' => $item->Fone_x0020_Cliente,
+                    'plano_habilitacao' => $item->Plano_x0020_Habilitacao,
+                    'valor_pre' => $item->VALOR_x0020_PRE,
+                    'combo' => $item->COMBO,
+                    'valor_plano_anterior' => $item->Valor_x0020_Plano_x0020_Anterior,
+                    'qtde_pontos' => $item->Qtde_x0020_Pontos,
+                    'base_faturamento_compra' => $item->BASE_x0020_FATURAMENTO_x0020_COMPRA,
+                    'base_faturamento_venda' => $item->BASE_x0020_FATURAMENTO_x0020_VENDA,
+                    'valor_unitario' => $item->Valor_x0020_Unitario,
+                    'biometria' => $item->Biometria,
+                    //'status_linha' => $item->status_linha,
+                ];
+                TransferDatasysJob::dispatch($venda, $item->datasys_id);
             }
         });
     }

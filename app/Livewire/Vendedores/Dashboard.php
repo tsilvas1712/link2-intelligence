@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Filiais;
+namespace App\Livewire\Vendedores;
 
 use App\Models\Filial;
 use App\Models\Venda;
@@ -23,11 +23,11 @@ class Dashboard extends Component
     public $selectedMonth;
     public $meses;
 
-    public $chartFiliaisVendas;
+    public $chartVendedoresVendas;
 
-    public $filiais_id = [];
+    public $vendedores_id = [];
 
-    public $filiais;
+    public $vendedores;
     public function mount()
     {
         $meses = [
@@ -45,13 +45,13 @@ class Dashboard extends Component
             "12" => "Dezembro"
         ];
 
-        $this->chartFiliaisVendas = $this->chartFiliais();
+        $this->chartVendedoresVendas = $this->chartVendedores();
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
 
-        $this->filiais = Filial::query()
-            ->orderBy('filial', 'asc')
+        $this->vendedores = Vendedor::query()
+            ->orderBy('nome', 'asc')
             ->get();
 
 
@@ -66,56 +66,60 @@ class Dashboard extends Component
     #[Layout('components.layouts.view')]
     public function render()
     {
-        return view('livewire.filiais.dashboard');
+        return view('livewire.vendedores.dashboard');
     }
 
     public function filter()
     {
         $this->getData();
 
-        $this->chartFiliaisVendas = $this->chartFiliais();
+        $this->chartVendedoresVendas = $this->chartVendedores();
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
     }
 
-    public function getFiliais()
+    public function getVendedores()
     {
-        $data = Filial::query()
-            ->orderBy('filial', 'desc')
+        $data = Vendedor::query()
+            ->orderBy('nome', 'asc')
             ->get();
 
-        $filiais = [];
-        foreach ($data as $filial) {
-            $filiais[] = [
-                'id' => $filial->id,
-                'name' => $filial->filial,
+        $vendedores = [];
+        foreach ($data as $vendedor) {
+            $vendedores[] = [
+                'id' => $vendedor->id,
+                'name' => $vendedor->nome,
 
             ];
         }
 
 
-        return $filiais;
+        return $vendedores;
     }
 
     public function getData()
     {
         return Venda::query()
-            ->selectRaw('filial_id, sum(valor_caixa) as total')
+            ->selectRaw('vendedor_id, sum(valor_caixa) as total')
             ->when($this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', $this->selectedMonth);
             })
             ->when(!$this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', '11');
             })
-            ->when($this->filiais_id, function ($query) {
-                $query->whereIn('filial_id', $this->filiais_id);
+            ->when(!$this->vendedores_id, function ($query) {
+                $query->limit(20);
+                $query->orderBy('total', 'desc');
             })
-            ->groupBy('filial_id')
+            ->when($this->vendedores_id, function ($query) {
+                $query->whereIn('vendedor_id', $this->vendedores_id);
+            })
+            ->groupBy('vendedor_id')
             ->get();
     }
 
-    public function chartFiliais()
+    public function chartVendedores()
     {
         $data = $this->getData();
 
@@ -124,7 +128,7 @@ class Dashboard extends Component
         $dataset = [];
 
         foreach ($data as $row) {
-            array_push($label, $row->filial->filial);
+            array_push($label, $row->vendedor->nome);
             array_push($dataset, floatVal($row->total));
         }
         $chartData['label'] = $label;
@@ -133,10 +137,10 @@ class Dashboard extends Component
 
 
         $chart = [
-            'type' => 'bar',
+            'type' => 'pie',
             'options' => [
                 'responsive' => true,
-                'maintainAspectRatio' => false,
+                'maintainAspectRatio' => true,
 
                 'legend' => [
                     'display' => false,
@@ -144,8 +148,17 @@ class Dashboard extends Component
                 ],
 
 
+
             ],
             'data' => [
+                'options' => [
+                    'plugins' => [
+                        'legend' => [
+                            'display' => false,
+                        ],
+                    ],
+
+                ],
                 'labels' =>  $chartData['label'],
                 'datasets' => [
                     [
@@ -172,7 +185,7 @@ class Dashboard extends Component
         $dataCounter = [];
 
         foreach ($data as $row) {
-            array_push($label, $row->filial->filial);
+            array_push($label, $row->vendedor->nome);
             array_push($dataset, floatVal($row->total));
             array_push($dataCounter, floatVal($row->aparelho));
         }
@@ -225,7 +238,7 @@ class Dashboard extends Component
         $dataCounter = [];
 
         foreach ($data as $row) {
-            array_push($label, $row->filial->filial);
+            array_push($label, $row->vendedor->nome);
             array_push($dataset, floatVal($row->total));
         }
         $chartData['label'] = $label;
@@ -279,7 +292,7 @@ class Dashboard extends Component
         $dataCounter = [];
 
         foreach ($data as $row) {
-            array_push($label, $row->filial->filial);
+            array_push($label, $row->vendedor->nome);
             array_push($dataset, floatVal($row->total));
         }
         $chartData['label'] = $label;
@@ -324,54 +337,66 @@ class Dashboard extends Component
     public function getAparelhos()
     {
         return Venda::query()
-            ->selectRaw('filial_id, count(*) as aparelho,sum(base_faturamento_compra) as total')
+            ->selectRaw('vendedor_id, count(*) as aparelho,sum(base_faturamento_compra) as total')
             ->when($this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', $this->selectedMonth);
             })
             ->when(!$this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', '11');
             })
-            ->when($this->filiais_id, function ($query) {
-                $query->whereIn('filial_id', $this->filiais_id);
+            ->when(!$this->vendedores_id, function ($query) {
+                $query->limit(20);
+                $query->orderBy('total', 'desc');
+            })
+            ->when($this->vendedores_id, function ($query) {
+                $query->whereIn('vendedor_id', $this->vendedores_id);
             })
             ->where('grupo_estoque', 'APARELHO')
-            ->groupBy('filial_id')
+            ->groupBy('vendedor_id')
             ->get();
     }
 
     public function getAcessorios()
     {
         return Venda::query()
-            ->selectRaw('filial_id,sum(valor_caixa) as total')
+            ->selectRaw('vendedor_id,sum(valor_caixa) as total')
             ->when($this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', $this->selectedMonth);
             })
             ->when(!$this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', '11');
             })
-            ->when($this->filiais_id, function ($query) {
-                $query->whereIn('filial_id', $this->filiais_id);
+            ->when(!$this->vendedores_id, function ($query) {
+                $query->limit(20);
+                $query->orderBy('total', 'desc');
+            })
+            ->when($this->vendedores_id, function ($query) {
+                $query->whereIn('vendedor_id', $this->vendedores_id);
             })
             ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
-            ->groupBy('filial_id')
+            ->groupBy('vendedor_id')
             ->get();
     }
 
     public function getFranquia()
     {
         return Venda::query()
-            ->selectRaw('filial_id,sum(valor_franquia) as total')
+            ->selectRaw('vendedor_id,sum(valor_franquia) as total')
             ->when($this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', $this->selectedMonth);
             })
             ->when(!$this->selectedMonth, function ($query) {
                 $query->whereMonth('data_pedido', '11');
             })
-            ->when($this->filiais_id, function ($query) {
-                $query->whereIn('filial_id', $this->filiais_id);
+            ->when(!$this->vendedores_id, function ($query) {
+                $query->limit(20);
+                $query->orderBy('total', 'desc');
+            })
+            ->when($this->vendedores_id, function ($query) {
+                $query->whereIn('vendedor_id', $this->vendedores_id);
             })
             ->where('grupo_estoque', 'RECARGA ELETRONICA')
-            ->groupBy('filial_id')
+            ->groupBy('vendedor_id')
             ->get();
     }
 }

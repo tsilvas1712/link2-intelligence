@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\ProcessDatasys;
 use App\Jobs\ProcessDatasysJob;
 use Carbon\Carbon;
+use Illuminate\Container\Attributes\Log;
 use SimpleXMLElement;
 
 class DatasysService
@@ -22,11 +23,11 @@ class DatasysService
         //
     }
 
-    public function getDatasysData()
+    public function getDatasysData($day=1)
     {
 
-        $dateInicial = Carbon::now()->subDays(1)->format('Y-m-d');
-        $dateFinal = Carbon::now()->subDays(1)->format('Y-m-d');
+        $dateInicial = Carbon::now()->subDays($day)->format('Y-m-d');
+        $dateFinal = Carbon::now()->subDays($day)->format('Y-m-d');
 
         $curl = curl_init();
 
@@ -68,6 +69,7 @@ class DatasysService
 
 
         foreach ($responseArray as $record) {
+
 
             ProcessDatasysJob::dispatch($record);
         }

@@ -49,6 +49,9 @@ class ProcessDatasysJob implements ShouldQueue
         }
     }
 
+
+
+
     public function dePara($data)
     {
 
@@ -181,4 +184,6 @@ class ProcessDatasysJob implements ShouldQueue
         }
         return $valor;
     }
+
+    
 }

@@ -9,18 +9,36 @@ use App\Services\ImagemTelecomService;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class Dashboard extends Component
 {
     public $chartMetas;
     public $chartFiliais;
     public $chartVendedores;
+    public $chartFabricante;
     public $filiais;
     public $vendedores;
     public $faturamentoTotal;
     public $recargasTotal;
     public $acessoriosTotal;
     public $franquiaTotal;
+    public $meses = [
+        '01',
+        '02',
+        '03',
+        '04',
+        '05',
+        '06',
+        '07',
+        '08',
+        '09',
+        '10',
+        '11',
+        '12'
+    ];
+
+    public $ano;
 
     public $tendenciaFaturamento;
     public $tendenciaFranquiaTotal;
@@ -29,18 +47,87 @@ class Dashboard extends Component
 
     public function mount()
     {
+        $this->ano = Carbon::now()->format('Y');
+
         $vendaModel = new VendaModel();
         $imagemTelecom = new ImagemTelecomService($vendaModel);
 
-        $chartMetasLabels = [];
-        $chartMetasDatasets = [];
-        $chartMetasTendencia = [];
+
+
+        $rankingFabricantes = $imagemTelecom->rankingFabricantes();
+        $fabricanteLabels = [];
+        $fabricanteDatasets = [];
+
+        foreach ($rankingFabricantes as $ranking) {
+            $fabricanteLabels[] = $ranking->fabricante;
+            $fabricanteDatasets[] = $ranking->total;
+        }
+
+        $this->chartFabricante = [
+            'type' => 'pie',
+            'data' => [
+                'labels' => $fabricanteLabels,
+                'datasets' => [
+                    [
+                        'label' => '# of Votes',
+                        'data' => $fabricanteDatasets,
+                    ]
+                ]
+            ]
+        ];
+
+
         $this->faturamentoTotal = $imagemTelecom->totalFaturamento();
         $this->franquiaTotal = $imagemTelecom->totalFranquia();
         $this->acessoriosTotal = $imagemTelecom->totalAcessorios();
         $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
         $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
         $this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
+
+        $meses = [
+            '01' => 'Jan',
+            '02' => 'Fev',
+            '03' => 'Mar',
+            '04' => 'Abr',
+            '05' => 'Mai',
+            '06' => 'Jun',
+            '07' => 'Jul',
+            '08' => 'Ago',
+            '09' => 'Set',
+            '10' => 'Out',
+            '11' => 'Nov',
+            '12' => 'Dez'
+        ];
+
+        foreach ($this->meses as $mes) {
+            $chartMetasLabels[] = $meses[$mes];
+            $chartMetasDatasets[] = $imagemTelecom->faturamento($mes, $this->ano);
+        }
+
+        $this->chartMetas = [
+            'type' => 'line',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartMetasLabels,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Vendas',
+                        'data' => $chartMetasDatasets,
+                    ],
+
+                ]
+            ]
+        ];
 
 
 
@@ -52,43 +139,8 @@ class Dashboard extends Component
         }
 
 
-        $this->chartMetas = [
-            'type' => 'line',
-            'options' => [
-                'responsive' => true,
-                'maintainAspectRatio' => false,
-                'legend' => [
-                    'display' => true,
-                ],
-                'scales' => [
-                    'x' => [
-                        'stacked' => true,
-                    ],
-                    'y' => [
-                        'stacked' => true,
-                    ],
-                ],
-            ],
-            'data' => [
-                'labels' => $chartMetasLabels,
-                'datasets' => [
-                    [
-                        'label' => 'Faturamento',
-                        'data' => $chartMetasDatasets,
-                    ],
-                    [
-                        'label' => 'Tendencia',
-                        'data' => $chartMetasTendencia,
-                    ],
-                    [
-                        'label' => 'Meta',
-                        'data' => [300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000],
-                    ]
-                ]
-            ]
-        ];
 
-        $filiais =  Filial::query()->limit(10)->get();
+        $filiais =  Filial::query()->get();
 
         $vendedores = Vendedor::query()->limit(10)->get();
 
@@ -123,17 +175,17 @@ class Dashboard extends Component
             ];
         }
 
-        foreach ($filiais as $filial) {
-            $filialData[] = $filial->filial;
-            $filialFaturamento[] = $imagemTelecom->faturamentoFilial($filial->id);
-            $filialTendencia[] = $imagemTelecom->tendenciaFilial($filial->id);
+        $rankingFiliais = $imagemTelecom->rankingFiliais();
+
+        foreach ($rankingFiliais as $filial) {
+            $filialData[] = $imagemTelecom->getNomeFilial($filial->filial_id);
+            $filialFaturamento[] = $filial->total;
         }
 
 
-        foreach ($imagemTelecom->topVendedores() as $vendedor) {
+        foreach ($imagemTelecom->rankingVendedores() as $vendedor) {
             $vendedoresData[] = $imagemTelecom->getNomeVendedor($vendedor->vendedor_id);
-            $vendedorFaturamento[] = $imagemTelecom->faturamentoVendedor($vendedor->vendedor_id);
-            $vendedorTendencia[] = $imagemTelecom->tendenciaVendedor($vendedor->vendedor_id);
+            $vendedorFaturamento[] = $vendedor->total;
         }
 
 
@@ -141,27 +193,24 @@ class Dashboard extends Component
             'type' => 'bar',
             'options' => [
                 'responsive' => true,
+                'maintainAspectRatio' => true,
+                'indexAxis' => 'y',
 
                 'legend' => [
                     'display' => true,
+
                 ],
+
 
             ],
             'data' => [
                 'labels' => $filialData,
                 'datasets' => [
                     [
-                        'label' => 'Faturamento',
+                        'label' => 'Total em Vendas',
                         'data' => $filialFaturamento,
                     ],
-                    [
-                        'label' => 'Tendencia',
-                        'data' => $filialTendencia,
-                    ],
-                    [
-                        'label' => 'Meta',
-                        'data' => [300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000],
-                    ]
+
                 ]
             ]
         ];
@@ -181,20 +230,20 @@ class Dashboard extends Component
                 'labels' => $vendedoresData,
                 'datasets' => [
                     [
-                        'label' => 'Faturamento',
+                        'label' => 'Total em Vendas',
                         'data' => $vendedorFaturamento,
                     ],
-                    [
-                        'label' => 'Tendencia',
-                        'data' => $vendedorTendencia,
-                    ],
-                    [
-                        'label' => 'Meta',
-                        'data' => [300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000],
-                    ]
+
                 ]
             ]
         ];
+    }
+
+    public function exportToPDF()
+    {
+        return Pdf::html(view('livewire.metas.dashboard'))
+            ->format('a4')
+            ->name('dashboard.pdf');
     }
 
     #[Layout('components.layouts.view')]
