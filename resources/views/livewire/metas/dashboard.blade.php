@@ -1,17 +1,6 @@
 <div class="w-full">
     <x-header title="Dashboard" separator>
-        <x-slot:middle class="!justify-end">
-            <x-button class="btn-primary btn-circle" icon="o-building-storefront" tooltip-bottom="Filiais"
-                link="{{ route('filiais.dashboard') }}" />
-            <x-button class="btn-primary btn-circle" icon="o-users" tooltip-bottom="Vendedores"
-                link="{{ route('vendedores.dashboard') }}" />
-            <x-button class="btn-primary btn-circle" icon="o-cursor-arrow-ripple" tooltip-bottom="Planos" />
 
-        </x-slot:middle>
-        <x-slot:actions>
-            <x-button class="btn bg-red-500 btn-circle" icon="o-arrow-right-end-on-rectangle" tooltip-bottom="Sair"
-                link="{{ route('logout') }}" />
-        </x-slot:actions>
     </x-header>
 
     <div class="flex flex-col w-full gap-4 ">
@@ -21,40 +10,65 @@
                 <span class="text-lg font-bold">Faturamento Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($faturamentoTotal, 2, ',', '.') }}</span>
                 <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($tendenciaFaturamento, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/3">
-                        <span class="text-xl font-bold">99%</span>
-                        <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
+                    <div class="flex flex-col items-center p-2 w-1/5">
+                        @php
+                            $meta = number_format(
+                                ($faturamentoTotal * 100) / $metas[0]['meta_faturamento'],
+                                2,
+                                ',',
+                                '.',
+                            );
+                        @endphp
+                        <span class="text-lg font-bold">{{ $meta }}%</span>
+                        @if (floatVal($meta) > 100.0)
+                            <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
+                        @elseif (floatVal($meta) > 65.0 && floatVal($meta) < 100.0)
+                            <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
+                        @else
+                            <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
+                        @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
-                        <span class="text-xs font-bold text-white">3.000.000,00</span>
+                        <span class="text-xs font-bold text-white">R$
+                            {{ number_format($metas[0]['meta_faturamento'], 2, ',', '.') }}</span>
                     </div>
 
                 </div>
 
             </div>
 
-            <div class="bg-white rounded p-2 flex flex-col items-center gap-2">
-                <span class="text-lg font-bold">Franquia Total</span>
-                <span class="text-2xl font-black">R$ {{ number_format($franquiaTotal, 2, ',', '.') }}</span>
+            <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
+                <span class="text-lg font-bold">Aparelhos Total</span>
+                <span class="text-2xl font-black">R$ {{ number_format($aparelhosTotal, 2, ',', '.') }}</span>
                 <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($tendenciaFranquiaTotal, 2, ',', '.') }}</span>
+                            {{ number_format($tendenciaAparelhosTotal, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/3">
-                        <span class="text-xl font-bold">80%</span>
-                        <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
+                    <div class="flex flex-col items-center p-2 w-1/5">
+                        @php
+                            $meta = number_format(($aparelhosTotal * 100) / $metas[0]['meta_aparelhos'], 2, ',', '.');
+                        @endphp
+                        <span class="text-lg font-bold">{{ $meta }}%</span>
+                        @if (floatVal($meta) > 100.0)
+                            <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
+                        @elseif (floatVal($meta) > 65.0 && floatVal($meta) < 100.0)
+                            <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
+                        @else
+                            <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
+                        @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
-                        <span class="text-xs font-bold text-white">3.000.000,00</span>
+                        <span class="text-xs font-bold text-white">R$
+                            {{ number_format($metas[0]['meta_aparelhos'], 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -65,31 +79,76 @@
                 <span class="text-lg font-bold">Acessórios Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($acessoriosTotal, 2, ',', '.') }}</span>
                 <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($tendenciaAcessorioTotal, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/3">
-                        <span class="text-xl font-bold">75%</span>
-                        <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
+                    <div class="flex flex-col items-center p-2 w-1/5">
+                        @php
+                            $meta = number_format(($acessoriosTotal * 100) / $metas[0]['meta_acessorios'], 2, ',', '.');
+                        @endphp
+                        <span class="text-lg font-bold">{{ $meta }}%</span>
+                        @if (floatVal($meta) > 100.0)
+                            <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
+                        @elseif (floatVal($meta) > 65.0 && floatVal($meta) < 100.0)
+                            <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
+                        @else
+                            <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
+                        @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-1/3">
+                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
-                        <span class="text-xs font-bold text-white">3.000.000,00</span>
+                        <span class="text-xs font-bold text-white">R$
+                            {{ number_format($metas[0]['meta_acessorios'], 2, ',', '.') }}</span>
                     </div>
 
                 </div>
 
             </div>
+        </div>
+        <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
+            <span class="text-xl font-bold italic text-center w-full">Total de Franquia {{ $ano }}</span>
+            <div class="flex flex-wrap justify-center gap-4">
+                @foreach ($planos as $plano)
+                    <div class="w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                        <a href="{{ route('detalhes.grupos', $plano['id']) }}"
+                            class="w-full flex flex-col items-center">
+                            <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
+                            <div class="flex flex-row justify-between w-full gap-4">
+                                <div class="flex flex-col items-center">
+                                    <span class="font-bold">Total</span>
+                                    <span>R$ {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <span class="font-bold">Gross</span>
+                                    <span>{{ $plano['gross'] }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
+
+            </div>
 
         </div>
+
         <div class="flex flex-col gap-2 ">
             <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
                 <span class="text-3xl font-bold italic">Total de {{ $ano }}</span>
                 <div class="w-full ">
                     <x-chart wire:model="chartMetas" />
                 </div>
+            </div>
+
+            <div class="flex gap-2">
+                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
+                    <x-chart wire:model="chartPlanosValor" />
+                </div>
+                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
+                    <x-chart wire:model="chartPlanosGross" />
+                </div>
+
             </div>
 
             <div class="flex gap-2">
@@ -120,48 +179,42 @@
         </div>
 
         <div class="flex gap-4">
-            <div class="grid grid-cols-3 gap-2 w-1/2 ">
+            <div class="grid grid-cols-4 gap-2 w-full ">
                 @foreach ($filiais as $filial)
-                    <div class="rounded shadow bg-white p-2 hover:bg-secondary">
-                        <div class="flex  justify-between">
-                            <span class="text-xs font-bold">{{ $filial['filial'] }}</span>
-                            @if ($filial['status'] === 'up')
-                                <x-icon name="o-arrow-trending-up" class="w-6 h-6  text-green-500" />
-                            @endif
+                    <a href="{{ route('filiais.show', $filial['id']) }}">
+                        <div class="rounded shadow bg-white p-2 hover:bg-secondary">
+                            <div class="flex  justify-between">
+                                <span class="text-sm font-bold">{{ $filial['filial'] }}</span>
+                                @if ($filial['status'] === 'up')
+                                    <x-icon name="o-arrow-trending-up" class="w-6 h-6  text-green-500" />
+                                @endif
 
-                            @if ($filial['status'] === 'down')
-                                <x-icon name="o-arrow-trending-down" class="w-6 h-6  text-red-500" />
-                            @endif
+                                @if ($filial['status'] === 'down')
+                                    <x-icon name="o-arrow-trending-down" class="w-6 h-6  text-red-500" />
+                                @endif
 
-                            @if ($filial['status'] === 'ok')
-                                <x-icon name="o-arrow-right" class="w-6 h-6  text-blue-500" />
-                            @endif
+                                @if ($filial['status'] === 'ok')
+                                    <x-icon name="o-arrow-right" class="w-6 h-6  text-blue-500" />
+                                @endif
+                            </div>
+
+                            <di class="flex flex-col items-center gap-2">
+                                <span class="font-bold">R$
+                                    {{ number_format($filial['faturamento'], 2, ',', '.') }}</span>
+                                <div class="flex flex-row justify-between w-full">
+                                    <span class="text-xs font-bold p-2 rounded-xl bg-blue-200 shadow">R$
+                                        {{ number_format($filial['tendencia'], 2, ',', '.') }}</span>
+                                    <span class="text-xs font-bold p-2 rounded-xl bg-orange-200 shadow">R$
+                                        {{ number_format($filial['meta'], 2, ',', '.') }}</span>
+                                </div>
+
+                            </di>
+
                         </div>
-
-                    </div>
+                    </a>
                 @endforeach
             </div>
-            <div class="grid grid-cols-3 gap-2 p-2  w-1/2 bg-gray-500 rounded shadow">
-                @foreach ($vendedores as $vendedor)
-                    <div class="rounded shadow bg-white p-2">
-                        <div class="flex justify-between">
-                            <span class="text-xs font-bold">{{ $vendedor['nome'] }} </span>
-                            @if ($vendedor['status'] === 'up')
-                                <x-icon name="o-arrow-trending-up" class="w-6 h-6  text-green-500" />
-                            @endif
 
-                            @if ($vendedor['status'] === 'down')
-                                <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500 " />
-                            @endif
-
-                            @if ($vendedor['status'] === 'ok')
-                                <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500 " />
-                            @endif
-                        </div>
-
-                    </div>
-                @endforeach
-            </div>
 
         </div>
 

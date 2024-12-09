@@ -9,20 +9,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class TransferDatasysJob implements ShouldQueue
+class TransferImportJob implements ShouldQueue
 {
     use Queueable;
 
     private $data;
-    private $datasys_id;
+    private $import_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($data, $datasys_id)
+    public function __construct($data, $import_id)
     {
         $this->data = $data;
-        $this->datasys_id = $datasys_id;
+        $this->import_id = $import_id;
     }
 
 
@@ -38,9 +38,9 @@ class TransferDatasysJob implements ShouldQueue
     {
         try {
             Venda::create($this->data);
-            $datasys = Datasys::query()->where('datasys_id', $this->datasys_id)->first();
-            $datasys->transfered = true;
-            $datasys->save();
+            $import = Import::find($this->import_id);
+            $import->transfered = true;
+            $import->save();
         } catch (\Exception $e) {
             Log::error('Erro ao transferir dados: ' . $e->getMessage());
         }

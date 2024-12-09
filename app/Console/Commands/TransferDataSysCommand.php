@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\TransferDatasysJob;
+use App\Jobs\TransferImportJob;
 use App\Models\Datasys;
 use App\Models\Filial;
 use App\Models\Import;
@@ -63,6 +64,7 @@ class TransferDataSysCommand extends Command
                     'numero_pv' => $item->numero_pv,
                     'data_pedido' => $item->data_pedido,
                     'tipo_pedido' => $item->tipo_pedido,
+                    'modalidade_venda' => $item->modalidade_venda,
                     'nota_fiscal' => $item->nota_fiscal,
                     'cod_produto' => $item->cod_produto,
                     'descricao_comercial' => $item->descricao_comercial,
@@ -100,13 +102,13 @@ class TransferDataSysCommand extends Command
                     'biometria' => $item->biometria,
                     'status_linha' => $item->status_linha,
                 ];
-                TransferDatasysJob::dispatch($venda, $item->id);
+                TransferImportJob::dispatch($venda, $item->id);
             }
         });
 
         Datasys::where('transfered', false)->chunk(1000, function ($datasys) {
             foreach ($datasys as $item) {
-                $filial = $this->getFilial(str_replace(" ","",$item->Filial));
+                $filial = $this->getFilial(str_replace(" ", "", $item->Filial));
 
                 $vendedor = $this->getVendedor($item->CPF_x0020_Vendedor);
                 $venda = [
@@ -122,6 +124,7 @@ class TransferDataSysCommand extends Command
                     'tipo_pedido' => $item->Tipo_x0020_Pedido,
                     'nota_fiscal' => $item->Nota_x0020_Fiscal,
                     'cod_produto' => $item->Cod_x0020_produto,
+                    'modalidade_venda' => $item->Modalidade_x0020_Venda,
                     'descricao_comercial' => $item->Descr_x0020_Comercial,
                     'descricao' => $item->Descricao,
                     'grupo_estoque' => $item->Grupo_x0020_Estoque,
@@ -157,6 +160,8 @@ class TransferDataSysCommand extends Command
                     'biometria' => $item->Biometria,
                     //'status_linha' => $item->status_linha,
                 ];
+
+
                 TransferDatasysJob::dispatch($venda, $item->datasys_id);
             }
         });

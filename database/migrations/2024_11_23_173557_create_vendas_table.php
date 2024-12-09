@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('numero_pv')->nullable();
             $table->date('data_pedido')->nullable();
             $table->text('tipo_pedido')->nullable();
+            $table->text('modalidade_venda')->nullable();
             $table->text('nota_fiscal')->nullable();
             $table->text('cod_produto')->nullable();
             $table->text('descricao_comercial')->nullable();

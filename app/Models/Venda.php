@@ -20,6 +20,7 @@ class Venda extends Model
         'tipo_pedido',
         'nota_fiscal',
         'cod_produto',
+        'modalidade_venda',
         'descricao_comercial',
         'descricao',
         'grupo_estoque',

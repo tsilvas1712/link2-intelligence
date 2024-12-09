@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Filial;
+use App\Models\MetasFiliais;
 use App\Models\Venda;
 use App\Models\Vendedor;
 use Carbon\Carbon;
@@ -20,8 +21,8 @@ class ImagemTelecomService
     public function __construct(Venda $venda)
     {
         $this->vendas = $venda;
-        $this->mes = '05';//Carbon::now()->format('m');
-        $this->ano = '2024';//Carbon::now()->format('Y');
+        $this->mes = '05'; //Carbon::now()->format('m');
+        $this->ano = '2024'; //Carbon::now()->format('Y');
 
     }
 
@@ -41,59 +42,82 @@ class ImagemTelecomService
         return $media * count($totalDias);
     }
 
-    public function meta()
+    public function meta($mes, $ano)
     {
-        return 'Faturamento';
+        $filiais_ids = Venda::query()
+            ->select('filial_id')
+            ->where('tipo_pedido', 'Venda')
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->groupBy('filial_id')
+            ->get();
+
+        $meta = MetasFiliais::query()
+            ->selectRaw('sum(meta_faturamento) as meta_faturamento, sum(meta_acessorios) as meta_acessorios, sum(meta_aparelhos) as meta_aparelhos')
+            ->whereIn('filial_id', $filiais_ids)
+            ->where('mes', $mes)
+            ->where('ano', $ano)
+            ->get();
+        return $meta->toArray();
+    }
+
+    public function metaFilial($filial_id, $mes, $ano)
+    {
+        $meta = MetasFiliais::query()
+            ->where('filial_id', $filial_id)
+            ->where('mes', $mes)
+            ->where('ano', $ano)
+            ->get();
+        return $meta;
     }
 
     public function rankingVendedores()
     {
         return $this->vendas->query()
-        ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
-        ->whereMonth('data_pedido', '=', '05')
-        ->groupBy('vendedor_id')
-        ->orderBy('total', 'desc')
-        ->limit(10)
-        ->get();
+            ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
+            ->whereMonth('data_pedido', '=', '05')
+            ->groupBy('vendedor_id')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
     }
 
     public function rankingFiliais()
     {
         return $this->vendas->query()
-        ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
-        ->where('tipo_pedido', 'Venda')
-        ->whereMonth('data_pedido', '=', '05')
-        ->groupBy('filial_id')
-        ->orderBy('total', 'desc')
-        ->limit(10)
-        ->get();
+            ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
+            ->where('tipo_pedido', 'Venda')
+            ->whereMonth('data_pedido', '=', '05')
+            ->groupBy('filial_id')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
     }
 
     public function rankingFabricantes()
     {
         return $this->vendas->query()
-        ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
-        ->where('tipo_pedido', 'Venda')
-        ->where('grupo_estoque', 'APARELHO')
-        ->where('fabricante','<>','')
-        ->whereMonth('data_pedido', '=', '05')
-        ->groupBy('fabricante')
-        ->orderBy('total', 'desc')
-        ->limit(10)
-        ->get();
+            ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
+            ->where('tipo_pedido', 'Venda')
+            ->where('grupo_estoque', 'APARELHO')
+            ->where('fabricante', '<>', '')
+            ->whereMonth('data_pedido', '=', '05')
+            ->groupBy('fabricante')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
     }
 
-    public function faturamento($mes,$ano): float
+    public function faturamento($mes, $ano): float
     {
         $total =  $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
-                ->whereMonth('data_pedido', '=', $mes)
-                ->whereYear('data_pedido', '=', $ano)
-                ->sum('valor_caixa');
+            ->where('tipo_pedido', 'Venda')
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->sum('valor_caixa');
 
 
         return floatVal($total);
-
     }
 
 
@@ -101,12 +125,12 @@ class ImagemTelecomService
 
     public function faturamentoFilial($filial_id)
     {
-        $total = Cache::remember('totalFilial', 60, function () use ($filial_id) {
-            return $this->vendas->query()
-                ->where('filial_id', $filial_id)
-                ->whereMonth('data_pedido', '=', '05')
-                ->sum('valor_caixa');
-        });
+
+        $total = $this->vendas->query()
+            ->where('filial_id', $filial_id)
+            ->whereMonth('data_pedido', '=', '05')
+            ->sum('valor_caixa');
+
 
         return floatVal($total);
     }
@@ -147,10 +171,27 @@ class ImagemTelecomService
         return $media * count($totalDias);
     }
 
-    public function metaFilial($filial_id): float
+    public function tendenciaDiaria($filial_id, $data_pedido)
     {
-        return 300000;
+        $firstDay = Carbon::parse($data_pedido)->startOfMonth();
+        $now = Carbon::parse($data_pedido);
+        $mediaDia = $firstDay->diffInDays($now) + 1;
+
+        $totalDias = 28;
+
+
+        $vendas = $this->vendas->query()
+            ->selectRaw('sum(valor_caixa) as faturamento')
+            ->where('filial_id', $filial_id)
+            ->whereBetween('data_pedido', [$firstDay, $data_pedido])
+            ->get();
+
+
+        $media = floatval($vendas[0]->faturamento) / $mediaDia;
+        return $media * $totalDias;
     }
+
+
 
     public function topVendedores()
     {
@@ -233,7 +274,8 @@ class ImagemTelecomService
         return 5;
     }
 
-    public function totalChip(){
+    public function totalChip()
+    {
         $total = Cache::remember('totalChip', 60, function () {
             return $this->vendas->query()
                 ->where('tipo_pedido', 'Venda')
@@ -244,49 +286,67 @@ class ImagemTelecomService
         });
 
         return floatVal($total);
-
     }
 
-    public function totalRecarga(){
+    public function totalRecarga()
+    {
         return $this->vendas->query()
             ->where('tipo_pedido', 'Venda')
             ->whereIn('grupo_estoque', ['RECARGA ELETRONICA', 'RECARGA GWCEL'])
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
             ->sum('valor_caixa');
-
     }
 
-    public function totalFranquia(){
+    public function totalFranquia()
+    {
         return $this->vendas->query()
             ->where('tipo_pedido', 'Venda')
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
             ->sum('valor_franquia');
-
     }
 
-    public function totalAcessorios(){
+    public function totalAcessorios()
+    {
         return $this->vendas->query()
             ->where('tipo_pedido', 'Venda')
             ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
             ->sum('valor_caixa');
-
     }
 
-    public function totalAparelhos(){
+    public function totalAparelhos()
+    {
         return $this->vendas->query()
             ->where('tipo_pedido', 'Venda')
             ->where('grupo_estoque', 'APARELHO')
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
             ->sum('base_faturamento_compra');
-
     }
 
-    public function totalFaturamento(){
+    public function totalFaturamento()
+    {
         return $this->totalAcessorios() + $this->totalAparelhos() + $this->totalChip() + $this->totalFranquia();
+    }
+
+    public function totalPlanos($data)
+    {
+        $modalidade = explode(';', $data->modalidade_venda);
+        $plano_habilitacao = explode(';', $data->plano_habilitacao);
+        $grupo_estoque = null;
+        $campo_valor = $data->campo_valor;
+
+        $vendas = Venda::query()
+            ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+            ->whereIn('modalidade_venda', $modalidade)
+            ->whereIn('plano_habilitacao', $plano_habilitacao)
+            ->whereMonth('data_pedido', '=', $this->mes)
+            ->whereYear('data_pedido', '=', $this->ano)
+            ->get();
+
+        return $vendas;
     }
 }

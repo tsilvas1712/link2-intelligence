@@ -12,6 +12,7 @@ class Datasys extends Model
     protected $table = 'datasys';
 
     protected $fillble = [
+        'datasys_id',
         'id',
         'GSM',
         'GSMPortado',
