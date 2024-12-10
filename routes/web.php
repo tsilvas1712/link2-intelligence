@@ -41,7 +41,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('/filiais')->name('filiais.')->group(function () {
         Route::get('', \App\Livewire\Filiais\Dashboard::class)->name('dashboard');
         Route::get('/{id}', \App\Livewire\Filiais\Filial::class)->name('show');
-        Route::get('relatorio/{id}', \App\Livewire\Filiais\show::class)->name('relatorio');
+        //Route::get('relatorio/{id}', \App\Livewire\Filiais\show::class)->name('relatorio');
     });
 
     Route::prefix('/admin')->name('admin.')->group(function () {
