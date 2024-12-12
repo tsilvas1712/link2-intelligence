@@ -64,6 +64,7 @@ class ImagemTelecomService
 
     public function metaFilial($filial_id, $mes, $ano)
     {
+
         $meta = MetasFiliais::query()
             ->where('filial_id', $filial_id)
             ->where('mes', $mes)

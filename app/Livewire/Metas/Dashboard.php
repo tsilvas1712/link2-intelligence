@@ -286,9 +286,12 @@ class Dashboard extends Component
 
         foreach ($filiais as $row) {
             $filial =  $row->filial;
-            $meta = $imagemTelecom->metaFilial($filial->id, $this->mes, $this->ano)[0]['meta_faturamento'] ?? 0;
+            $meta = $imagemTelecom->metaFilial($filial->id, $this->mes, $this->ano)['meta_faturamento'] ?? 0;
             $faturamento = $imagemTelecom->faturamentoFilial($filial->id);
+
+
             $perc = ($faturamento / $meta) * 100;
+
             $key = 1;
 
             if ($perc > 100) {
