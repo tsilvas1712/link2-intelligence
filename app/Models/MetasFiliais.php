@@ -18,6 +18,9 @@ class MetasFiliais extends Model
         'meta_controle',
         'meta_gross_controle',
         'mes',
-        'ano'
+        'ano',
+        'total_dias_mes',
+        'dias_trabalhado',
+        'tipo_filial',
     ];
 }

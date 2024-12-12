@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Filial;
 use App\Models\MetasFiliais;
+use App\Models\MetasVendedores;
 use App\Models\User;
+use App\Models\Vendedor;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,24 +25,52 @@ class DatabaseSeeder extends Seeder
         ]);*/
 
         $filiais = Filial::all();
+        $Vendedores = Vendedor::all();
+        $meses = ['05', '06', '07', '08', '09', '10', '11'];
 
-        foreach ($filiais as $filial) {
-            $meta_filial = new MetasFiliais();
+        foreach ($meses as $mes) {
 
-            $meta_filial->filial_id = $filial->id;
-            $meta_filial->meta_faturamento = 300000.00;
-            $meta_filial->meta_acessorios = 20000.00;
-            $meta_filial->meta_aparelhos = 300000.00;
-            $meta_filial->meta_pos = 1000.00;
-            $meta_filial->meta_pre = 1000.00;
-            $meta_filial->meta_controle = 1000.00;
-            $meta_filial->meta_gross_pos = 500;
-            $meta_filial->meta_gross_pre = 500;
-            $meta_filial->meta_gross_controle = 500;
+            foreach ($filiais as $filial) {
+                $meta_filial = new MetasFiliais();
 
-            $meta_filial->mes = '11';
-            $meta_filial->ano = '2024';
-            $meta_filial->save();
+                $meta_filial->filial_id = $filial->id;
+                $meta_filial->meta_faturamento = rand(100000.00, 300000.00);
+                $meta_filial->meta_acessorios = rand(10000.00, 30000.00);
+                $meta_filial->meta_aparelhos = rand(100000.00, 300000.00);
+                $meta_filial->meta_pos = rand(10000.00, 30000.00);
+                $meta_filial->meta_pre = rand(10000.00, 30000.00);
+                $meta_filial->meta_controle = rand(10000.00, 30000.00);
+                $meta_filial->meta_gross_pos = rand(100, 3000);
+                $meta_filial->meta_gross_pre = rand(100, 3000);
+                $meta_filial->meta_gross_controle = rand(100, 3000);
+
+                $meta_filial->mes = $mes;
+                $meta_filial->ano = '2024';
+                $meta_filial->total_dias_mes = '28';
+                $meta_filial->dias_trabalhado = '28';
+                $meta_filial->save();
+            }
+
+            foreach ($Vendedores as $vendedor) {
+                $meta_vendedor = new MetasVendedores();
+
+                $meta_vendedor->vendedor_id = $vendedor->id;
+                $meta_vendedor->meta_faturamento = rand(100000.00, 300000.00);
+                $meta_vendedor->meta_acessorios = rand(10000.00, 30000.00);
+                $meta_vendedor->meta_aparelhos = rand(100000.00, 300000.00);
+                $meta_vendedor->meta_pos = rand(10000.00, 30000.00);
+                $meta_vendedor->meta_pre = rand(10000.00, 30000.00);
+                $meta_vendedor->meta_controle = rand(10000.00, 30000.00);
+                $meta_vendedor->meta_gross_pos = rand(100, 3000);
+                $meta_vendedor->meta_gross_pre = rand(100, 3000);
+                $meta_vendedor->meta_gross_controle = rand(100, 3000);
+
+                $meta_vendedor->mes = $mes;
+                $meta_vendedor->ano = '2024';
+                //$meta_vendedor->total_dias_mes = '28';
+                //$meta_vendedor->dias_trabalhado = '28';
+                $meta_vendedor->save();
+            }
         }
     }
 }

@@ -38,6 +38,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('', \App\Livewire\Vendedores\Dashboard::class)->name('dashboard');
         Route::get('/{id}', \App\Livewire\Vendedores\Show::class)->name('show');
     });
+    Route::prefix('/filial')->name('filial.')->group(function () {
+        Route::get('/{id}', \App\Livewire\Filial\Dashboard::class)->name('dashboard');
+    });
+
+    Route::prefix('/vendedor')->name('vendedor.')->group(function () {
+        Route::get('/{id}', \App\Livewire\Vendedor\Dashboard::class)->name('dashboard');
+    });
+
     Route::prefix('/filiais')->name('filiais.')->group(function () {
         Route::get('', \App\Livewire\Filiais\Dashboard::class)->name('dashboard');
         Route::get('/{id}', \App\Livewire\Filiais\Filial::class)->name('show');

@@ -181,7 +181,7 @@
         <div class="flex gap-4">
             <div class="grid grid-cols-4 gap-2 w-full ">
                 @foreach ($filiais as $filial)
-                    <a href="{{ route('filiais.show', $filial['id']) }}">
+                    <a href="{{ route('filial.dashboard', $filial['id']) }}">
                         <div class="rounded shadow bg-white p-2 hover:bg-secondary">
                             <div class="flex  justify-between">
                                 <span class="text-sm font-bold">{{ $filial['filial'] }}</span>

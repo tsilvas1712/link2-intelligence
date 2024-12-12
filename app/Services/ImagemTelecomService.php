@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Filial;
 use App\Models\MetasFiliais;
+use App\Models\MetasVendedores;
 use App\Models\Venda;
 use App\Models\Vendedor;
 use Carbon\Carbon;
@@ -67,7 +68,16 @@ class ImagemTelecomService
             ->where('filial_id', $filial_id)
             ->where('mes', $mes)
             ->where('ano', $ano)
-            ->get();
+            ->first();
+        return $meta;
+    }
+    public function metaVendedor($vendedor_id, $mes, $ano)
+    {
+        $meta = MetasVendedores::query()
+            ->where('vendedor_id', $vendedor_id)
+            ->where('mes', $mes)
+            ->where('ano', $ano)
+            ->first();
         return $meta;
     }
 
