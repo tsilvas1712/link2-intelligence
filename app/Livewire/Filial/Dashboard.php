@@ -3,6 +3,7 @@
 namespace App\Livewire\Filial;
 
 use App\Models\Filial;
+use App\Models\Grupo;
 use App\Models\MetasFiliais;
 use App\Models\Venda;
 use App\Services\ImagemTelecomService;
@@ -36,11 +37,32 @@ class Dashboard extends Component
 
     public $chartFranquia;
 
+    public $faturamentoTotal;
+
+    public $meta;
+
+    public $tendenciaFaturamento;
+
+    public $aparelhosTotal;
+
+    public $tendenciaAparelhosTotal;
+    public $acessoriosTotal;
+
+    public $tendenciaAcessorioTotal;
+
+    public $chartProgressao;
+
+    public $planos;
+
+
+
     public function mount($id)
     {
+        $imagemTelecom = new ImagemTelecomService(new Venda());
         $this->mes =  '11'; //Carbon::now()->format("m");
         $this->ano = Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
+
         $this->anos = $this->getAnos();
         $this->filial = Filial::find($id);
         $this->metas = $this->getMetas();
@@ -49,6 +71,102 @@ class Dashboard extends Component
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
+
+        $this->meta = $this->getMetas();
+
+        $this->faturamentoTotal = $this->getFaturamento();
+        $this->aparelhosTotal = $this->getTotalAparelhos();
+        $this->acessoriosTotal = $this->getTotalAcessorios();
+        $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
+        $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
+        //$this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
+        $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
+
+        $planos = $this->getGrupos();
+        $chartPlanosLabel = [];
+        $chartPlanosTotal = [];
+        $chartPlanosGross = [];
+
+        foreach ($planos as $plano) {
+            $totalPlanos = $imagemTelecom->totalPlanosFilial($this->filial->id, $plano);
+
+            $chartPlanosLabel[] = $plano->nome;
+            $chartPlanosTotal[] = $totalPlanos[0]['total'];
+            $chartPlanosGross[] = $totalPlanos[0]['gross'];
+
+            $this->planos[] = [
+                'id' => $plano->id,
+                'grupo' => $plano->nome,
+                'gross' => $totalPlanos[0]['gross'],
+                'total' => $totalPlanos[0]['total']
+            ];
+        }
+
+        $meses = [
+            '01' => 'Jan',
+            '02' => 'Fev',
+            '03' => 'Mar',
+            '04' => 'Abr',
+            '05' => 'Mai',
+            '06' => 'Jun',
+            '07' => 'Jul',
+            '08' => 'Ago',
+            '09' => 'Set',
+            '10' => 'Out',
+            '11' => 'Nov',
+            '12' => 'Dez'
+        ];
+
+
+
+        foreach ($this->meses as $mes) {
+            $meta = $imagemTelecom->metaFilial($this->filial->id, $mes['id'], $this->ano);
+            $chartProgressaoLabels[] = $meses[$mes['id']];
+            $chartProgressaoDatasets[] = $imagemTelecom->faturamentoFilialMensal($this->filial->id, $mes['id'], $this->ano);
+            $chartProgressaoDatasetsMeta[] = $meta->meta_faturamento ?? 0;
+            $chartProgressaoDatasetsTendencia[] = $imagemTelecom->tendenciaFilialMensal($this->filial->id, $mes['id'], $this->ano);
+        }
+
+
+        $this->chartProgressao = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartProgressaoLabels,
+                'datasets' => [
+                    [
+                        'label' => 'Tendência',
+                        'data' => $chartProgressaoDatasetsTendencia,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+                    [
+                        'label' => 'Vendas',
+                        'data' => $chartProgressaoDatasets,
+                        'borderColor' => '#6FAD28',
+                        'backgroundColor' => '#8CD4C4',
+                    ],
+                    [
+                        'label' => 'Meta',
+                        'data' => $chartProgressaoDatasetsMeta,
+                        'borderColor' => '#FCA4A4',
+                        'backgroundColor' => '#FCA4A4',
+                    ],
+
+                ],
+
+            ]
+        ];
     }
     #[Layout("components.layouts.view")]
     public function render()
@@ -91,6 +209,7 @@ class Dashboard extends Component
 
     public function filter()
     {
+        $imagemTelecom = new ImagemTelecomService(new Venda());
         $this->getVendas();
         $this->metas = $this->getMetas();
         $this->chartVendasDiarias = $this->getChartVendasDiarias();
@@ -98,6 +217,14 @@ class Dashboard extends Component
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
+        $this->faturamentoTotal = $this->getFaturamento();
+        $this->aparelhosTotal = $this->getTotalAparelhos();
+        $this->acessoriosTotal = $this->getTotalAcessorios();
+
+        $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
+        $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
+        //$this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
+        $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
     }
 
     public function getFaturamento()
@@ -108,7 +235,7 @@ class Dashboard extends Component
 
         $total = $tAcessorios + $tAparelhos + $tChips;
 
-        return 'R$ ' . number_format($total, 2, ',', '.');
+        return $total;
     }
 
 
@@ -151,6 +278,29 @@ class Dashboard extends Component
             ->where('grupo_estoque', 'APARELHOS')
             ->groupBy(['filial_id', 'data_pedido'])
             ->where('filial_id', $this->filial->id)
+            ->get();
+    }
+
+    public function getProdutosVendidos()
+    {
+        return Venda::query()
+            ->selectRaw('grupo_estoque, sum(valor_caixa) as total')
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->where('filial_id', $this->filial->id)
+            ->where('tipo_pedido', 'Venda')
+            ->groupBy('grupo_estoque')
+            ->orderBy('total', 'desc')
             ->get();
     }
 
@@ -229,7 +379,10 @@ class Dashboard extends Component
     public function getTotalAcessorios()
     {
         $vendas = $this->getVendas();
-        return $vendas->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])->sum('valor_caixa');
+
+        return $vendas
+            ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
+            ->sum('valor_caixa');
     }
 
     public function getTotalChips()
@@ -788,6 +941,12 @@ class Dashboard extends Component
             })
             ->where('grupo_estoque', 'RECARGA ELETRONICA')
             ->groupBy('filial_id')
+            ->get();
+    }
+
+    public function getGrupos()
+    {
+        return Grupo::query()
             ->get();
     }
 }

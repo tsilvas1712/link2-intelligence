@@ -30,13 +30,12 @@ class ImagemTelecomService
     public function tendencia($total)
     {
 
-        $totalDias = Cache::remember('totalDias', 60, function () {
-            return $this->vendas->query()
-                ->select('data_pedido')
-                ->whereMonth('data_pedido', '=', '05')
-                ->groupBy('data_pedido')
-                ->get();
-        });
+        $totalDias = $this->vendas->query()
+            ->select('data_pedido')
+            ->whereMonth('data_pedido', '=', '05')
+            ->groupBy('data_pedido')
+            ->get();
+
 
         $media = floatVal($total) / count($totalDias);
 
@@ -65,12 +64,11 @@ class ImagemTelecomService
     public function metaFilial($filial_id, $mes, $ano)
     {
 
-        $meta = MetasFiliais::query()
+        return MetasFiliais::query()
             ->where('filial_id', $filial_id)
             ->where('mes', $mes)
             ->where('ano', $ano)
             ->first();
-        return $meta;
     }
     public function metaVendedor($vendedor_id, $mes, $ano)
     {
@@ -146,6 +144,19 @@ class ImagemTelecomService
         return floatVal($total);
     }
 
+    public function faturamentoFilialMensal($filial_id, $mes, $ano)
+    {
+
+        $total = $this->vendas->query()
+            ->where('filial_id', $filial_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->sum('valor_caixa');
+
+
+        return floatVal($total);
+    }
+
     public function faturamentoVendedor($vendedor_id)
     {
         $total = Cache::remember('totalVendedor', 60, function () use ($vendedor_id) {
@@ -154,6 +165,18 @@ class ImagemTelecomService
                 ->whereMonth('data_pedido', '=', '05')
                 ->sum('valor_caixa');
         });
+
+        return floatVal($total);
+    }
+
+    public function faturamentoVendedorMensal($vendedor_id, $mes, $ano)
+    {
+        $total = $this->vendas->query()
+            ->where('vendedor_id', $vendedor_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->sum('valor_caixa');
+
 
         return floatVal($total);
     }
@@ -177,6 +200,31 @@ class ImagemTelecomService
         });
 
         $media = floatval($total) / count($totalDias);
+
+
+        return $media * count($totalDias);
+    }
+
+    public function tendenciaFilialMensal($filial_id, $mes, $ano)
+    {
+        $total = $this->vendas->query()
+            ->where('filial_id', $filial_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->sum('valor_caixa');
+
+
+        $totalDias = $this->vendas->query()
+            ->select('data_pedido')
+            ->where('filial_id', $filial_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->groupBy('data_pedido')
+            ->get();
+
+
+
+        $media = $total === 0 ? 0 : floatval($total) / count($totalDias);
 
 
         return $media * count($totalDias);
@@ -256,6 +304,33 @@ class ImagemTelecomService
                 ->groupBy('data_pedido')
                 ->get();
         });
+
+        try {
+            $media = floatval($total) / count($totalDias);
+        } catch (\DivisionByZeroError $e) {
+            $media = 0;
+        }
+
+        return $media * count($totalDias);
+    }
+
+    public function tendenciaVendedorMensal($vendedor_id, $mes, $ano)
+    {
+        $total = $this->vendas->query()
+            ->where('vendedor_id', $vendedor_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->sum('valor_caixa');
+
+
+        $totalDias = $this->vendas->query()
+            ->select('data_pedido')
+            ->where('vendedor_id', $vendedor_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->groupBy('data_pedido')
+            ->get();
+
 
         try {
             $media = floatval($total) / count($totalDias);
@@ -356,6 +431,44 @@ class ImagemTelecomService
             ->whereIn('plano_habilitacao', $plano_habilitacao)
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
+            ->get();
+
+        return $vendas;
+    }
+
+    public function totalPlanosFilial($filial_id, $data)
+    {
+        $modalidade = explode(';', $data->modalidade_venda);
+        $plano_habilitacao = explode(';', $data->plano_habilitacao);
+        $grupo_estoque = null;
+        $campo_valor = $data->campo_valor;
+
+        $vendas = Venda::query()
+            ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+            ->whereIn('modalidade_venda', $modalidade)
+            ->whereIn('plano_habilitacao', $plano_habilitacao)
+            ->whereMonth('data_pedido', '=', $this->mes)
+            ->whereYear('data_pedido', '=', $this->ano)
+            ->where('filial_id', $filial_id)
+            ->get();
+
+        return $vendas;
+    }
+
+    public function totalPlanosVendedor($vendedor_id, $data)
+    {
+        $modalidade = explode(';', $data->modalidade_venda);
+        $plano_habilitacao = explode(';', $data->plano_habilitacao);
+        $grupo_estoque = null;
+        $campo_valor = $data->campo_valor;
+
+        $vendas = Venda::query()
+            ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+            ->whereIn('modalidade_venda', $modalidade)
+            ->whereIn('plano_habilitacao', $plano_habilitacao)
+            ->whereMonth('data_pedido', '=', $this->mes)
+            ->whereYear('data_pedido', '=', $this->ano)
+            ->where('vendedor_id', $vendedor_id)
             ->get();
 
         return $vendas;

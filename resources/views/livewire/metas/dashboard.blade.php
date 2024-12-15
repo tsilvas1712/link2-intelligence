@@ -1,5 +1,15 @@
 <div class="w-full">
-    <x-header title="Dashboard" separator>
+    <x-header title="Dashboard" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
+        <x-slot:middle class="!justify-end">
+            <div class="flex gap-2">
+                <x-select icon="o-calendar" placeholder="Selecione o Mês" :options="$meses" wire:model="mesSelecionado" />
+                <x-select icon="o-calendar" placeholder="Selecione o Ano" :options="$anos" wire:model="anoSelecionado" />
+            </div>
+
+        </x-slot:middle>
+        <x-slot:actions>
+            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" wire:click="filter" />
+        </x-slot:actions>
 
     </x-header>
 

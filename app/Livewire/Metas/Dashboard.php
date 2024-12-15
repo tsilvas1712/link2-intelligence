@@ -4,6 +4,7 @@ namespace App\Livewire\Metas;
 
 use App\Models\Filial;
 use App\Models\Grupo;
+use App\Models\MetasFiliais;
 use App\Models\Venda as VendaModel;
 use App\Models\Vendedor;
 use App\Services\ImagemTelecomService;
@@ -22,24 +23,13 @@ class Dashboard extends Component
     public $vendedores;
     public $faturamentoTotal;
 
+
     public $aparelhosTotal;
     public $recargasTotal;
     public $acessoriosTotal;
     public $franquiaTotal;
-    public $meses = [
-        '01',
-        '02',
-        '03',
-        '04',
-        '05',
-        '06',
-        '07',
-        '08',
-        '09',
-        '10',
-        '11',
-        '12'
-    ];
+    public $meses;
+    public $anos;
 
     public $metas;
 
@@ -56,15 +46,19 @@ class Dashboard extends Component
 
     public $chartPlanosValor;
     public $chartPlanosGross;
+    public $mesSelecionado;
+    public $anoSelecionado;
 
 
     public function mount()
     {
         $this->ano = Carbon::now()->format('Y');
-        $this->mes = '05'; //Carbon::now()->format('m');
+        $this->mes = '11'; //Carbon::now()->format('m');
 
         $vendaModel = new VendaModel();
         $imagemTelecom = new ImagemTelecomService($vendaModel);
+        $this->meses = $this->getMeses();
+        $this->anos = $this->getAnos();
 
         $planos = $this->getGrupos();
 
@@ -149,7 +143,9 @@ class Dashboard extends Component
 
 
 
-        $this->metas = $imagemTelecom->meta($this->mes, $this->ano);
+        $this->metas = $this->getMetas();
+
+
 
 
 
@@ -176,10 +172,9 @@ class Dashboard extends Component
         ];
 
 
-        $this->faturamentoTotal = $imagemTelecom->totalFaturamento();
-        $this->aparelhosTotal = $imagemTelecom->totalAparelhos();
-        $this->franquiaTotal = $imagemTelecom->totalFranquia();
-        $this->acessoriosTotal = $imagemTelecom->totalAcessorios();
+        $this->faturamentoTotal = $this->getFaturamento();
+        $this->aparelhosTotal = $this->getTotalAparelhos();
+        $this->acessoriosTotal = $this->getTotalAcessorios();
         $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
         $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
         $this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
@@ -204,7 +199,7 @@ class Dashboard extends Component
 
         foreach ($this->meses as $mes) {
 
-            $chartMetasLabels[] = $meses[$mes];
+            $chartMetasLabels[] = $meses[$mes['id']];
             $chartMetasDatasets[] = $imagemTelecom->faturamento($mes, $this->ano);
             $meta = $imagemTelecom->meta($mes, $this->ano);
             $chartMetasDatasetsMeta[] = $meta[0]['meta_faturamento'] ?? 0;
@@ -393,6 +388,153 @@ class Dashboard extends Component
         return Pdf::html(view('livewire.metas.dashboard'))
             ->format('a4')
             ->name('dashboard.pdf');
+    }
+
+    public function filter()
+    {
+        $imagemTelecom = new ImagemTelecomService(new VendaModel());
+        $this->getVendas();
+        $this->metas = $this->getMetas();
+        //$this->chartVendasDiarias = $this->getChartVendasDiarias();
+        //$this->vendedores = $this->getvendedoresData();
+        //$this->chartAparelhos = $this->chartAparelho();
+        //$this->chartAcessorios = $this->chartAcessoriosData();
+        //$this->chartFranquia = $this->chartFranquiaData();
+        $this->faturamentoTotal = $this->getFaturamento();
+        $this->aparelhosTotal = $this->getTotalAparelhos();
+        $this->acessoriosTotal = $this->getTotalAcessorios();
+        $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
+        $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
+        $this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
+        $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
+    }
+
+    public function getVendas()
+    {
+        return VendaModel::query()
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->get();
+    }
+
+    public function getMetas()
+    {
+        $filiais_ids = VendaModel::query()
+            ->select('filial_id')
+            ->where('tipo_pedido', 'Venda')
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->groupBy('filial_id')
+            ->get();
+
+        $meta = MetasFiliais::query()
+            ->selectRaw('sum(meta_faturamento) as meta_faturamento, sum(meta_acessorios) as meta_acessorios, sum(meta_aparelhos) as meta_aparelhos')
+            ->whereIn('filial_id', $filiais_ids)
+            ->when($this->mesSelecionado, function ($query) {
+                $query->where('mes', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->where('ano', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->where('mes', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->where('ano', $this->ano);
+            })
+            ->get();
+
+        return $meta->toArray();
+    }
+
+    public function getTotalAparelhos()
+    {
+        $vendas = $this->getVendas();
+        return $vendas
+            ->where('grupo_estoque', 'APARELHO')
+            ->sum('base_faturamento_compra');
+    }
+
+    public function getTotalAcessorios()
+    {
+        $vendas = $this->getVendas();
+        return $vendas->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])->sum('valor_caixa');
+    }
+
+    public function getTotalChips()
+    {
+        $vendas = $this->getVendas();
+        return $vendas->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
+    }
+
+    public function getTotalFranquia()
+    {
+        $vendas = $this->getVendas();
+        return $vendas->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
+    }
+
+    public function getFaturamento()
+    {
+        $tAparelhos = $this->getTotalAparelhos();
+        $tAcessorios = $this->getTotalAcessorios();
+        $tChips = $this->getTotalChips();
+
+        $total = $tAcessorios + $tAparelhos + $tChips;
+
+        return $total;
+    }
+
+    public function getMeses()
+    {
+        return [
+            ['id' => '01', 'name' => 'Janeiro'],
+            ['id' => '02', 'name' => 'Fevereiro'],
+            ['id' => '03', 'name' => 'Março'],
+            ['id' => '04', 'name' => 'Abril'],
+            ['id' => '05', 'name' => 'Maio'],
+            ['id' => '06', 'name' => 'Junho'],
+            ['id' => '07', 'name' => 'Julho'],
+            ['id' => '08', 'name' => 'Agosto'],
+            ['id' => '09', 'name' => 'Setembro'],
+            ['id' => '10', 'name' => 'Outubro'],
+            ['id' => '11', 'name' => 'Novembro'],
+            ['id' => '12', 'name' => 'Dezembro'],
+        ];
+    }
+
+    public function getAnos()
+    {
+        $anos = [];
+        $anoInicial = Carbon::now()->subYears(2)->format('Y');
+
+        for ($i = 0; $i < 10; $i++) {
+            $anos[] = [
+                'id' => $anoInicial + $i,
+                'name' =>  $anoInicial + $i,
+            ];
+        }
+
+        return $anos;
     }
 
     #[Layout('components.layouts.view')]
