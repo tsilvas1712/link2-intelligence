@@ -51,6 +51,7 @@ class Dashboard extends Component
     public $tendenciaAcessorioTotal;
 
     public $chartProgressao;
+    public $chartDiario;
 
     public $planos;
 
@@ -67,6 +68,7 @@ class Dashboard extends Component
         $this->filial = Filial::find($id);
         $this->metas = $this->getMetas();
         $this->chartVendasDiarias = $this->getChartVendasDiarias();
+        $this->chartDiario = $this->getChartDiario();
         $this->vendedores = $this->getvendedoresData();
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
@@ -213,6 +215,7 @@ class Dashboard extends Component
         $this->getVendas();
         $this->metas = $this->getMetas();
         $this->chartVendasDiarias = $this->getChartVendasDiarias();
+        $this->chartDiario = $this->getChartDiario();
         $this->vendedores = $this->getvendedoresData();
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
@@ -656,11 +659,6 @@ class Dashboard extends Component
                 'labels' =>  $chartData['label'],
                 'datasets' => [
                     [
-                        'label' => 'Vendas',
-                        'data' => $chartData['dataset'],
-                        'options' => [],
-                    ],
-                    [
                         'type' => 'line',
                         'label' => 'Tendencia',
                         'data' => $chartData['datasetTendencia'],
@@ -670,6 +668,60 @@ class Dashboard extends Component
                         'label' => 'Meta',
                         'data' => $chartData['datasetMeta'],
                     ],
+
+
+                ]
+            ]
+        ];
+
+
+
+        return $chart;
+    }
+
+    public function getChartDiario()
+    {
+        $data = $this->getVendasDiarias();
+        $imagemTelecom = new ImagemTelecomService(new Venda());
+
+
+        $chartData = [];
+        $label = [];
+        $dataset = [];
+        $datasetMeta = [];
+        $datasetTendencia = [];
+
+        foreach ($data as $row) {
+            $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mes, $this->ano);
+
+            array_push($label, Carbon::parse($row->data_pedido)->format('d/m'));
+            array_push($dataset, floatVal($row->total_caixa));
+        }
+        $chartData['label'] = $label;
+        $chartData['dataset'] = $dataset;
+        $chartData['datasetTendencia'] = $datasetTendencia;
+        $chartData['datasetMeta'] = $datasetMeta;
+
+        $chart = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+                'legend' => [
+                    'display' => false,
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartData['label'],
+                'datasets' => [
+                    [
+                        'label' => 'Vendas',
+                        'data' => $chartData['dataset'],
+                        'options' => [],
+                    ],
+
 
 
                 ]

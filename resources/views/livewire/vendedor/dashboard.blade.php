@@ -110,8 +110,9 @@
 
             </div>
         </div>
-        <div class="bg-white rounded shadow p-4">
+        <div class="bg-white rounded shadow p-4 flex flex-col gap-2">
             <x-chart wire:model="chartVendasDiarias" />
+            <x-chart wire:model="chartDiario" />
         </div>
         <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
             <span class="text-3xl font-bold italic">Progressão Mensal</span>

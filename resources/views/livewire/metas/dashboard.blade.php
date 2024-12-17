@@ -1,9 +1,24 @@
 <div class="w-full">
     <x-header title="Dashboard" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
-        <x-slot:middle class="!justify-end">
-            <div class="flex gap-2">
-                <x-select icon="o-calendar" placeholder="Selecione o Mês" :options="$meses" wire:model="mesSelecionado" />
-                <x-select icon="o-calendar" placeholder="Selecione o Ano" :options="$anos" wire:model="anoSelecionado" />
+        <x-slot:middle class="">
+            <div class="flex gap-2 w-full items-center">
+
+                <div class="w-full">
+                    <x-choices label="Filiais" wire:model="filiais_id" :options="$this->getFiliais()">
+                        @scope('item', $filial)
+                            <x-list-item :item="$filial" sub-value="bio">
+                                <x-slot:avatar>
+                                    <x-icon name="o-home" class="bg-orange-100 p-2 w-8 h8 rounded-full" />
+                                </x-slot:avatar>
+                            </x-list-item>
+                        @endscope
+                    </x-choices>
+                </div>
+
+                <x-select label="Mês" icon="o-calendar" placeholder="Selecione o Mês" :options="$meses"
+                    wire:model="mesSelecionado" class="w-2/4" />
+                <x-select label="Ano" icon="o-calendar" placeholder="Selecione o Ano" :options="$anos"
+                    wire:model="anoSelecionado" class="w-1/4" />
             </div>
 
         </x-slot:middle>
@@ -28,7 +43,7 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                ($faturamentoTotal * 100) / $metas[0]['meta_faturamento'],
+                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas[0]['meta_faturamento'],
                                 2,
                                 ',',
                                 '.',
@@ -64,7 +79,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($aparelhosTotal * 100) / $metas[0]['meta_aparelhos'], 2, ',', '.');
+                            $meta = number_format(
+                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas[0]['meta_aparelhos'],
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -96,7 +116,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($acessoriosTotal * 100) / $metas[0]['meta_acessorios'], 2, ',', '.');
+                            $meta = number_format(
+                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas[0]['meta_acessorios'],
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)

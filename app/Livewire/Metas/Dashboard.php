@@ -48,6 +48,7 @@ class Dashboard extends Component
     public $chartPlanosGross;
     public $mesSelecionado;
     public $anoSelecionado;
+    public $filiais_id = [];
 
 
     public function mount()
@@ -261,12 +262,7 @@ class Dashboard extends Component
 
 
 
-        $filiais =  VendaModel::query()
-            ->select('filial_id')
-            ->whereMonth('data_pedido', '=', $this->mes)
-            ->whereYear('data_pedido', '=', $this->ano)
-            ->groupBy('filial_id')
-            ->get();
+
 
         $vendedores = Vendedor::query()->limit(10)->get();
 
@@ -277,36 +273,12 @@ class Dashboard extends Component
         $vendedoresData = [];
         $vendedorFaturamento = [];
         $vendedorTendencia = [];
+
+        $this->filiais = $this->getVendasFiliais();
+
+
+
         $status = ['up', 'down', 'ok'];
-
-        foreach ($filiais as $row) {
-            $filial =  $row->filial;
-            $meta = $imagemTelecom->metaFilial($filial->id, $this->mes, $this->ano)['meta_faturamento'] ?? 0;
-            $faturamento = $imagemTelecom->faturamentoFilial($filial->id);
-
-
-            $perc = ($faturamento / $meta) * 100;
-
-            $key = 1;
-
-            if ($perc > 100) {
-                $key = 0;
-            }
-
-            if ($key > 95 && $key < 100) {
-                $key = 2;
-            }
-
-            $this->filiais[] = [
-                'id' => $filial->id,
-                'filial' => $filial->filial,
-                'status' => $status[$key],
-                'faturamento' => $faturamento,
-                'tendencia' => $imagemTelecom->tendenciaFilial($filial->id),
-                'meta' => $meta,
-            ];
-        }
-
 
 
         foreach ($vendedores as $vendedor) {
@@ -395,6 +367,7 @@ class Dashboard extends Component
         $imagemTelecom = new ImagemTelecomService(new VendaModel());
         $this->getVendas();
         $this->metas = $this->getMetas();
+        $this->filiais = $this->getVendasFiliais();
         //$this->chartVendasDiarias = $this->getChartVendasDiarias();
         //$this->vendedores = $this->getvendedoresData();
         //$this->chartAparelhos = $this->chartAparelho();
@@ -424,7 +397,70 @@ class Dashboard extends Component
             ->when(!$this->anoSelecionado, function ($query) {
                 $query->whereYear('data_pedido', $this->ano);
             })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
+            })
             ->get();
+    }
+
+    public function getVendasFiliais()
+    {
+        $imagemTelecom = new ImagemTelecomService(new VendaModel());
+        $filiais =  VendaModel::query()
+            ->selectRaw('filial_id, sum(valor_caixa) as total')
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
+            })
+            ->groupBy('filial_id')
+            ->get();
+
+        $status = ['up', 'down', 'ok'];
+
+        $response = [];
+
+        foreach ($filiais as $row) {
+            $filial =  $row->filial;
+            $meta = $imagemTelecom->metaFilial($filial->id, $this->mesSelecionado ?? $this->mes, $this->anoSelecionado ?? $this->ano)['meta_faturamento'] ?? 0;
+            $faturamento = $row->total;
+
+
+            $perc = ($faturamento / $meta) * 100;
+
+            $key = 1;
+
+            if ($perc > 100) {
+                $key = 0;
+            }
+
+            if ($key > 95 && $key < 100) {
+                $key = 2;
+            }
+
+            $response[] = [
+                'id' => $filial->id,
+                'filial' => $filial->filial,
+                'status' => $status[$key],
+                'faturamento' => $faturamento,
+                'tendencia' => $imagemTelecom->tendenciaFilial($filial->id),
+                'meta' => $meta,
+            ];
+        }
+
+
+
+        return $response;
     }
 
     public function getMetas()
@@ -444,6 +480,9 @@ class Dashboard extends Component
             ->when(!$this->anoSelecionado, function ($query) {
                 $query->whereYear('data_pedido', $this->ano);
             })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
+            })
             ->groupBy('filial_id')
             ->get();
 
@@ -461,6 +500,9 @@ class Dashboard extends Component
             })
             ->when(!$this->anoSelecionado, function ($query) {
                 $query->where('ano', $this->ano);
+            })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
             })
             ->get();
 
@@ -535,6 +577,24 @@ class Dashboard extends Component
         }
 
         return $anos;
+    }
+    public function getFiliais()
+    {
+        $data = Filial::query()
+            ->orderBy('filial', 'desc')
+            ->get();
+
+        $filiais = [];
+        foreach ($data as $filial) {
+            $filiais[] = [
+                'id' => $filial->id,
+                'name' => $filial->filial,
+
+            ];
+        }
+
+
+        return $filiais;
     }
 
     #[Layout('components.layouts.view')]
