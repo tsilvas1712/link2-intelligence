@@ -181,25 +181,19 @@ class ImagemTelecomService
         return floatVal($total);
     }
 
-    public function tendenciaFilial($filial_id)
+    public function tendenciaFilial($filial_id, $mes, $ano, $total)
     {
-        $total = Cache::remember('totalFilial', 60, function () use ($filial_id) {
-            return $this->vendas->query()
-                ->where('filial_id', $filial_id)
-                ->whereMonth('data_pedido', '=', '05')
-                ->sum('valor_caixa');
-        });
 
-        $totalDias = Cache::remember('totalDiasFilial', 60, function () use ($filial_id) {
-            return $this->vendas->query()
-                ->select('data_pedido')
-                ->where('filial_id', $filial_id)
-                ->whereMonth('data_pedido', '=', '05')
-                ->groupBy('data_pedido')
-                ->get();
-        });
+        $totalDias = $this->vendas->query()
+            ->select('data_pedido')
+            ->where('filial_id', $filial_id)
+            ->whereMonth('data_pedido', '=', $mes)
+            ->whereYear('data_pedido', '=', $ano)
+            ->groupBy('data_pedido')
+            ->get();
 
-        $media = floatval($total) / count($totalDias);
+
+        $media = $total === 0 ? 0 : floatval($total) / count($totalDias);
 
 
         return $media * count($totalDias);
@@ -368,6 +362,70 @@ class ImagemTelecomService
                 ->where('grupo_estoque', 'CHIP')
                 ->whereMonth('data_pedido', '=', $this->mes)
                 ->whereYear('data_pedido', '=', $this->ano)
+                ->sum('valor_caixa');
+        });
+
+        return floatVal($total);
+    }
+
+    public function acessoriosFilial($filial, $mes, $ano)
+    {
+
+        $total = Cache::remember('acessoriosFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
+            return $this->vendas->query()
+                ->where('tipo_pedido', 'Venda')
+                ->where('filial_id', $filial)
+                ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
+                ->whereMonth('data_pedido', '=', $mes)
+                ->whereYear('data_pedido', '=', $ano)
+                ->sum('valor_caixa');
+        });
+
+        return floatVal($total);
+    }
+
+    public function aparelhosFilial($filial, $mes, $ano)
+    {
+
+        $total = Cache::remember('aparelhosFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
+            return $this->vendas->query()
+                ->where('tipo_pedido', 'Venda')
+                ->where('filial_id', $filial)
+                ->where('grupo_estoque', 'APARELHO')
+                ->whereMonth('data_pedido', '=', $mes)
+                ->whereYear('data_pedido', '=', $ano)
+                ->sum('base_faturamento_compra');
+        });
+
+        return floatVal($total);
+    }
+
+    public function chipsFilial($filial, $mes, $ano)
+    {
+
+        $total = Cache::remember('chipsFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
+            return $this->vendas->query()
+                ->where('tipo_pedido', 'Venda')
+                ->where('filial_id', $filial)
+                ->where('grupo_estoque', 'CHIP')
+                ->whereMonth('data_pedido', '=', $mes)
+                ->whereYear('data_pedido', '=', $ano)
+                ->sum('valor_caixa');
+        });
+
+        return floatVal($total);
+    }
+
+    public function recargaFilial($filial, $mes, $ano)
+    {
+
+        $total = Cache::remember('recargaFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
+            return $this->vendas->query()
+                ->where('tipo_pedido', 'Venda')
+                ->where('filial_id', $filial)
+                ->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL'])
+                ->whereMonth('data_pedido', '=', $mes)
+                ->whereYear('data_pedido', '=', $ano)
                 ->sum('valor_caixa');
         });
 
