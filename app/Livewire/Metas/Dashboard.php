@@ -64,26 +64,17 @@ class Dashboard extends Component
         $this->meses = $this->getMeses();
         $this->anos = $this->getAnos();
 
-        $planos = $this->getGrupos();
+        $planos = $this->totalPlanos();
+        $this->planos = $this->totalPlanos();
 
         $chartPlanosLabel = [];
         $chartPlanosGross = [];
         $chartPlanosTotal = [];
 
-
         foreach ($planos as $plano) {
-            $totalPlanos = $imagemTelecom->totalPlanos($plano);
-
-            $chartPlanosLabel[] = $plano->nome;
-            $chartPlanosTotal[] = $totalPlanos[0]['total'];
-            $chartPlanosGross[] = $totalPlanos[0]['gross'];
-
-            $this->planos[] = [
-                'id' => $plano->id,
-                'grupo' => $plano->nome,
-                'gross' => $totalPlanos[0]['gross'],
-                'total' => $totalPlanos[0]['total']
-            ];
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
         }
 
         $this->chartPlanosValor = [
@@ -227,6 +218,71 @@ class Dashboard extends Component
         $this->chartFiliais = $this->rankingFiliais();
         $this->chartVendedores = $this->rankingVendedores();
         $this->chartFabricante = $this->rankingFabricantes();
+        $this->planos = $this->totalPlanos();
+
+        foreach ($this->totalPlanos() as $plano) {
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
+        }
+
+        $this->chartPlanosValor = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosTotal,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
+
+        $this->chartPlanosGross = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosGross,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
 
         //$this->chartVendasDiarias = $this->getChartVendasDiarias();
         //$this->vendedores = $this->getvendedoresData();
@@ -753,11 +809,57 @@ class Dashboard extends Component
                 'labels' => $fabricanteLabels ?? null,
                 'datasets' => [
                     [
-                        'label' => '# of Votes',
+                        'label' => 'R$',
                         'data' => $fabricanteDatasets ?? null,
                     ]
                 ]
             ]
         ];
+    }
+
+    public function totalPlanos()
+    {
+        $planos = $this->getGrupos();
+
+        $grupos = [];
+
+        foreach ($planos as $plano) {
+            $modalidade = explode(';', $plano->modalidade_venda);
+            $plano_habilitacao = explode(';', $plano->plano_habilitacao);
+            $grupo_estoque = null;
+            $campo_valor = $plano->campo_valor;
+
+            $vendas = VendaModel::query()
+                ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+                ->whereIn('modalidade_venda', $modalidade)
+                ->whereIn('plano_habilitacao', $plano_habilitacao)
+                ->when($this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mesSelecionado);
+                })
+                ->when($this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->anoSelecionado);
+                })
+                ->when(!$this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mes);
+                })
+                ->when(!$this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->ano);
+                })
+                ->when($this->filiais_id, function ($query) {
+                    $query->whereIn('filial_id', $this->filiais_id);
+                })
+                ->get();
+
+            $grupos[] = [
+                'id' => $plano->id,
+                'grupo' => $plano->nome,
+                'gross' => $vendas[0]->gross,
+                'total' => $vendas[0]->total
+            ];
+        }
+
+
+
+        return $grupos;
     }
 }
