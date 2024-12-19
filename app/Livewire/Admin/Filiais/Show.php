@@ -57,7 +57,8 @@ class Show extends Component
     public function getMetas(): LengthAwarePaginator
     {
         return MetasFiliais::where('filial_id', $this->filial->id)
-            ->orderBy("created_at", "desc")
+            ->orderBy("ano", "desc")
+            ->orderBy("mes", "desc")
             ->paginate(5);
     }
 

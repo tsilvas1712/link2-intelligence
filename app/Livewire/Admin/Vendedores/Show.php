@@ -57,7 +57,8 @@ class Show extends Component
     public function getMetas(): LengthAwarePaginator
     {
         return MetasVendedores::where('vendedor_id', $this->vendedor->id)
-            ->orderBy("created_at", "desc")
+            ->orderBy("ano", "desc")
+            ->orderBy("mes", "desc")
             ->paginate(5);
     }
 
@@ -110,7 +111,7 @@ class Show extends Component
             $meta->meta_aparelhos = $this->meta_aparelhos;
             $meta->save();
         } else {
-            $this->filial->meta()->create([
+            $this->vendedor->metas()->create([
                 'mes' => $this->mes,
                 'ano' => $this->ano,
                 'meta_faturamento' => floatval($this->meta_faturamento),
@@ -119,7 +120,7 @@ class Show extends Component
             ]);
         }
 
-        $this->mount($this->filial->id);
+        $this->mount($this->vendedor->id);
         $this->closeDrawer();
     }
 }

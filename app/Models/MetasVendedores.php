@@ -22,4 +22,9 @@ class MetasVendedores extends Model
         'mes',
         'ano'
     ];
+
+    public function vendedor()
+    {
+        return $this->belongsTo(Vendedor::class, 'vendedor_id');
+    }
 }

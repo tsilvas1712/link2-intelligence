@@ -1,5 +1,5 @@
 <div>
-    <x-header title="{{ $user['name'] ?? 'Novo Usuário' }}" subtitle="Ajustes de usuários do Sistema" separator />
+    <x-header title="{{ $name ?? 'Novo Usuário' }}" subtitle="Ajustes de usuários do Sistema" separator />
     <div>
         @if ($errors->hasAny('invalidRegister'))
             <x-alert icon="o-exclamation-triangle" class="alert-danger mb-4">
@@ -24,14 +24,14 @@
         @endphp
         <x-form wire:submit.prevent="save">
             <div class="flex flex-col gap-4">
-                <x-input label="Nome" placeholder="Digite o nome do usuário" wire:model="user.name" />
-                <x-input label="E-mail" placeholder="Digite o e-mail do usuário" wire:model="user.email" />
-                <x-input label="Senha" placeholder="Digite a senha do usuário" type="password"
-                    wire:model="user.password" />
+                <x-input label="Nome" placeholder="Digite o nome do usuário" wire:model.live="name" name="name" />
+                <x-input label="E-mail" placeholder="Digite o e-mail do usuário" wire:model="email" name="email" />
+                <x-input label="Senha" placeholder="Digite a senha do usuário" type="password" name="password"
+                    wire:model="password" />
 
-                @if ($user['name'] === null)
+                @if ($user === null)
                     <x-input label="Confirmação de Senha" placeholder="Digite a senha do usuário" type="password"
-                        wire:model="user.password_confirmation" />
+                        wire:model="password_confirmation" />
                 @endif
 
                 <x-select label="Escolha o Cargo" icon="o-user" :options="$cargo" wire:model="cargoSelected" />

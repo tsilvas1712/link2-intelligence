@@ -9,6 +9,11 @@ use PhpParser\Node\Expr\Cast\Object_;
 class Show extends Component
 {
     public $user;
+    public $name;
+    public $email;
+    public $password;
+
+    public $password_confirmation;
     public $cargoSelected;
 
 
@@ -16,17 +21,11 @@ class Show extends Component
     {
         if ($id) {
             $user = User::find($id);
-            $this->user["name"] = $user->name;
-            $this->user["email"] = $user->email;
-            $this->user["cargo"] = $user->cargo;
-            $this->user["password"] = $user->password;
-        } else {
-            $this->user = [
-                "name" => null,
-                "email" => null,
-                "cargo" => null,
-                "password" => null
-            ];
+            $this->user = $user;
+            $this->name = $user->name;
+            $this->email = $user->email;
+            $this->password = $user->password;
+            $this->cargoSelected = $user->cargo;
         }
     }
     public function render()
@@ -36,26 +35,41 @@ class Show extends Component
 
     public function save()
     {
+        $validate = $this->validate([
+            'name' => 'min:3',
+            'email' => 'email',
+            'password' => 'min:6',
+            'cargoSelected' => 'required'
+        ]);
 
-        $isUserExisted = User::where('email', $this->user['email'])->first();
+        if ($this->user === null) {
+            $isUserExisted = User::where('email', $validate['email'])->first();
 
-        if ($isUserExisted) {
-            $this->addError('invalidRegister', 'Usuário já cadastrado');
+            if ($isUserExisted) {
+                $this->addError('invalidRegister', 'Usuário já cadastrado');
+            }
+
+            User::create([
+                'name' => $validate['name'],
+                'email' => $validate['email'],
+                'password' => bcrypt($validate['password']),
+                'cargo' => $validate['cargoSelected']
+            ]);
+
+            return redirect()->route('admin.usuarios');
         }
 
-        if ($this->user['password'] !== $this->user['password_confirmation']) {
-            $this->addError('invalidRegister', 'Confirmação de senha não confere');
+        $newPassword = '';
+        if ($validate['password'] !== $this->user->password) {
+            $newPassword = bcrypt($validate['password']);
         }
 
-        User::create(
-            [
-                'name' => $this->user['name'],
-                'email' => $this->user['email'],
-                'password' => bcrypt($this->user['password']),
-                'cargo' => $this->cargoSelected
-            ]
-
-        );
+        $this->user->update([
+            'name' => $validate['name'],
+            'email' => $validate['email'],
+            'password' => $newPassword,
+            'cargo' => $validate['cargoSelected']
+        ]);
 
         redirect()->route('admin.usuarios');
     }

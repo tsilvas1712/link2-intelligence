@@ -3,28 +3,6 @@
     <div class="flex flex-col gap-8">
         <div class="text-xl">Nome Vendedor: <span class="font-bold">{{ $vendedor->nome }}</span></div>
 
-        <div class="flex gap-4 bg-slate-400 rounded shadow p-4 justify-between p-8">
-            <div class="flex flex-col gap-4">
-                <div class="text-lg">Faturamento: <span class="font-bold italic">
-                        R$ {{ number_format($metas['meta_faturamento'] ?? 0, 2, ',', '.') }}
-                    </span>
-                </div>
-                <div class="text-lg">Aparelhos: <span class="font-bold italic">
-                        R$ {{ number_format($metas['meta_aparelhos'] ?? 0, 2, ',', '.') }}
-                    </span>
-                </div>
-                <div class="text-lg">Acessórios: <span class="font-bold italic">
-                        R$ {{ number_format($metas['meta_acessorios'] ?? 0, 2, ',', '.') }}
-                    </span>
-                </div>
-            </div>
-            <div>
-                <div class="text-lg">Data Corrente: <span class="font-bold italic text-2xl">
-
-                    </span>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="p-4 bg-gray-200 rounded shadow mt-8 flex flex-col gap-8">
         <div class="flex justify-between gap-8">
