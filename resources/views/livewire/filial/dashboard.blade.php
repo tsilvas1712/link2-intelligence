@@ -26,7 +26,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($faturamentoTotal * 100) / $metas->meta_faturamento, 2, ',', '.');
+                            $meta = number_format(
+                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas->meta_faturamento,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -40,7 +45,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_faturamento, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_faturamento, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -58,7 +63,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($aparelhosTotal * 100) / $metas->meta_aparelhos, 2, ',', '.');
+                            $meta = number_format(
+                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -72,7 +82,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_aparelhos, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_aparelhos, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -90,7 +100,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($acessoriosTotal * 100) / $metas->meta_acessorios, 2, ',', '.');
+                            $meta = number_format(
+                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas->meta_acessorios,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -104,7 +119,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_acessorios, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_acessorios, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -161,19 +176,32 @@
         <div class="border-b-2 border-primary w-full">
             <span class="text-xl text-center font-bold ">Vendedores</span>
         </div>
+        <div class="flex flex-row gap-4  ">
+            <div class="bg-white shadow rounded p-2 w-1/2 justify-center flex flex-col items-center">
+                <span class="text-xl font-bold italic ">Fabricantes</span>
+                <div class="w-full ">
+                    <x-chart wire:model="chartFabricante" />
+                </div>
+            </div>
+            <div class="bg-white shadow rounded p-2 w-1/2 justify-center flex flex-col items-center">
+                <span class="text-xl font-bold italic">Ranking Vendedores</span>
+                <div class="w-full ">
+                    <x-chart wire:model="chartVendedores" />
+                </div>
+            </div>
+        </div>
 
 
 
         <div class="grid grid-cols-4 gap-2">
-
             @foreach ($vendedores as $vendedor)
                 <div class="bg-white rounded shadow p-4 w-full hover:bg-secondary">
-                    <a href="{{ route('vendedor.dashboard', $vendedor->vendedor_id) }}">
-                        <h2 class="text-md font-semibold">{{ $vendedor->vendedor->nome }}</h2>
+                    <a href="{{ route('vendedor.dashboard', $vendedor['id']) }}">
+                        <h2 class="text-md font-semibold">{{ $vendedor['vendedor'] }}</h2>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Total de Vendas</span>
                             <span class="text-xs font-semibold">R$
-                                {{ number_format($vendedor->total_caixa, 2, ',', '.') }}</span>
+                                {{ number_format($vendedor['total'], 2, ',', '.') }}</span>
                         </div>
                     </a>
                 </div>

@@ -8,6 +8,7 @@ use App\Models\MetasFiliais;
 use App\Models\Venda;
 use App\Services\ImagemTelecomService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -54,13 +55,15 @@ class Dashboard extends Component
     public $chartDiario;
 
     public $planos;
+    public $chartFabricante;
+    public $chartVendedores;
 
 
 
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '11'; //Carbon::now()->format("m");
+        $this->mes =  Carbon::now()->format("m");
         $this->ano = Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
@@ -73,6 +76,7 @@ class Dashboard extends Component
         $this->chartAparelhos = $this->chartAparelho();
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
+        $this->chartVendedores = $this->rankingVendedores();
 
         $this->meta = $this->getMetas();
 
@@ -84,25 +88,13 @@ class Dashboard extends Component
         //$this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
         $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
 
-        $planos = $this->getGrupos();
+        $planos = $this->totalPlanos();
         $chartPlanosLabel = [];
         $chartPlanosTotal = [];
         $chartPlanosGross = [];
+        $this->planos = $this->totalPlanos();
+        $this->chartFabricante = $this->rankingFabricantes();
 
-        foreach ($planos as $plano) {
-            $totalPlanos = $imagemTelecom->totalPlanosFilial($this->filial->id, $plano);
-
-            $chartPlanosLabel[] = $plano->nome;
-            $chartPlanosTotal[] = $totalPlanos[0]['total'];
-            $chartPlanosGross[] = $totalPlanos[0]['gross'];
-
-            $this->planos[] = [
-                'id' => $plano->id,
-                'grupo' => $plano->nome,
-                'gross' => $totalPlanos[0]['gross'],
-                'total' => $totalPlanos[0]['total']
-            ];
-        }
 
         $meses = [
             '01' => 'Jan',
@@ -223,22 +215,31 @@ class Dashboard extends Component
         $this->faturamentoTotal = $this->getFaturamento();
         $this->aparelhosTotal = $this->getTotalAparelhos();
         $this->acessoriosTotal = $this->getTotalAcessorios();
+        $this->chartVendedores = $this->rankingVendedores();
 
         $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
         $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
         //$this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
         $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
+        $this->planos = $this->totalPlanos();
+        $this->chartFabricante = $this->rankingFabricantes();
     }
 
     public function getFaturamento()
     {
         $tAparelhos = $this->getTotalAparelhos();
-        $tAcessorios = $this->getTotalAcessorios();
         $tChips = $this->getTotalChips();
+        $tRecarga = $this->getTotalRecarga();
 
-        $total = $tAcessorios + $tAparelhos + $tChips;
+        $total =  $tAparelhos + $tChips + $tRecarga;
 
         return $total;
+    }
+
+    public function getTotalRecarga()
+    {
+        $vendas = $this->getVendas();
+        return $vendas->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL', 'RECARGA ELETRONICA'])->sum('valor_caixa');
     }
 
 
@@ -258,6 +259,7 @@ class Dashboard extends Component
             ->when(!$this->anoSelecionado, function ($query) {
                 $query->whereYear('data_pedido', $this->ano);
             })
+            ->where('tipo_pedido', 'Venda')
             ->where('filial_id', $this->filial->id)
             ->get();
     }
@@ -391,7 +393,7 @@ class Dashboard extends Component
     public function getTotalChips()
     {
         $vendas = $this->getVendas();
-        return $vendas->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
+        return $vendas->where('grupo_estoque', 'CHIP')->sum('valor_caixa');
     }
 
     public function getTotalFranquia()
@@ -637,7 +639,7 @@ class Dashboard extends Component
             array_push($label, Carbon::parse($row->data_pedido)->format('d/m'));
             array_push($dataset, floatVal($row->total_caixa));
             array_push($datasetTendencia, $imagemTelecom->tendenciaDiaria($row->filial_id, $row->data_pedido));
-            array_push($datasetMeta, $meta->meta_faturamento);
+            array_push($datasetMeta, $meta === null ? 0 : $meta->meta_faturamento);
         }
         $chartData['label'] = $label;
         $chartData['dataset'] = $dataset;
@@ -735,8 +737,7 @@ class Dashboard extends Component
 
     public function getVendedoresData()
     {
-        return Venda::query()
-            ->selectRaw('vendedor_id, sum(valor_caixa) as total_caixa')
+        $vendas =  Venda::query()
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -750,9 +751,33 @@ class Dashboard extends Component
                 $query->whereYear('data_pedido', $this->ano);
             })
             ->where('filial_id', $this->filial->id)
-            ->groupBy('vendedor_id')
-            ->orderBy('total_caixa', 'desc')
+            ->where('tipo_pedido', 'Venda')
             ->get();
+
+        $vendedores_id = $vendas->pluck('vendedor')->unique();
+
+        $vendedores = [];
+
+        foreach ($vendedores_id as $vend) {
+            $aparelhos = $vendas
+                ->where('vendedor_id', $vend->id)
+                ->where('grupo_estoque', 'APARELHO')
+                ->sum('base_faturamento_compra');
+
+            $acessorios = $vendas->where('vendedor_id', $vend->id)
+                ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
+                ->sum('valor_caixa');
+            $vendedores[] = [
+                'id' => $vend->id,
+                'vendedor' => $vend->nome,
+                'aparelhos' => $aparelhos,
+                'acessorios' => $acessorios,
+                'total' => $aparelhos + $acessorios,
+            ];
+        }
+
+
+        return $vendedores;
     }
 
     public function chartAparelho()
@@ -767,11 +792,11 @@ class Dashboard extends Component
 
         foreach ($data as $row) {
             $imagemTelecom = new ImagemTelecomService(new Venda());
-            $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mes, $this->ano);
+            $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mesSelecionado ?? $this->mes, $this->anoSelecionado ?? $this->ano);
             array_push($label, $row->filial->filial);
-            array_push($dataset, floatVal($row->total));
-            array_push($dataCounter, floatVal($row->aparelho));
-            array_push($datasetMeta, $meta->meta_aparelhos);
+            array_push($dataset, floatVal($row->total ?? 0));
+            array_push($dataCounter, floatVal($row->aparelho ?? 0));
+            array_push($datasetMeta, $meta->meta_aparelhos ?? 0);
         }
         $chartData['label'] = $label;
         $chartData['dataset'] = $dataset;
@@ -832,10 +857,11 @@ class Dashboard extends Component
 
         foreach ($data as $row) {
             $imagemTelecom = new ImagemTelecomService(new Venda());
-            $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mes, $this->ano);
+            $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mesSelecionado ?? $this->mes, $this->anoSelecioando ?? $this->ano);
+
             array_push($label, $row->filial->filial);
-            array_push($dataset, floatVal($row->total));
-            array_push($datasetMeta, floatVal($meta->meta_acessorios));
+            array_push($dataset, floatVal($row->total ?? 0));
+            array_push($datasetMeta, floatVal($meta === null ? 0 : $meta->meta_acessorios));
         }
         $chartData['label'] = $label;
         $chartData['dataset'] = $dataset;
@@ -946,15 +972,20 @@ class Dashboard extends Component
     {
         return Venda::query()
             ->selectRaw('filial_id, count(*) as aparelho,sum(base_faturamento_compra) as total')
+            ->where('tipo_pedido', 'Venda')
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
             ->when(!$this->mesSelecionado, function ($query) {
-                $query->whereMonth('data_pedido', '11');
+                $query->whereMonth('data_pedido', $this->mes);
             })
-            ->when($this->filial->id, function ($query) {
-                $query->where('filial_id', $this->filial->id);
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
             })
+            ->where('filial_id', $this->filial->id)
             ->where('grupo_estoque', 'APARELHO')
             ->groupBy('filial_id')
             ->get();
@@ -964,15 +995,20 @@ class Dashboard extends Component
     {
         return Venda::query()
             ->selectRaw('filial_id,sum(valor_caixa) as total')
+            ->where('tipo_pedido', 'Venda')
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
             ->when(!$this->mesSelecionado, function ($query) {
-                $query->whereMonth('data_pedido', '11');
+                $query->whereMonth('data_pedido', $this->mes);
             })
-            ->when($this->filial->id, function ($query) {
-                $query->where('filial_id', $this->filial->id);
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
             })
+            ->where('filial_id', $this->filial->id)
             ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
             ->groupBy('filial_id')
             ->get();
@@ -1000,5 +1036,149 @@ class Dashboard extends Component
     {
         return Grupo::query()
             ->get();
+    }
+
+    public function totalPlanos()
+    {
+        $planos = $this->getGrupos();
+
+        $grupos = [];
+
+        foreach ($planos as $plano) {
+            $modalidade = explode(';', $plano->modalidade_venda);
+            $plano_habilitacao = explode(';', $plano->plano_habilitacao);
+            $grupo_estoque = null;
+            $campo_valor = $plano->campo_valor;
+
+            $vendas = Venda::query()
+                ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+                ->whereIn('modalidade_venda', $modalidade)
+                ->whereIn('plano_habilitacao', $plano_habilitacao)
+                ->when($this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mesSelecionado);
+                })
+                ->when($this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->anoSelecionado);
+                })
+                ->when(!$this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mes);
+                })
+                ->when(!$this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->ano);
+                })
+                ->where('filial_id', $this->filial->id)
+                ->get();
+
+            $grupos[] = [
+                'id' => $plano->id,
+                'grupo' => $plano->nome,
+                'gross' => $vendas[0]->gross,
+                'total' => $vendas[0]->total
+            ];
+        }
+
+
+
+        return $grupos;
+    }
+
+    public function rankingFabricantes()
+    {
+
+        $rankingFabricantes = Venda::query()
+            ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
+            ->where('tipo_pedido', 'Venda')
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->where('filial_id', $this->filial->id)
+            ->where('grupo_estoque', 'APARELHO')
+            ->where('fabricante', '<>', '')
+            ->groupBy('fabricante')
+            ->get();
+
+
+        $fabricanteLabels = [];
+        $fabricanteDatasets = [];
+
+        foreach ($rankingFabricantes as $ranking) {
+            $fabricanteLabels[] = $ranking->fabricante;
+            $fabricanteDatasets[] = $ranking->total;
+        }
+
+
+        return [
+            'type' => 'pie',
+            'data' => [
+                'labels' => $fabricanteLabels ?? null,
+                'datasets' => [
+                    [
+                        'label' => 'R$',
+                        'data' => $fabricanteDatasets ?? null,
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public function rankingVendedores()
+    {
+
+        $rankingVendedores = Venda::query()
+            ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->where('filial_id', $this->filial->id)
+            ->groupBy('vendedor_id')
+            ->orderBy('total', 'desc')
+
+            ->get();
+
+        foreach ($rankingVendedores as $vendedor) {
+            $vendedoresData[] = $vendedor->vendedor->nome;
+            $vendedorFaturamento[] = $vendedor->total;
+        }
+
+        return [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'indexAxis' => 'y',
+
+                'legend' => [
+                    'display' => true,
+                ],
+
+            ],
+            'data' => [
+                'labels' => $vendedoresData ?? null,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Vendas',
+                        'data' => $vendedorFaturamento ?? null,
+                    ],
+
+                ]
+            ]
+        ];
     }
 }
