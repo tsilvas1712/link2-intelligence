@@ -642,11 +642,11 @@ class Dashboard extends Component
 
             ],
             'data' => [
-                'labels' => $vendedoresData,
+                'labels' => $vendedoresData ?? null,
                 'datasets' => [
                     [
                         'label' => 'Total em Vendas',
-                        'data' => $vendedorFaturamento,
+                        'data' => $vendedorFaturamento ?? null,
                     ],
 
                 ]
@@ -699,11 +699,11 @@ class Dashboard extends Component
 
             ],
             'data' => [
-                'labels' => $filialData,
+                'labels' => $filialData ?? null,
                 'datasets' => [
                     [
                         'label' => 'Total em Vendas',
-                        'data' => $filialFaturamento,
+                        'data' => $filialFaturamento ?? null,
                     ],
 
                 ]
@@ -750,11 +750,11 @@ class Dashboard extends Component
         return [
             'type' => 'pie',
             'data' => [
-                'labels' => $fabricanteLabels,
+                'labels' => $fabricanteLabels ?? null,
                 'datasets' => [
                     [
                         'label' => '# of Votes',
-                        'data' => $fabricanteDatasets,
+                        'data' => $fabricanteDatasets ?? null,
                     ]
                 ]
             ]
