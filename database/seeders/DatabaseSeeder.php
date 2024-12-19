@@ -19,12 +19,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        /*User::factory()->create([
-            'name' => 'Link2 Data Intelligence',
+        User::factory()->create([
+            'name' => 'Link2 Data Intelligense',
             'email' => 'link2datai@link2b.com.br',
-        ]);*/
+        ]);
 
-        $filiais = Filial::all();
+        /*$filiais = Filial::all();
         $Vendedores = Vendedor::all();
         $meses = ['05', '06', '07', '08', '09', '10', '11'];
 
@@ -71,6 +71,6 @@ class DatabaseSeeder extends Seeder
                 //$meta_vendedor->dias_trabalhado = '28';
                 $meta_vendedor->save();
             }
-        }
+    }*/
     }
 }
