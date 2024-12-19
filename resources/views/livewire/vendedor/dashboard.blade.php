@@ -25,7 +25,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($faturamentoTotal * 100) / $metas->meta_faturamento, 2, ',', '.');
+                            $meta = number_format(
+                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas->meta_faturamento,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -39,7 +44,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_faturamento, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_faturamento, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -57,7 +62,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($aparelhosTotal * 100) / $metas->meta_aparelhos, 2, ',', '.');
+                            $meta = number_format(
+                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -71,7 +81,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_aparelhos, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_aparelhos, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -89,7 +99,12 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(($acessoriosTotal * 100) / $metas->meta_acessorios, 2, ',', '.');
+                            $meta = number_format(
+                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas->meta_acessorios,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -103,7 +118,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas->meta_acessorios, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_acessorios, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
@@ -120,14 +135,20 @@
                 <x-chart wire:model="chartProgressao" />
             </div>
         </div>
-        <div class="flex gap-2 w-full">
-            <div class="bg-white rounded shadow p-2 w-full">
-                <x-chart wire:model="chartAparelhos" />
+        <div class="flex gap-2 w-full h-full p-2">
+            <div class="flex flex-col gap-4 w-1/2 p-2">
+                <div class="bg-white rounded shadow w-full">
+                    <x-chart wire:model="chartAparelhos" />
+                </div>
+                <div class="bg-white rounded shadow w-full">
+                    <x-chart wire:model="chartAcessorios" />
+                </div>
             </div>
-            <div class="bg-white rounded shadow p-2 w-full">
-                <x-chart wire:model="chartAcessorios" />
+            <div class="flex flex-col gap-4 w-1/2 h-full p-2">
+                <div class="bg-white rounded shadow  w-full">
+                    <x-chart wire:model="chartFabricante" />
+                </div>
             </div>
-
 
         </div>
 
@@ -136,8 +157,7 @@
             <div class="flex flex-wrap justify-center gap-4">
                 @foreach ($planos as $plano)
                     <div class="w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
-                        <a href="{{ route('detalhes.grupos', $plano['id']) }}"
-                            class="w-full flex flex-col items-center">
+                        <a href="#" class="w-full flex flex-col items-center">
                             <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
                             <div class="flex flex-row justify-between w-full gap-4">
                                 <div class="flex flex-col items-center">
