@@ -67,7 +67,6 @@ class Show extends Component
         $this->user->update([
             'name' => $validate['name'],
             'email' => $validate['email'],
-            'password' => $newPassword,
             'cargo' => $validate['cargoSelected']
         ]);
 
