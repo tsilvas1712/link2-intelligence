@@ -21,6 +21,10 @@ class Show extends Component
     public $meta_faturamento;
     public $meta_acessorios;
     public $meta_aparelhos;
+    public $meta_gross_pos;
+    public $meta_franquia_pos;
+    public $meta_gross_controle;
+    public $meta_franquia_controle;
 
     public $mes;
     public $ano;
@@ -85,6 +89,10 @@ class Show extends Component
             $this->meta_faturamento = $this->meta->meta_faturamento;
             $this->meta_acessorios = $this->meta->meta_acessorios;
             $this->meta_aparelhos = $this->meta->meta_aparelhos;
+            $this->meta_gross_pos = $this->meta->meta_gross_pos;
+            $this->meta_franquia_pos = $this->meta->meta_franquia_pos;
+            $this->meta_gross_controle = $this->meta->meta_gross_controle;
+            $this->meta_franquia_controle = $this->meta->meta_franquia_controle;
         }
 
         $this->showDrawer = true;
@@ -109,6 +117,10 @@ class Show extends Component
             $meta->meta_faturamento = $this->meta_faturamento;
             $meta->meta_acessorios = $this->meta_acessorios;
             $meta->meta_aparelhos = $this->meta_aparelhos;
+            $this->meta_gross_pos = $this->meta->meta_gross_pos;
+            $this->meta_franquia_pos = $this->meta->meta_franquia_pos;
+            $this->meta_gross_controle = $this->meta->meta_gross_controle;
+            $this->meta_franquia_controle = $this->meta->meta_franquia_controle;
             $meta->save();
         } else {
             $this->filial->meta()->create([
@@ -117,6 +129,10 @@ class Show extends Component
                 'meta_faturamento' => floatval($this->meta_faturamento),
                 'meta_acessorios' => floatval($this->meta_acessorios),
                 'meta_aparelhos' => floatval($this->meta_aparelhos),
+                'meta_gross_pos' => $this->meta_gross_pos,
+                'meta_franquia_pos' => floatval($this->meta_franquia_pos),
+                'meta_gross_controle' => $this->meta_gross_controle,
+                'meta_franquia_controle' => floatval($this->meta_franquia_controle)
             ]);
         }
 

@@ -13,7 +13,7 @@
 </head>
 
 <body class="min-h-screen font-sans antialiased ">
-    <div class="max-w-7xl flex m-auto">
+    <div class="lg:max-w-7xl lg:flex m-auto w-full">
         {{ $slot }}
 
 

@@ -42,6 +42,14 @@
                     wire:model="meta_aparelhos" />
                 <x-input label="Meta Acessórios" placeholder="Digite o valor da meta de acessórios"
                     wire:model="meta_acessorios" />
+                <x-input label="Meta Gross Pos" placeholder="Digite o valor da meta de acessórios"
+                    wire:model="meta_gross_pos" />
+                <x-input label="Meta Franquia Pos" placeholder="Digite o valor da meta de acessórios"
+                    wire:model="meta_franquia_pos" />
+                <x-input label="Meta Gross Controle" placeholder="Digite o valor da meta de acessórios"
+                    wire:model="meta_gross_controle" />
+                <x-input label="Meta Franquia Controle" placeholder="Digite o valor da meta de acessórios"
+                    wire:model="meta_franquia_controle" />
 
             </div>
 

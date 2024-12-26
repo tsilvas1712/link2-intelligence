@@ -1,7 +1,7 @@
 <div class="w-full">
     <x-header title="Dashboard" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
-        <x-slot:middle class="">
-            <div class="flex gap-2 w-full items-center">
+        <x-slot:middle>
+            <div class="flex flex-col lg:flex-row gap-2 w-full items-center">
 
                 <div class="w-full">
                     <x-choices label="Filiais" wire:model="filiais_id" :options="$this->getFiliais()">
@@ -14,11 +14,12 @@
                         @endscope
                     </x-choices>
                 </div>
-
-                <x-select label="Mês" icon="o-calendar" placeholder="Selecione o Mês" :options="$meses"
-                    wire:model="mesSelecionado" class="w-2/4" />
-                <x-select label="Ano" icon="o-calendar" placeholder="Selecione o Ano" :options="$anos"
-                    wire:model="anoSelecionado" class="w-1/4" />
+                <div class="flex w-full flex-row gap-2 w-full items-center">
+                    <x-select label="Mês" icon="o-calendar" placeholder="Selecione o Mês" :options="$meses"
+                        wire:model="mesSelecionado" class="w-2/4" />
+                    <x-select label="Ano" icon="o-calendar" placeholder="Selecione o Ano" :options="$anos"
+                        wire:model="anoSelecionado" class="w-1/4" />
+                </div>
             </div>
 
         </x-slot:middle>
@@ -30,7 +31,7 @@
 
     <div class="flex flex-col w-full gap-4 ">
 
-        <div class="grid grid-cols-3 w-full rounded shadow gap-2">
+        <div class="grid grid-cols-1 lg:grid-cols-3 w-full rounded shadow gap-2">
             <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
                 <span class="text-lg font-bold">Faturamento Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($faturamentoTotal, 2, ',', '.') }}</span>
@@ -176,18 +177,17 @@
                 </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex flex-col lg:flex-row gap-2">
                 <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
                     <x-chart wire:model="chartPlanosValor" />
                 </div>
                 <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
                     <x-chart wire:model="chartPlanosGross" />
                 </div>
-
             </div>
 
-            <div class="flex gap-2">
-                <div class="flex flex-col gap-2 w-1/2">
+            <div class="flex flex-col lg:flex-row gap-2">
+                <div class="flex flex-col gap-2 w-full lg:w-1/2">
                     <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
                         <span class="text-3xl font-bold italic">Ranking de Filiais</span>
                         <div class="w-full ">
@@ -204,7 +204,7 @@
 
                 </div>
 
-                <div class="flex flex-col items-center w-1/2 gap-4 bg-white shadow rounded p-2">
+                <div class="flex flex-col items-center w-full lg:w-1/2 gap-4 bg-white shadow rounded p-2">
                     <span class="text-3xl font-bold italic">Fabricantes</span>
                     <div class="w-full ">
                         <x-chart wire:model="chartFabricante" />
@@ -214,7 +214,7 @@
         </div>
 
         <div class="flex gap-4">
-            <div class="grid grid-cols-4 gap-2 w-full ">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full ">
                 @foreach ($filiais as $filial)
                     <a href="{{ route('filial.dashboard', $filial['id']) }}">
                         <div class="rounded shadow bg-white p-2 hover:bg-secondary">
@@ -236,10 +236,10 @@
                             <di class="flex flex-col items-center gap-2">
                                 <span class="font-bold">R$
                                     {{ number_format($filial['faturamento'], 2, ',', '.') }}</span>
-                                <div class="flex flex-row justify-between w-full">
-                                    <span class="text-xs font-bold p-2 rounded-xl bg-blue-200 shadow">R$
+                                <div class="flex flex-col gap-2 lg:flex-row justify-between w-full">
+                                    <span class="text-xs text-center font-bold p-2 rounded-xl bg-blue-200 shadow">R$
                                         {{ number_format($filial['tendencia'], 2, ',', '.') }}</span>
-                                    <span class="text-xs font-bold p-2 rounded-xl bg-orange-200 shadow">R$
+                                    <span class="text-xs text-center font-bold p-2 rounded-xl bg-orange-200 shadow">R$
                                         {{ number_format($filial['meta'], 2, ',', '.') }}</span>
                                 </div>
 

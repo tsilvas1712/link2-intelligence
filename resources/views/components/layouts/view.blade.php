@@ -14,7 +14,7 @@
 
 <body class="min-h-screen font-sans antialiased">
 
-    <div class=" max-w-6xl flex flex-col m-auto bg-gray-100 p-2 rounded gap-2">
+    <div class="lg:max-w-7xl flex flex-col m-auto bg-gray-100 p-2 rounded gap-2">
         <header class="flex justify-between bg-white shadow rounded p-2">
             <div class="!justify-end">
                 <x-button class="btn-primary  " icon="o-home" label="Home" link="{{ route('dashboard') }}" />
