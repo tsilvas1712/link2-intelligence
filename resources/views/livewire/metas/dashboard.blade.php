@@ -143,31 +143,7 @@
 
             </div>
         </div>
-        <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
-            <span class="text-xl font-bold italic text-center w-full">Total de Franquia {{ $ano }}</span>
-            <div class="flex  flex-col lg:flex-row justify-center gap-4">
-                @foreach ($planos as $plano)
-                    <div class=" w-full lg:w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
-                        <a href="{{ route('detalhes.grupos', $plano['id']) }}"
-                            class="w-full flex flex-col items-center">
-                            <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
-                            <div class="flex flex-row justify-between w-full gap-4">
-                                <div class="flex flex-col items-center">
-                                    <span class="font-bold">Total</span>
-                                    <span>R$ {{ number_format($plano['total'], 2, ',', '.') }}</span>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <span class="font-bold">Gross</span>
-                                    <span>{{ $plano['gross'] }}</span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                @endforeach
 
-            </div>
-
-        </div>
 
         <div class="flex flex-col gap-2 ">
             <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
@@ -184,6 +160,31 @@
                 <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
                     <x-chart wire:model="chartPlanosGross" />
                 </div>
+            </div>
+            <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
+                <span class="text-xl font-bold italic text-center w-full">Total de Franquia {{ $ano }}</span>
+                <div class="flex  flex-col lg:flex-row justify-center gap-4">
+                    @foreach ($planos as $plano)
+                        <div class=" w-full lg:w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                            <a href="{{ route('detalhes.grupos', $plano['id']) }}"
+                                class="w-full flex flex-col items-center">
+                                <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
+                                <div class="flex flex-row justify-between w-full gap-4">
+                                    <div class="flex flex-col items-center">
+                                        <span class="font-bold">Total</span>
+                                        <span>R$ {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <span class="font-bold">Gross</span>
+                                        <span>{{ $plano['gross'] }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    @endforeach
+
+                </div>
+
             </div>
 
             <div class="flex flex-col lg:flex-row gap-2">

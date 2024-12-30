@@ -123,7 +123,7 @@ class Dashboard extends Component
                 'labels' =>  $chartPlanosLabel,
                 'datasets' => [
                     [
-                        'label' => 'Total em Planos',
+                        'label' => 'Gross Total',
                         'data' => $chartPlanosGross,
                         'borderColor' => '#2C5494',
                         'backgroundColor' => '#849CBC',
