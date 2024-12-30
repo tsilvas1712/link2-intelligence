@@ -14,7 +14,7 @@
 
     <div class="flex flex-col gap-4">
 
-        <div class="grid grid-cols-3 w-full rounded shadow gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full rounded shadow gap-2">
             <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
                 <span class="text-lg font-bold">Faturamento Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($faturamentoTotal, 2, ',', '.') }}</span>
@@ -137,7 +137,7 @@
                 <x-chart wire:model="chartProgressao" />
             </div>
         </div>
-        <div class="flex gap-2 w-full">
+        <div class="flex flex-col lg:flex-row gap-2 w-full">
             <div class="bg-white rounded shadow p-2 w-full">
                 <x-chart wire:model="chartAparelhos" />
             </div>
@@ -150,9 +150,9 @@
 
         <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
             <span class="text-xl font-bold italic text-center w-full">Grupos de Planos</span>
-            <div class="flex flex-wrap justify-center gap-4">
+            <div class="flex flex-col lg:flex-row justify-center gap-4">
                 @foreach ($planos as $plano)
-                    <div class="w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                    <div class="w-full bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
                         <a href="{{ route('detalhes.grupos', $plano['id']) }}"
                             class="w-full flex flex-col items-center">
                             <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
@@ -174,16 +174,16 @@
 
         </div>
         <div class="border-b-2 border-primary w-full">
-            <span class="text-xl text-center font-bold ">Vendedores</span>
+            <span class="text-xl text-center font-bold ">Ranking</span>
         </div>
-        <div class="flex flex-row gap-4  ">
-            <div class="bg-white shadow rounded p-2 w-1/2 justify-center flex flex-col items-center">
+        <div class="flex flex-col lg:flex-row gap-4  ">
+            <div class="bg-white shadow rounded p-2 lg:w-1/2 justify-center flex flex-col items-center">
                 <span class="text-xl font-bold italic ">Fabricantes</span>
                 <div class="w-full ">
                     <x-chart wire:model="chartFabricante" />
                 </div>
             </div>
-            <div class="bg-white shadow rounded p-2 w-1/2 justify-center flex flex-col items-center">
+            <div class="bg-white shadow rounded p-2 w-full lg:w-1/2 justify-center flex flex-col items-center">
                 <span class="text-xl font-bold italic">Ranking Vendedores</span>
                 <div class="w-full ">
                     <x-chart wire:model="chartVendedores" />
@@ -191,14 +191,16 @@
             </div>
         </div>
 
+        <div class="border-b-2 border-primary w-full">
+            <span class="text-xl text-center font-bold ">Vendedores</span>
+        </div>
 
-
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
             @foreach ($vendedores as $vendedor)
                 <div class="bg-white rounded shadow p-4 w-full hover:bg-secondary">
                     <a href="{{ route('vendedor.dashboard', $vendedor['id']) }}">
-                        <h2 class="text-md font-semibold">{{ $vendedor['vendedor'] }}</h2>
-                        <div class="flex justify-between items-center">
+                        <h2 class="text-sm lg:text-md font-semibold">{{ $vendedor['vendedor'] }}</h2>
+                        <div class="flex flex-col lg:flex-row justify-between items-center">
                             <span class="text-sm text-gray-500">Total de Vendas</span>
                             <span class="text-xs font-semibold">R$
                                 {{ number_format($vendedor['total'], 2, ',', '.') }}</span>

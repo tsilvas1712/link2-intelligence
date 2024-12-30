@@ -1,19 +1,21 @@
 <div>
     <x-header title="{{ $vendedor->nome }}" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
         <x-slot:middle class="!justify-end">
-            <div class="flex gap-2">
+            <div class="flex flex-col lg:flex-row gap-2">
                 <x-select icon="o-calendar" placeholder="Selecione o Mês" :options="$meses" wire:model="mesSelecionado" />
                 <x-select icon="o-calendar" placeholder="Selecione o Ano" :options="$anos" wire:model="anoSelecionado" />
             </div>
 
         </x-slot:middle>
-        <x-slot:actions>
-            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" wire:click="filter" />
+        <x-slot:actions class="w-full lg:w-[130px]">
+            <div class="w-full">
+                <x-button icon="o-funnel" class="btn-primary w-full" label="Filtrar" wire:click="filter" />
+            </div>
         </x-slot:actions>
     </x-header>
 
     <div class="flex flex-col gap-4">
-        <div class="grid grid-cols-3 w-full rounded shadow gap-2">
+        <div class="grid grid-cols-1 lg:grid-cols-3 w-full rounded shadow gap-2">
             <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
                 <span class="text-lg font-bold">Faturamento Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($faturamentoTotal, 2, ',', '.') }}</span>
@@ -135,8 +137,8 @@
                 <x-chart wire:model="chartProgressao" />
             </div>
         </div>
-        <div class="flex gap-2 w-full h-full p-2">
-            <div class="flex flex-col gap-4 w-1/2 p-2">
+        <div class="flex flex-col lg:flex-row gap-2 w-full h-full p-2">
+            <div class="flex flex-col gap-4 lg:w-1/2 p-2">
                 <div class="bg-white rounded shadow w-full">
                     <x-chart wire:model="chartAparelhos" />
                 </div>
@@ -144,7 +146,7 @@
                     <x-chart wire:model="chartAcessorios" />
                 </div>
             </div>
-            <div class="flex flex-col gap-4 w-1/2 h-full p-2">
+            <div class="flex flex-col gap-4 lg:w-1/2 h-full p-2">
                 <div class="bg-white rounded shadow  w-full">
                     <x-chart wire:model="chartFabricante" />
                 </div>
@@ -154,9 +156,9 @@
 
         <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
             <span class="text-xl font-bold italic text-center w-full">Grupos de Planos</span>
-            <div class="flex flex-wrap justify-center gap-4">
+            <div class="flex flex-col lg:flex-row flex-wrap justify-center gap-4">
                 @foreach ($planos as $plano)
-                    <div class="w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                    <div class="w-full bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
                         <a href="#" class="w-full flex flex-col items-center">
                             <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
                             <div class="flex flex-row justify-between w-full gap-4">
