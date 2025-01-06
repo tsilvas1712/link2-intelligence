@@ -199,12 +199,31 @@
             @foreach ($vendedores as $vendedor)
                 <div class="bg-white rounded shadow p-4 w-full hover:bg-secondary">
                     <a href="{{ route('vendedor.dashboard', $vendedor['id']) }}">
-                        <h2 class="text-sm lg:text-md font-semibold">{{ $vendedor['vendedor'] }}</h2>
-                        <div class="flex flex-col lg:flex-row justify-between items-center">
-                            <span class="text-sm text-gray-500">Total de Vendas</span>
-                            <span class="text-xs font-semibold">R$
-                                {{ number_format($vendedor['total'], 2, ',', '.') }}</span>
+                        <div class="flex  justify-between">
+                            <span class="text-sm font-bold">{{ $vendedor['vendedor'] }}</span>
+                            @if ($vendedor['status'] === 'up')
+                                <x-icon name="o-arrow-trending-up" class="w-6 h-6  text-green-500" />
+                            @endif
+
+                            @if ($vendedor['status'] === 'down')
+                                <x-icon name="o-arrow-trending-down" class="w-6 h-6  text-red-500" />
+                            @endif
+
+                            @if ($vendedor['status'] === 'ok')
+                                <x-icon name="o-arrow-right" class="w-6 h-6  text-blue-500" />
+                            @endif
                         </div>
+                        <di class="flex flex-col items-center gap-2">
+                            <span class="font-bold">R$
+                                {{ number_format($vendedor['total'], 2, ',', '.') }}</span>
+                            <div class="flex flex-col gap-2 lg:flex-row justify-between w-full">
+                                <span class="text-xs text-center font-bold p-2 rounded-xl bg-blue-200 shadow">R$
+                                    {{ number_format($vendedor['total'], 2, ',', '.') }}</span>
+                                <span class="text-xs text-center font-bold p-2 rounded-xl bg-orange-200 shadow">R$
+                                    {{ number_format($vendedor['metas'], 2, ',', '.') }}</span>
+                            </div>
+
+                        </di>
                     </a>
                 </div>
             @endforeach

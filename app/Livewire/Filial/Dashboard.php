@@ -5,6 +5,7 @@ namespace App\Livewire\Filial;
 use App\Models\Filial;
 use App\Models\Grupo;
 use App\Models\MetasFiliais;
+use App\Models\MetasVendedores;
 use App\Models\Venda;
 use App\Services\ImagemTelecomService;
 use Carbon\Carbon;
@@ -63,8 +64,8 @@ class Dashboard extends Component
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '11'; //Carbon::now()->format('m');
-        $this->ano = Carbon::now()->format("Y");
+        $this->mes =  '05'; //Carbon::now()->format('m');
+        $this->ano = '2024'; //Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
         $this->anos = $this->getAnos();
@@ -737,6 +738,7 @@ class Dashboard extends Component
 
     public function getVendedoresData()
     {
+
         $vendas =  Venda::query()
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
@@ -757,22 +759,61 @@ class Dashboard extends Component
         $vendedores_id = $vendas->pluck('vendedor')->unique();
 
         $vendedores = [];
+        $status = ['up', 'down', 'ok'];
+
 
         foreach ($vendedores_id as $vend) {
+            $metas = MetasVendedores::query()
+                ->where('vendedor_id', $vend->id)
+                ->when($this->mesSelecionado, function ($query) {
+                    $query->where('mes', $this->mesSelecionado);
+                })
+                ->when($this->anoSelecionado, function ($query) {
+                    $query->where('ano', $this->mesSelecionado);
+                })
+                ->when(!$this->mesSelecionado, function ($query) {
+                    $query->where('mes', $this->mes);
+                })
+                ->when(!$this->anoSelecionado, function ($query) {
+                    $query->where('ano', $this->ano);
+                })
+                ->first();
+
             $aparelhos = $vendas
                 ->where('vendedor_id', $vend->id)
                 ->where('grupo_estoque', 'APARELHO')
                 ->sum('base_faturamento_compra');
-
             $acessorios = $vendas->where('vendedor_id', $vend->id)
                 ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
                 ->sum('valor_caixa');
+
+            $meta = $metas->meta_acessorios + $metas->metas_aparelhos;
+            $faturamento = $aparelhos + $acessorios;
+
+            $perc = $meta === 0 ? 0 : ($faturamento / $meta) * 100;
+
+            $key = 1;
+
+            if ($perc > 100) {
+                $key = 0;
+            }
+
+            if ($key >= 80 && $key <= 100) {
+                $key = 2;
+            }
+
+
+
             $vendedores[] = [
                 'id' => $vend->id,
                 'vendedor' => $vend->nome,
                 'aparelhos' => $aparelhos,
                 'acessorios' => $acessorios,
-                'total' => $aparelhos + $acessorios,
+                'metas' => $meta,
+                'total' => $faturamento,
+                'status' => $status[$key]
+
+
             ];
         }
 

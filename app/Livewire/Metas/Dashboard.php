@@ -364,7 +364,7 @@ class Dashboard extends Component
             $meta = $imagemTelecom->metaFilial($row->filial_id, $this->mesSelecionado ?? $this->mes, $this->anoSelecionado ?? $this->ano)['meta_faturamento'] ?? 0;
             $faturamento = $aparelhos + $acessorios + $chips + $recarga;
 
-            $perc = ($faturamento / $meta) * 100;
+            $perc = $meta === 0 ? 0 : ($faturamento / $meta) * 100;
 
             $key = 1;
 
@@ -372,7 +372,7 @@ class Dashboard extends Component
                 $key = 0;
             }
 
-            if ($key > 95 && $key < 100) {
+            if ($key >= 80 && $key <= 100) {
                 $key = 2;
             }
 

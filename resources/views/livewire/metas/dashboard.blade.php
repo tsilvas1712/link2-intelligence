@@ -43,12 +43,9 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(
-                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas[0]['meta_faturamento'],
-                                2,
-                                ',',
-                                '.',
-                            );
+                            //TODO: VALIDAR META QUANDO VIER ZERADO;
+                            $meta = 80.0;
+
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -80,12 +77,7 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(
-                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas[0]['meta_aparelhos'],
-                                2,
-                                ',',
-                                '.',
-                            );
+                            $meta = 80.0;
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -117,12 +109,8 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = number_format(
-                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas[0]['meta_acessorios'],
-                                2,
-                                ',',
-                                '.',
-                            );
+                            //TODO: VALIDAR META QUANDO VIER ZERADO;
+                            $meta = 80.0;
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
