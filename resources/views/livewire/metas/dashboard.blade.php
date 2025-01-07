@@ -43,9 +43,14 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            //TODO: VALIDAR META QUANDO VIER ZERADO;
-                            $meta = 80.0;
-
+                            $meta = number_format(
+                                $faturamentoTotal === 0 || $metas[0]['meta_faturamento'] === null
+                                    ? 0
+                                    : ($faturamentoTotal / $metas[0]['meta_faturamento']) * 100,
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -77,7 +82,14 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            $meta = 80.0;
+                            $meta = number_format(
+                                $aparelhosTotal === 0 || $metas[0]['meta_aparelhos'] === null
+                                    ? 0
+                                    : ($aparelhosTotal * 100) / $metas[0]['meta_aparelhos'],
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -109,8 +121,14 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
-                            //TODO: VALIDAR META QUANDO VIER ZERADO;
-                            $meta = 80.0;
+                            $meta = number_format(
+                                $acessoriosTotal === 0 || $metas[0]['meta_acessorios'] === null
+                                    ? 0
+                                    : ($acessoriosTotal * 100) / $metas[0]['meta_acessorios'],
+                                2,
+                                ',',
+                                '.',
+                            );
                         @endphp
                         <span class="text-lg font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)

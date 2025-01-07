@@ -29,6 +29,8 @@ class Show extends Component
     public $mes;
     public $ano;
 
+    public $meta_atual;
+
     public $meses = [
         ['id' => '01', 'name' => 'Janeiro'],
         ['id' => '02', 'name' => 'Fevereiro'],
@@ -50,6 +52,10 @@ class Show extends Component
         $this->filial = Filial::find($id);
         $this->metas = MetasFiliais::where("filial_id", $this->filial->id)
             ->orderBy("created_at", "desc")
+            ->first();
+        $this->meta_atual = MetasFiliais::where('filial_id', $this->filial->id)
+            ->orderBy("ano", "desc")
+            ->orderBy("mes", "desc")
             ->first();
     }
     public function render()

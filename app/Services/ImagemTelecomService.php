@@ -29,7 +29,6 @@ class ImagemTelecomService
 
     public function tendencia($total)
     {
-
         $totalDias = $this->vendas->query()
             ->select('data_pedido')
             ->whereMonth('data_pedido', '=', '05')
@@ -226,6 +225,7 @@ class ImagemTelecomService
 
     public function tendenciaDiaria($filial_id, $data_pedido)
     {
+
         $firstDay = Carbon::parse($data_pedido)->startOfMonth();
         $now = Carbon::parse($data_pedido);
         $mediaDia = $firstDay->diffInDays($now) + 1;
