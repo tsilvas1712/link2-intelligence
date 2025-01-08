@@ -64,7 +64,7 @@ class Dashboard extends Component
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '11'; //Carbon::now()->format('m');
+        $this->mes =  '12'; //Carbon::now()->format('m');
         $this->ano = '2024'; //Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
@@ -787,7 +787,8 @@ class Dashboard extends Component
                 ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
                 ->sum('valor_caixa');
 
-            $meta = $metas->meta_acessorios + $metas->metas_aparelhos;
+
+            $meta = $metas === null ? 0 : ($metas->meta_acessorios  + $metas->metas_aparelhos);
             $faturamento = $aparelhos + $acessorios;
 
             $perc = $meta === 0 ? 0 : ($faturamento / $meta) * 100;
@@ -1091,6 +1092,24 @@ class Dashboard extends Component
             $grupo_estoque = null;
             $campo_valor = $plano->campo_valor;
 
+            $metas = MetasFiliais::query()
+                ->selectRaw('sum(meta_pos) as total_meta_pos,sum(meta_pre) as total_meta_pre,sum(meta_controle) as total_meta_controle')
+                ->selectRaw('sum(meta_gross_pos) as total_meta_gross_pos,sum(meta_gross_pre) as total_meta_gross_pre,sum(meta_gross_controle) as total_meta_gross_controle')
+                ->when($this->mesSelecionado, function ($query) {
+                    $query->where('mes', $this->mesSelecionado);
+                })
+                ->when($this->anoSelecionado, function ($query) {
+                    $query->where('ano', $this->anoSelecionado);
+                })
+                ->when(!$this->mesSelecionado, function ($query) {
+                    $query->where('mes', $this->mes);
+                })
+                ->when(!$this->anoSelecionado, function ($query) {
+                    $query->where('ano', $this->ano);
+                })
+                ->where('filial_id', $this->filial->id)
+                ->get();
+
             $vendas = Venda::query()
                 ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
                 ->whereIn('modalidade_venda', $modalidade)
@@ -1110,11 +1129,16 @@ class Dashboard extends Component
                 ->where('filial_id', $this->filial->id)
                 ->get();
 
+            $nome_campo = explode(' ', $this->tirarAcentos($plano->nome));
+
+
             $grupos[] = [
                 'id' => $plano->id,
                 'grupo' => $plano->nome,
                 'gross' => $vendas[0]->gross,
-                'total' => $vendas[0]->total
+                'meta_gross' => $metas[0]['total_meta_gross_' . $nome_campo[1]] ?? 0,
+                'total' => $vendas[0]->total,
+                'meta_plano' => $metas[0]['total_meta_' . $nome_campo[1]],
             ];
         }
 
@@ -1221,5 +1245,10 @@ class Dashboard extends Component
                 ]
             ]
         ];
+    }
+
+    public function tirarAcentos($string)
+    {
+        return preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), strtolower($string));
     }
 }

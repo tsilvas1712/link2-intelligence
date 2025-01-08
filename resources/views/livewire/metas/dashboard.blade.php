@@ -176,13 +176,19 @@
                                 class="w-full flex flex-col items-center">
                                 <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
                                 <div class="flex flex-row justify-between w-full gap-4">
-                                    <div class="flex flex-col items-center">
-                                        <span class="font-bold">Total</span>
-                                        <span>R$ {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                    <div class="flex flex-col items-center w-full gap-2">
+                                        <span>Total Plano</span>
+                                        <span class="p-2 bg-white font-bold rounded shadow w-full text-xs">R$
+                                            {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                        <span class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">R$
+                                            {{ number_format($plano['meta_plano'], 2, ',', '.') }}</span>
                                     </div>
-                                    <div class="flex flex-col items-center">
-                                        <span class="font-bold">Gross</span>
-                                        <span>{{ $plano['gross'] }}</span>
+                                    <div class="flex flex-col items-center w-full gap-2">
+                                        <span>Total Gross</span>
+                                        <span
+                                            class="p-2 bg-white font-bold rounded shadow w-full text-xs">{{ $plano['gross'] }}</span>
+                                        <span
+                                            class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">{{ $plano['meta_gross'] }}</span>
                                     </div>
                                 </div>
                             </a>

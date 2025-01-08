@@ -27,8 +27,11 @@
                     </div>
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
+
                             $meta = number_format(
-                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas->meta_faturamento,
+                                $faturamentoTotal === 0 || $metas === null
+                                    ? 0
+                                    : ($faturamentoTotal * 100) / $metas->meta_faturamento,
                                 2,
                                 ',',
                                 '.',
@@ -65,7 +68,9 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
+                                $aparelhosTotal === 0 || $metas === null
+                                    ? 0
+                                    : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
                                 2,
                                 ',',
                                 '.',
@@ -102,7 +107,9 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas->meta_acessorios,
+                                $acessoriosTotal === 0 || $metas === null
+                                    ? 0
+                                    : ($acessoriosTotal * 100) / $metas->meta_acessorios,
                                 2,
                                 ',',
                                 '.',
@@ -156,19 +163,26 @@
 
         <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
             <span class="text-xl font-bold italic text-center w-full">Grupos de Planos</span>
-            <div class="flex flex-col lg:flex-row flex-wrap justify-center gap-4">
+            <div class="flex flex-col lg:flex-row justify-center gap-4">
                 @foreach ($planos as $plano)
-                    <div class="w-full bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
-                        <a href="#" class="w-full flex flex-col items-center">
+                    <div class=" w-full lg:w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                        <a href="{{ route('detalhes.grupos', $plano['id']) }}"
+                            class="w-full flex flex-col items-center">
                             <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
                             <div class="flex flex-row justify-between w-full gap-4">
-                                <div class="flex flex-col items-center">
-                                    <span class="font-bold">Total</span>
-                                    <span>R$ {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                <div class="flex flex-col items-center w-full gap-2">
+                                    <span>Total Plano</span>
+                                    <span class="p-2 bg-white font-bold rounded shadow w-full text-xs">R$
+                                        {{ number_format($plano['total'], 2, ',', '.') }}</span>
+                                    <span class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">R$
+                                        {{ number_format($plano['meta_plano'], 2, ',', '.') }}</span>
                                 </div>
-                                <div class="flex flex-col items-center">
-                                    <span class="font-bold">Gross</span>
-                                    <span>{{ $plano['gross'] }}</span>
+                                <div class="flex flex-col items-center w-full gap-2">
+                                    <span>Total Gross</span>
+                                    <span
+                                        class="p-2 bg-white font-bold rounded shadow w-full text-xs">{{ $plano['gross'] }}</span>
+                                    <span
+                                        class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">{{ $plano['meta_gross'] }}</span>
                                 </div>
                             </div>
                         </a>

@@ -23,11 +23,14 @@ class DatasysService
         //
     }
 
-    public function getDatasysData($day=1)
+    public function getDatasysData($day = 1)
     {
 
-        $dateInicial = Carbon::now()->subDays($day)->format('Y-m-d');
-        $dateFinal = Carbon::now()->subDays($day)->format('Y-m-d');
+        $dateInicial = Carbon::parse('2025-01-01')->subDays($day)->format('Y-m-d');
+        $dateFinal = Carbon::parse('2025-01-01')->subDays($day)->format('Y-m-d');
+
+
+
 
         $curl = curl_init();
 

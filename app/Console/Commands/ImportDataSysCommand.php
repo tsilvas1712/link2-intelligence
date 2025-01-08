@@ -27,10 +27,9 @@ class ImportDataSysCommand extends Command
      */
     public function handle()
     {
-        for ($i = 30; $i >=1; $i--) {
+        for ($i = 31; $i >= 1; $i--) {
 
             ExecImportDatasysJob::dispatch($i);
         }
-
     }
 }
