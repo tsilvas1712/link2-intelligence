@@ -191,6 +191,15 @@
 
             </div>
 
+            <div class="flex flex-col lg:flex-row gap-2">
+                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
+                    <x-chart wire:model="chartPlanosValor" />
+                </div>
+                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
+                    <x-chart wire:model="chartPlanosGross" />
+                </div>
+            </div>
+
         </div>
 
 

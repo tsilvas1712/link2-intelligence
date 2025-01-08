@@ -59,6 +59,11 @@ class Dashboard extends Component
     public $chartFabricante;
     public $chartVendedores;
 
+    public $chartPlanosValor;
+
+    public $chartPlanosGross;
+
+
 
 
     public function mount($id)
@@ -162,6 +167,74 @@ class Dashboard extends Component
 
             ]
         ];
+
+        $chartPlanosLabel = [];
+        $chartPlanosGross = [];
+        $chartPlanosTotal = [];
+
+        foreach ($planos as $plano) {
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
+        }
+
+        $this->chartPlanosValor = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosTotal,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
+
+        $this->chartPlanosGross = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Gross Total',
+                        'data' => $chartPlanosGross,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
     }
     #[Layout("components.layouts.view")]
     public function render()
@@ -224,6 +297,70 @@ class Dashboard extends Component
         $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
         $this->planos = $this->totalPlanos();
         $this->chartFabricante = $this->rankingFabricantes();
+
+        foreach ($this->totalPlanos() as $plano) {
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
+        }
+
+        $this->chartPlanosValor = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosTotal,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
+
+        $this->chartPlanosGross = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosGross,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
     }
 
     public function getFaturamento()

@@ -58,6 +58,10 @@ class Dashboard extends Component
 
     public $chartFabricante;
 
+    public $chartPlanosValor;
+
+    public $chartPlanosGross;
+
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
@@ -154,6 +158,70 @@ class Dashboard extends Component
 
             ]
         ];
+
+        foreach ($planos as $plano) {
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
+        }
+
+        $this->chartPlanosValor = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosTotal,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
+
+        $this->chartPlanosGross = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Gross Total',
+                        'data' => $chartPlanosGross,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
     }
 
     #[Layout("components.layouts.view")]
@@ -215,6 +283,70 @@ class Dashboard extends Component
         $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
         //$this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
         $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
+
+        foreach ($this->totalPlanos() as $plano) {
+            $chartPlanosLabel[] = $plano['grupo'];
+            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosGross[] = $plano['gross'];
+        }
+
+        $this->chartPlanosValor = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosTotal,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
+
+        $this->chartPlanosGross = [
+            'type' => 'bar',
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+
+                'legend' => [
+                    'display' => true,
+
+                ],
+
+
+            ],
+            'data' => [
+                'labels' =>  $chartPlanosLabel,
+                'datasets' => [
+                    [
+                        'label' => 'Total em Planos',
+                        'data' => $chartPlanosGross,
+                        'borderColor' => '#2C5494',
+                        'backgroundColor' => '#849CBC',
+                    ],
+
+
+                ],
+
+            ]
+        ];
     }
 
     public function getFaturamento()
