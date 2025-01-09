@@ -8,7 +8,8 @@
             @if ($meta_atual)
                 <div class="flex flex-col gap-4 mt-4">
                     <div class="flex justify-between text-sm p-2 bg-white rounded shadow-sm">
-                        <span><b>Mes: </b>{{ $meses[$meta_atual->mes - 1]['name'] }}</span>
+                        <span><b>Mes:
+                            </b>{{ $meses[$meta_atual->mes - 1 < 0 ? 0 : $meta_atual->mes - 1]['name'] }}</span>
                         <span><b>Ano: </b>{{ $meta_atual->ano }}</span>
                         <span><b>Total Dias Mês: </b>{{ $meta_atual->total_dias_mes }}</span>
                         <span><b>Dias Trabalhados: </b>{{ $meta_atual->dias_trabalhado }}</span>
@@ -64,7 +65,7 @@
             <div class="flex flex-col gap-2 mb-8 w-full">
                 @if ($meta)
                     <span
-                        class="font-bold text-primary text-xl">{{ $meses[$meta->mes - 1]['name'] . '/' . $meta->ano }}</span>
+                        class="font-bold text-primary text-xl">{{ $meses[$meta->mes - 1 < 0 ? 0 : $meta->mes - 1]['name'] . '/' . $meta->ano }}</span>
                 @else
                     <span class="font-bold text-primary text-xl">Nova Meta</span>
                     <x-select label="Selecione o Mês" placeholder="Escolha um mês" icon="o-calendar" :options="$meses"
@@ -74,10 +75,10 @@
                 <div class="flex gap-2 w-full">
                     <div class="w-full">
                         <x-input label="Totais de Dias Mês" placeholder="Digite o Total de Dias Trabalhado"
-                            wire:model="meta_faturamento" class="w-full" />
+                            wire:model="total_dias_mes" class="w-full" />
                     </div>
                     <div class="w-full">
-                        <x-input label="Dia" placeholder="Dia Atual" wire:model="meta_aparelhos" />
+                        <x-input label="Dia" placeholder="Dia Atual" wire:model="dias_trabalhado" />
                     </div>
                 </div>
 

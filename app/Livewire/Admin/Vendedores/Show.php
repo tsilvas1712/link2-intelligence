@@ -21,6 +21,13 @@ class Show extends Component
     public $meta_faturamento;
     public $meta_acessorios;
     public $meta_aparelhos;
+    public $meta_gross_pos;
+
+    public $meta_gross_controle;
+
+    public $meta_franquia_controle;
+
+    public $meta_franquia_pos;
 
     public $mes;
     public $ano;
@@ -89,9 +96,20 @@ class Show extends Component
                 ->where('id', $id)
                 ->first();
 
+            //meta_pos" => "28915.00"
+            //"meta_gross_pos" => 388
+            // "meta_pre" => "10244.00"
+            //"meta_gross_pre" => 2490
+            //"meta_controle" => "15665.00"
+            //"meta_gross_controle" => 951
+
             $this->meta_faturamento = $this->meta->meta_faturamento;
             $this->meta_acessorios = $this->meta->meta_acessorios;
             $this->meta_aparelhos = $this->meta->meta_aparelhos;
+            $this->meta_franquia_controle = $this->meta->meta_controle;
+            $this->meta_franquia_pos = $this->meta->meta_pos;
+            $this->meta_gross_controle = $this->meta->meta_gross_controle;
+            $this->meta_gross_pos = $this->meta->meta_gross_pos;
         }
 
         $this->showDrawer = true;
@@ -116,6 +134,12 @@ class Show extends Component
             $meta->meta_faturamento = $this->meta_faturamento;
             $meta->meta_acessorios = $this->meta_acessorios;
             $meta->meta_aparelhos = $this->meta_aparelhos;
+            $meta->meta_controle = $this->meta_franquia_controle;
+            $meta->meta_pos = $this->meta_franquia_pos;
+            $meta->meta_gross_controle = $this->meta_gross_controle;
+            $meta->meta_gross_pos = $this->meta_gross_pos;
+
+            dd($meta);
             $meta->save();
         } else {
             $this->vendedor->metas()->create([
@@ -124,6 +148,10 @@ class Show extends Component
                 'meta_faturamento' => floatval($this->meta_faturamento),
                 'meta_acessorios' => floatval($this->meta_acessorios),
                 'meta_aparelhos' => floatval($this->meta_aparelhos),
+                'meta_controle' => floatval($this->meta_franquia_controle),
+                'meta_pos' => floatval($this->meta_franquia_pos),
+                'meta_gross_controle' => floatval($this->meta_gross_controle),
+                'meta_gross_pos' => floatval($this->meta_gross_pos),
             ]);
         }
 

@@ -71,11 +71,6 @@
                     <x-input label="Ano" placeholder="Digite o ano" wire:model="ano" />
                 @endif
 
-                <div class="flex gap-2 w-full">
-                    <div class="w-full">
-                        <x-input label="Dia" placeholder="Dia Atual" wire:model="meta_aparelhos" />
-                    </div>
-                </div>
 
                 <div class="flex gap-2 w-full">
                     <div class="w-full">
@@ -93,21 +88,21 @@
                             wire:model="meta_acessorios" />
                     </div>
                     <div class="w-full">
-                        <x-input label="Meta Pos" placeholder="Digite o valor da meta de acessórios"
+                        <x-input label="Meta Pos" placeholder="Digite o valor da meta de Pos"
                             wire:model="meta_franquia_pos" />
                     </div>
                     <div class="w-full">
-                        <x-input label="Meta Controle" placeholder="Digite o valor da meta de acessórios"
+                        <x-input label="Meta Controle" placeholder="Digite o valor da meta de Controle"
                             wire:model="meta_franquia_controle" />
                     </div>
                 </div>
                 <div class="flex gap-2">
                     <div class="w-full">
-                        <x-input label="Meta Gross Pos" placeholder="Digite o valor da meta de acessórios"
+                        <x-input label="Meta Gross Pos" placeholder="Digite o valor da meta de Gros Pos"
                             wire:model="meta_gross_pos" />
                     </div>
                     <div class="w-full">
-                        <x-input label="Meta Gross Controle" placeholder="Digite o valor da meta de acessórios"
+                        <x-input label="Meta Gross Controle" placeholder="Digite o valor da meta de Gros Controle"
                             wire:model="meta_gross_controle" />
                     </div>
 

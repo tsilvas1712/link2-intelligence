@@ -25,6 +25,8 @@ class Show extends Component
     public $meta_franquia_pos;
     public $meta_gross_controle;
     public $meta_franquia_controle;
+    public $total_dias_mes;
+    public $dias_trabalhado;
 
     public $mes;
     public $ano;
@@ -92,13 +94,34 @@ class Show extends Component
                 ->where('id', $id)
                 ->first();
 
+
+            /*
+               "meta_faturamento" => "284444.00"
+                "meta_acessorios" => "20129.00"
+                "meta_aparelhos" => "284444.00"
+                "mes" => "12"
+                "ano" => "2024"
+                "created_at" => "2025-01-09 11:34:06"
+                "updated_at" => "2025-01-09 11:34:06"
+                "meta_pos" => "22512.00"
+                "meta_gross_pos" => 139
+                "meta_pre" => "1201.00"
+                "meta_gross_pre" => 10
+                "meta_controle" => "12109.00"
+                "meta_gross_controle" => 140
+                "total_dias_mes" => "28.00"
+                "dias_trabalhado" => "28.00"
+            */
+
             $this->meta_faturamento = $this->meta->meta_faturamento;
             $this->meta_acessorios = $this->meta->meta_acessorios;
             $this->meta_aparelhos = $this->meta->meta_aparelhos;
             $this->meta_gross_pos = $this->meta->meta_gross_pos;
-            $this->meta_franquia_pos = $this->meta->meta_franquia_pos;
+            $this->meta_franquia_pos = $this->meta->meta_pos;
             $this->meta_gross_controle = $this->meta->meta_gross_controle;
-            $this->meta_franquia_controle = $this->meta->meta_franquia_controle;
+            $this->meta_franquia_controle = $this->meta->meta_controle;
+            $this->total_dias_mes = $this->meta->total_dias_mes;
+            $this->dias_trabalhado = $this->meta->dias_trabalhado;
         }
 
         $this->showDrawer = true;
@@ -123,10 +146,14 @@ class Show extends Component
             $meta->meta_faturamento = $this->meta_faturamento;
             $meta->meta_acessorios = $this->meta_acessorios;
             $meta->meta_aparelhos = $this->meta_aparelhos;
-            $this->meta_gross_pos = $this->meta->meta_gross_pos;
-            $this->meta_franquia_pos = $this->meta->meta_franquia_pos;
-            $this->meta_gross_controle = $this->meta->meta_gross_controle;
-            $this->meta_franquia_controle = $this->meta->meta_franquia_controle;
+            $meta->meta_gross_pos = $this->meta_gross_pos;
+            $meta->meta_pos = $this->meta_franquia_pos;
+            $meta->meta_gross_controle = $this->meta_gross_controle;
+            $meta->meta_controle = $this->meta_franquia_controle;
+            $meta->total_dias_mes = $this->total_dias_mes;
+            $meta->dias_trabalhado = $this->dias_trabalhado;
+
+
             $meta->save();
         } else {
             $this->filial->meta()->create([
@@ -136,9 +163,11 @@ class Show extends Component
                 'meta_acessorios' => floatval($this->meta_acessorios),
                 'meta_aparelhos' => floatval($this->meta_aparelhos),
                 'meta_gross_pos' => $this->meta_gross_pos,
-                'meta_franquia_pos' => floatval($this->meta_franquia_pos),
+                'meta_pos' => floatval($this->meta_franquia_pos),
                 'meta_gross_controle' => $this->meta_gross_controle,
-                'meta_franquia_controle' => floatval($this->meta_franquia_controle)
+                'meta_controle' => floatval($this->meta_franquia_controle),
+                'total_dias_mes' => $this->total_dias_mes,
+                'dias_trabalhado' => $this->dias_trabalhado,
             ]);
         }
 
