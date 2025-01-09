@@ -1,14 +1,16 @@
 <div>
     <x-header title="{{ $filial->filial }}" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
-        <x-slot:middle class="!justify-end">
-            <div class="flex gap-2">
+        <x-slot:middle class="">
+            <x-loading class="text-primary loading-lg loading-dots flex flex-col lg:flex-none" wire:loading />
+            <div class="flex gap-2 !justify-end w-full flex-col lg:flex-row" wire:loading.remove>
                 <x-select icon="o-calendar" placeholder="Selecione o Mês" :options="$meses" wire:model="mesSelecionado" />
                 <x-select icon="o-calendar" placeholder="Selecione o Ano" :options="$anos" wire:model="anoSelecionado" />
             </div>
 
         </x-slot:middle>
         <x-slot:actions>
-            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" wire:click="filter" />
+            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" lazy wire:click="filter"
+                wire:loading.remove />
         </x-slot:actions>
     </x-header>
 

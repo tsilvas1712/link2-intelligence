@@ -23,7 +23,7 @@ class Main extends Component
     {
         return Vendedor::query()
             ->when($this->search, function ($query) {
-                return $query->where('nome', 'like', '%' . $this->search . '%');
+                return $query->where('nome', 'like', '%' . strtoupper($this->search) . '%');
             })
             ->orderBy('nome', 'asc')
             ->paginate(10);

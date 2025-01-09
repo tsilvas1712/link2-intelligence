@@ -30,7 +30,7 @@ class Main extends Component
     {
         return Filial::query()
             ->when($this->search, function ($query) {
-                return $query->where('filial', 'like', '%' . $this->search . '%');
+                return $query->where('filial', 'like', '%' . strtoupper($this->search) . '%');
             })
             ->orderBy('filial', 'asc')
             ->paginate(10);

@@ -1,7 +1,9 @@
 <div>
     <x-header title="{{ $vendedor->nome }}" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
-        <x-slot:middle class="!justify-end">
-            <div class="flex flex-col lg:flex-row gap-2">
+        <x-slot:middle class="">
+            <x-loading class="text-primary loading-lg loading-dots flex flex-col lg:flex-none content-center"
+                wire:loading />
+            <div class="flex gap-2 !justify-end w-full flex-col lg:flex-row " wire:loading.remove>
                 <x-select icon="o-calendar" placeholder="Selecione o Mês" :options="$meses" wire:model="mesSelecionado" />
                 <x-select icon="o-calendar" placeholder="Selecione o Ano" :options="$anos" wire:model="anoSelecionado" />
             </div>
@@ -9,7 +11,8 @@
         </x-slot:middle>
         <x-slot:actions class="w-full lg:w-[130px]">
             <div class="w-full">
-                <x-button icon="o-funnel" class="btn-primary w-full" label="Filtrar" wire:click="filter" />
+                <x-button icon="o-funnel" class="btn-primary w-full" label="Filtrar" laze wire:click="filter"
+                    wire:loading.remove />
             </div>
         </x-slot:actions>
     </x-header>

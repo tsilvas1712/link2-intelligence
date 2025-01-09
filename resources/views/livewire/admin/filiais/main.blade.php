@@ -1,7 +1,7 @@
 <div>
     <x-header title="Filiais" subtitle="Ajustes de Parâmetros" separator />
     <form wire:submit="import">
-        <div class="flex justify-between bg-gray-200 rounded shadow p-2 items-center">
+        <div class="flex justify-between bg-gray-200 rounded shadow p-2 items-center mb-8">
 
             <div>
                 <x-input class="p-2" label="Atualizar Metas" placeholder="Digite o nome da filial" icon="o-table-cells"

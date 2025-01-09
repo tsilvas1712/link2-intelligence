@@ -57,7 +57,7 @@ class Dashboard extends Component
     public function mount()
     {
         $this->ano = '2024'; //Carbon::now()->format('Y');
-        $this->mes = '12'; //Carbon::now()->format('m');
+        $this->mes = '05'; //Carbon::now()->format('m');
 
         $vendaModel = new VendaModel();
         $imagemTelecom = new ImagemTelecomService($vendaModel);
@@ -572,7 +572,7 @@ class Dashboard extends Component
     public function getTotalRecarga()
     {
         $vendas = $this->getVendas();
-        return $vendas->where('tipo_pedido', 'Venda')->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL'])->sum('valor_caixa');
+        return $vendas->where('tipo_pedido', 'Venda')->whereIn('grupo_estoque', ['RECARGA ELETRONICA', 'RECARGA GWCEL'])->sum('valor_caixa');
     }
 
     public function getTotalFranquia()
@@ -653,6 +653,7 @@ class Dashboard extends Component
     public function getGrupos()
     {
         return Grupo::query()
+            ->orderBy('id', 'asc')
             ->get();
     }
 
@@ -825,6 +826,7 @@ class Dashboard extends Component
 
         foreach ($planos as $plano) {
             $modalidade = explode(';', $plano->modalidade_venda);
+
             $plano_habilitacao = explode(';', $plano->plano_habilitacao);
             $grupo_estoque = null;
             $campo_valor = $plano->campo_valor;
@@ -850,8 +852,28 @@ class Dashboard extends Component
                 ->get();
 
 
+            $gross = VendaModel::query()
+                ->selectRaw('count(*) as gross')
+                ->whereIn('modalidade_venda', $modalidade)
+                ->when($this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mesSelecionado);
+                })
+                ->when($this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->anoSelecionado);
+                })
+                ->when(!$this->mesSelecionado, function ($query) {
+                    $query->whereMonth('data_pedido', $this->mes);
+                })
+                ->when(!$this->anoSelecionado, function ($query) {
+                    $query->whereYear('data_pedido', $this->ano);
+                })
+                ->when($this->filiais_id, function ($query) {
+                    $query->whereIn('filial_id', $this->filiais_id);
+                })
+                ->get();
+
             $vendas = VendaModel::query()
-                ->selectRaw('count(*) as gross,sum(' . $campo_valor . ') as total')
+                ->selectRaw('sum(' . $campo_valor . ') as total')
                 ->whereIn('modalidade_venda', $modalidade)
                 ->whereIn('plano_habilitacao', $plano_habilitacao)
                 ->when($this->mesSelecionado, function ($query) {
@@ -876,7 +898,7 @@ class Dashboard extends Component
             $grupos[] = [
                 'id' => $plano->id,
                 'grupo' => $plano->nome,
-                'gross' => $vendas[0]->gross,
+                'gross' => $gross[0]->gross,
                 'meta_gross' => $metas[0]['total_meta_gross_' . $nome_campo[1]] ?? 0,
                 'total' => $vendas[0]->total,
                 'meta_plano' => $metas[0]['total_meta_' . $nome_campo[1]],

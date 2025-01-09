@@ -16,15 +16,18 @@ class Show extends Component
     public $password_confirmation;
     public $cargoSelected;
 
+    public $showModal;
+
 
     public function mount($id = null)
     {
+        $this->showModal = false;
         if ($id) {
             $user = User::find($id);
             $this->user = $user;
             $this->name = $user->name;
             $this->email = $user->email;
-            $this->password = $user->password;
+
             $this->cargoSelected = $user->cargo;
         }
     }
@@ -38,7 +41,6 @@ class Show extends Component
         $validate = $this->validate([
             'name' => 'min:3',
             'email' => 'email',
-            'password' => 'min:6',
             'cargoSelected' => 'required'
         ]);
 
@@ -52,16 +54,10 @@ class Show extends Component
             User::create([
                 'name' => $validate['name'],
                 'email' => $validate['email'],
-                'password' => bcrypt($validate['password']),
                 'cargo' => $validate['cargoSelected']
             ]);
 
             return redirect()->route('admin.usuarios');
-        }
-
-        $newPassword = '';
-        if ($validate['password'] !== $this->user->password) {
-            $newPassword = bcrypt($validate['password']);
         }
 
         $this->user->update([
@@ -80,7 +76,21 @@ class Show extends Component
         $user->name = $this->user['name'];
         $user->email = $this->user['email'];
         $user->cargo = $this->cargoSelected;
-        $user->password = bcrypt($this->user['password']);
+        //$user->password = bcrypt($this->user['password']);
         $user->save();
+    }
+
+    public function openModal()
+    {
+        $this->showModal = true;
+    }
+
+    public function updatePassword()
+    {
+        $user = User::find($this->user->id);
+        $user->password = bcrypt($this->password);
+        $user->update();
+
+        redirect()->route('admin.usuarios');
     }
 }

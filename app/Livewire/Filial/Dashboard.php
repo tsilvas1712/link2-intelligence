@@ -69,7 +69,7 @@ class Dashboard extends Component
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '12'; //Carbon::now()->format('m');
+        $this->mes =  '05'; //Carbon::now()->format('m');
         $this->ano = '2024'; //Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
@@ -350,7 +350,7 @@ class Dashboard extends Component
                 'labels' =>  $chartPlanosLabel,
                 'datasets' => [
                     [
-                        'label' => 'Total em Planos',
+                        'label' => 'Gross Total',
                         'data' => $chartPlanosGross,
                         'borderColor' => '#2C5494',
                         'backgroundColor' => '#849CBC',
@@ -383,6 +383,7 @@ class Dashboard extends Component
 
     #[Computed]
     public function getVendas()
+
     {
         return Venda::query()
             ->when($this->mesSelecionado, function ($query) {

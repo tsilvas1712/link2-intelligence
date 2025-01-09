@@ -25,6 +25,8 @@ class Show extends Component
     public $mes;
     public $ano;
 
+    public $meta_atual;
+
     public $meses = [
         ['id' => '01', 'name' => 'Janeiro'],
         ['id' => '02', 'name' => 'Fevereiro'],
@@ -46,6 +48,11 @@ class Show extends Component
         $this->vendedor = Vendedor::find($id);
         $this->metas = MetasVendedores::where("vendedor_id", $this->vendedor->id)
             ->orderBy("created_at", "desc")
+            ->first();
+
+        $this->meta_atual = MetasVendedores::where('vendedor_id', $this->vendedor->id)
+            ->orderBy("ano", "desc")
+            ->orderBy("mes", "desc")
             ->first();
     }
     public function render()

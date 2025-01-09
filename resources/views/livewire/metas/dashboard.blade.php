@@ -1,9 +1,12 @@
 <div class="w-full">
+
     <x-header title="Dashboard" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
+
         <x-slot:middle>
             <div class="flex flex-col lg:flex-row gap-2 w-full items-center">
+                <x-loading class="text-primary loading-lg loading-dots" wire:loading />
 
-                <div class="w-full">
+                <div class="w-full" wire:loading.remove>
                     <x-choices label="Filiais" wire:model="filiais_id" :options="$this->getFiliais()">
                         @scope('item', $filial)
                             <x-list-item :item="$filial" sub-value="bio">
@@ -14,7 +17,7 @@
                         @endscope
                     </x-choices>
                 </div>
-                <div class="flex w-full flex-row gap-2 items-center">
+                <div class="flex w-full flex-row gap-2 items-center" wire:loading.remove>
                     <x-select label="Mês" icon="o-calendar" placeholder="Selecione o Mês" :options="$meses"
                         wire:model="mesSelecionado" class="w-2/4" />
                     <x-select label="Ano" icon="o-calendar" placeholder="Selecione o Ano" :options="$anos"
@@ -24,7 +27,7 @@
 
         </x-slot:middle>
         <x-slot:actions>
-            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" wire:click="filter" />
+            <x-button icon="o-funnel" class="btn-primary" label="Filtrar" spinner wire:click="filter" />
         </x-slot:actions>
 
     </x-header>
