@@ -57,7 +57,7 @@ class Dashboard extends Component
     public function mount()
     {
         $this->ano = '2024'; //Carbon::now()->format('Y');
-        $this->mes = '05'; //Carbon::now()->format('m');
+        $this->mes = '12'; //Carbon::now()->format('m');
 
         $vendaModel = new VendaModel();
         $imagemTelecom = new ImagemTelecomService($vendaModel);

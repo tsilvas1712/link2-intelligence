@@ -19,14 +19,14 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        /* User::factory()->create([
             'name' => 'Link2 Data Intelligense',
             'email' => 'link2datai@link2b.com.br',
         ]);
-        /*
+        */
         //$filiais = Filial::all();
         $Vendedores = Vendedor::all();
-        $meses = ['12'];
+        $meses = ['05', '06', '07', '08', '09', '10', '11', '12'];
 
         foreach ($meses as $mes) {
 
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
                 $meta_filial = new MetasFiliais();
 
                 $meta_filial->filial_id = $filial->id;
-                $meta_filial->meta_faturamento = rand(100000.00, 300000.00);
+                $meta_filial->meta_faturamento = rand(5000.00, 300000.00);
                 $meta_filial->meta_acessorios = rand(10000.00, 30000.00);
                 $meta_filial->meta_aparelhos = rand(100000.00, 300000.00);
                 $meta_filial->meta_pos = rand(10000.00, 30000.00);
@@ -49,15 +49,15 @@ class DatabaseSeeder extends Seeder
                 $meta_filial->total_dias_mes = '28';
                 $meta_filial->dias_trabalhado = '28';
                 $meta_filial->save();
-            }
+            }*/
 
             foreach ($Vendedores as $vendedor) {
                 $meta_vendedor = new MetasVendedores();
 
                 $meta_vendedor->vendedor_id = $vendedor->id;
-                $meta_vendedor->meta_faturamento = rand(100000.00, 300000.00);
-                $meta_vendedor->meta_acessorios = rand(10000.00, 30000.00);
-                $meta_vendedor->meta_aparelhos = rand(100000.00, 300000.00);
+                $meta_vendedor->meta_faturamento = rand(5000.00, 10000.00);
+                $meta_vendedor->meta_acessorios = rand(1000.00, 30000.00);
+                $meta_vendedor->meta_aparelhos = rand(5000.00, 10000.00);
                 $meta_vendedor->meta_pos = rand(10000.00, 30000.00);
                 $meta_vendedor->meta_pre = rand(10000.00, 30000.00);
                 $meta_vendedor->meta_controle = rand(10000.00, 30000.00);
@@ -71,6 +71,6 @@ class DatabaseSeeder extends Seeder
                 //$meta_vendedor->dias_trabalhado = '28';
                 $meta_vendedor->save();
             }
-        }*/
+        }
     }
 }
