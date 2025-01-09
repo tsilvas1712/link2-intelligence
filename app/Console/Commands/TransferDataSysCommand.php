@@ -37,12 +37,21 @@ class TransferDataSysCommand extends Command
 
     public function getFilial($filial)
     {
-        return Filial::where('filial', $filial)->first();
+        $filial_id = Filial::where('filial', $filial)->first();
+
+        if ($filial === null) {
+            dd($filial);
+        }
+        return $filial_id;
     }
 
     public function getVendedor($vendedor)
     {
-        return Vendedor::where('cpf', $vendedor)->first();
+        $vendedor_id = Vendedor::where('cpf', $vendedor)->first();
+        if ($vendedor_id === null) {
+            dd($vendedor);
+        }
+        return $vendedor_id;
     }
 
     public function transferData()
@@ -52,7 +61,7 @@ class TransferDataSysCommand extends Command
             foreach ($imports as $item) {
                 $filial = $this->getFilial($item->filial);
 
-                $vendedor = $this->getVendedor($item->cpf_vendedor);
+                $vendedor = $this->getVendedor(str_replace("'", '', $item->cpf_vendedor));
                 $venda = [
                     'area' => $item->area,
                     'regional' => $item->regional,
@@ -110,7 +119,7 @@ class TransferDataSysCommand extends Command
             foreach ($datasys as $item) {
                 $filial = $this->getFilial(str_replace(" ", "", $item->Filial));
 
-                $vendedor = $this->getVendedor($item->CPF_x0020_Vendedor);
+                $vendedor = $this->getVendedor(str_replace("'", '', $item->CPF_x0020_Vendedor));
                 $venda = [
                     'area' => $item->Area,
                     'regional' => $item->Regional,

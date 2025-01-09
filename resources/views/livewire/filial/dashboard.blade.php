@@ -29,7 +29,9 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                $faturamentoTotal === 0 ? 0 : ($faturamentoTotal * 100) / $metas->meta_faturamento,
+                                $faturamentoTotal === 0 || $metas === null
+                                    ? 0
+                                    : ($faturamentoTotal * 100) / $metas->meta_faturamento,
                                 2,
                                 ',',
                                 '.',
@@ -66,7 +68,7 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                $aparelhosTotal === 0 ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
+                                $aparelhosTotal === 0 || !$metas ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
                                 2,
                                 ',',
                                 '.',
@@ -103,7 +105,9 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
                             $meta = number_format(
-                                $acessoriosTotal === 0 ? 0 : ($acessoriosTotal * 100) / $metas->meta_acessorios,
+                                $acessoriosTotal === 0 || !$metas
+                                    ? 0
+                                    : ($acessoriosTotal * 100) / $metas->meta_acessorios,
                                 2,
                                 ',',
                                 '.',

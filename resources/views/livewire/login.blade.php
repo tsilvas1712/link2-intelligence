@@ -8,7 +8,7 @@
 
             <x-slot:actions>
 
-                <x-button label="Acessar" class="btn-primary w-full" type="submit" spinner="login" />
+                <x-button label="Acessar" class="btn-primary w-full" type="submit" lazy spinner="login" />
             </x-slot:actions>
         </x-form>
     </div>
