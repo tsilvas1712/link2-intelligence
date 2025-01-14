@@ -31,14 +31,17 @@
                     <div class="flex flex-col items-center p-2 w-1/5">
                         @php
 
+                            $meta_total = $metas === null ? 0 : $metas->meta_acessorios + $metas->meta_aparelhos;
+
                             $meta = number_format(
-                                $faturamentoTotal === 0 || $metas === null
+                                $faturamentoTotal === 0 || $metas === null || $meta_total === 0
                                     ? 0
-                                    : ($faturamentoTotal * 100) / $metas->meta_faturamento,
+                                    : ($faturamentoTotal * 100) / $meta_total,
                                 2,
                                 ',',
                                 '.',
                             );
+
                         @endphp
                         <span class="text-md font-bold">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
@@ -52,7 +55,7 @@
                     <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas === null ? 0 : $metas->meta_faturamento, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_acessorios + $metas->meta_aparelhos, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
