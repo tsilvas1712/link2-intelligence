@@ -56,6 +56,7 @@ class Dashboard extends Component
 
     public function mount()
     {
+
         $this->ano = '2024'; //Carbon::now()->format('Y');
         $this->mes = '12'; //Carbon::now()->format('m');
 

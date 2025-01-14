@@ -27,8 +27,10 @@
 
             </div>
             <div>
-                <x-button class="btn bg-gray-500 hover:bg-secondary " icon="o-cog" label="Painel"
-                    link="{{ route('admin.dashboard') }}" />
+                @if (auth()->user()->cargo === 'admin')
+                    <x-button class="btn bg-gray-500 hover:bg-secondary " icon="o-cog" label="Painel"
+                        link="{{ route('admin.dashboard') }}" />
+                @endif
                 <x-button class="btn bg-red-500 " icon="o-arrow-right-end-on-rectangle" label="Sair"
                     link="{{ route('logout') }}" />
             </div>

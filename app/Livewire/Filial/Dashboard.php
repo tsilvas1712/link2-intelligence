@@ -69,7 +69,7 @@ class Dashboard extends Component
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '12'; //Carbon::now()->format('m');
+        $this->mes =  '05'; //Carbon::now()->format('m');
         $this->ano = '2024'; //Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
@@ -900,6 +900,8 @@ class Dashboard extends Component
         $status = ['up', 'down', 'ok'];
 
 
+
+
         foreach ($vendedores_id as $vend) {
             $metas = MetasVendedores::query()
                 ->where('vendedor_id', $vend->id)
@@ -926,10 +928,14 @@ class Dashboard extends Component
                 ->sum('valor_caixa');
 
 
-            $meta = $metas === null ? 0 : ($metas->meta_acessorios  + $metas->metas_aparelhos);
+            $meta = $metas === null ? 0 : $metas->meta_acessorios  + $metas->meta_aparelhos;
             $faturamento = $aparelhos + $acessorios;
 
-            $perc = $meta === 0 ? 0 : ($faturamento / $meta) * 100;
+            try {
+                $perc = $meta === 0  || $faturamento === 0 ? 0 : ($faturamento / $meta) * 100;
+            } catch (\DivisionByZeroError $e) {
+                $perc = 0;
+            }
 
             $key = 1;
 
@@ -942,18 +948,19 @@ class Dashboard extends Component
             }
 
 
+            if ($faturamento > 0) {
+                $vendedores[] = [
+                    'id' => $vend->id,
+                    'vendedor' => $vend->nome,
+                    'aparelhos' => $aparelhos,
+                    'acessorios' => $acessorios,
+                    'metas' => $meta,
+                    'total' => $faturamento,
+                    'status' => $status[$key]
 
-            $vendedores[] = [
-                'id' => $vend->id,
-                'vendedor' => $vend->nome,
-                'aparelhos' => $aparelhos,
-                'acessorios' => $acessorios,
-                'metas' => $meta,
-                'total' => $faturamento,
-                'status' => $status[$key]
 
-
-            ];
+                ];
+            }
         }
 
 
