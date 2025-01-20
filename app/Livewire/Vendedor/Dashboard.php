@@ -355,7 +355,7 @@ class Dashboard extends Component
         $tAcessorios = $this->getTotalAcessorios();
 
 
-        $total = $tAcessorios + $tAparelhos;
+        $total = $tAparelhos;
 
         return $total;
     }
