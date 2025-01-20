@@ -31,7 +31,7 @@
                     <div class="flex flex-col items-center w-1/5 p-2">
                         @php
 
-                            $meta_total = $metas === null ? 0 : $metas->meta_acessorios + $metas->meta_aparelhos;
+                            $meta_total = $metas === null ? 0 : $metas->meta_aparelhos;
 
                             $meta = number_format(
                                 $faturamentoTotal === 0 || $metas === null || $meta_total === 0
@@ -55,7 +55,7 @@
                     <div class="flex flex-col items-center w-2/5 p-2 bg-orange-400 rounded shadow">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
-                            {{ number_format($metas === null ? 0 : $metas->meta_acessorios + $metas->meta_aparelhos, 2, ',', '.') }}</span>
+                            {{ number_format($metas === null ? 0 : $metas->meta_aparelhos, 2, ',', '.') }}</span>
                     </div>
 
                 </div>
