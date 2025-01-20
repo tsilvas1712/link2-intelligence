@@ -124,7 +124,7 @@
                         <span class="font-bold text-md">{{ $meta }}%</span>
                         @if (floatVal($meta) > 100.0)
                             <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
-                        @elseif (floatVal($meta) > 80.0 && floatVal($meta) < 100.0)
+                        @elseif (floatVal($meta) >= 80.0 && floatVal($meta) <= 100.0)
                             <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
                         @else
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
