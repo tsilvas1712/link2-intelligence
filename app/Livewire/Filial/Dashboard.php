@@ -928,8 +928,8 @@ class Dashboard extends Component
                 ->sum('valor_caixa');
 
 
-            $meta = $metas === null ? 0 : $metas->meta_acessorios  + $metas->meta_aparelhos;
-            $faturamento = $aparelhos + $acessorios;
+            $meta = $metas === null ? 0 : $metas->meta_aparelhos;
+            $faturamento = $aparelhos;
 
             try {
                 $perc = $meta === 0  || $faturamento === 0 ? 0 : ($faturamento / $meta) * 100;
