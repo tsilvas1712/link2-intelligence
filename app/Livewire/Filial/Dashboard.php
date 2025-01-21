@@ -377,7 +377,8 @@ class Dashboard extends Component
     public function getTotalRecarga()
     {
         $vendas = $this->getVendas();
-        return $vendas->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL', 'RECARGA ELETRONICA'])->sum('valor_caixa');
+        return $vendas->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL', 'RECARGA ELETRONICA'])
+            ->sum('valor_caixa');
     }
 
 
@@ -927,9 +928,17 @@ class Dashboard extends Component
                 ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
                 ->sum('valor_caixa');
 
+            $chips = $vendas->where('vendedor_id', $vend->id)
+                ->whereIn('grupo_estoque', ['CHIP'])
+                ->sum('valor_caixa');
+
+            $recargas = $vendas->where('vendedor_id', $vend->id)
+                ->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL', 'RECARGA ELETRONICA'])
+                ->sum('valor_caixa');
+
 
             $meta = $metas === null ? 0 : $metas->meta_aparelhos;
-            $faturamento = $aparelhos;
+            $faturamento = $aparelhos + $chips + $recargas;
 
             try {
                 $perc = $meta === 0  || $faturamento === 0 ? 0 : ($faturamento / $meta) * 100;

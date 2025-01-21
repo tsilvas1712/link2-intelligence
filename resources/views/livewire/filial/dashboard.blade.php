@@ -28,19 +28,15 @@
                     </div>
                     <div class="flex flex-col items-center w-1/5 p-2">
                         @php
-                            $meta = number_format(
+                            $meta =
                                 $faturamentoTotal === 0 || $metas === null
                                     ? 0
-                                    : ($faturamentoTotal * 100) / $metas->meta_faturamento,
-                                2,
-                                ',',
-                                '.',
-                            );
+                                    : ($faturamentoTotal * 100) / $metas->meta_faturamento;
                         @endphp
-                        <span class="font-bold text-md">{{ $meta }}%</span>
-                        @if (floatVal($meta) > 100.0)
+                        <span class="font-bold text-md">{{ number_format($meta, 2, ',', '.') }}%</span>
+                        @if (floatVal($meta) >= 100.01)
                             <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
-                        @elseif (floatVal($meta) > 80.0 && floatVal($meta) < 100.0)
+                        @elseif (floatVal($meta) >= 80.0 && floatVal($meta) < 100.01)
                             <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
                         @else
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
@@ -67,17 +63,13 @@
                     </div>
                     <div class="flex flex-col items-center w-1/5 p-2">
                         @php
-                            $meta = number_format(
-                                $aparelhosTotal === 0 || !$metas ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos,
-                                2,
-                                ',',
-                                '.',
-                            );
+                            $meta =
+                                $aparelhosTotal === 0 || !$metas ? 0 : ($aparelhosTotal * 100) / $metas->meta_aparelhos;
                         @endphp
-                        <span class="font-bold text-md">{{ $meta }}%</span>
-                        @if (floatVal($meta) > 100.0)
+                        <span class="font-bold text-md">{{ number_format($meta, 2, ',', '.') }}%</span>
+                        @if (floatVal($meta) >= 100.01)
                             <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
-                        @elseif (floatVal($meta) > 80.0 && floatVal($meta) < 100.0)
+                        @elseif (floatVal($meta) >= 80.0 && floatVal($meta) < 100.01)
                             <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
                         @else
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
@@ -104,19 +96,15 @@
                     </div>
                     <div class="flex flex-col items-center w-1/5 p-2">
                         @php
-                            $meta = number_format(
+                            $meta =
                                 $acessoriosTotal === 0 || !$metas
                                     ? 0
-                                    : ($acessoriosTotal * 100) / $metas->meta_acessorios,
-                                2,
-                                ',',
-                                '.',
-                            );
+                                    : ($acessoriosTotal * 100) / $metas->meta_acessorios;
                         @endphp
-                        <span class="font-bold text-md">{{ $meta }}%</span>
-                        @if (floatVal($meta) > 100.0)
+                        <span class="font-bold text-md">{{ number_format($meta, 2, ',', '.') }}%</span>
+                        @if (floatVal($meta) >= 100.01)
                             <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
-                        @elseif (floatVal($meta) > 80.0 && floatVal($meta) < 100.0)
+                        @elseif (floatVal($meta) >= 80.0 && floatVal($meta) < 100.01)
                             <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
                         @else
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />

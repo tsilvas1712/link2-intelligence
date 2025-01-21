@@ -353,9 +353,11 @@ class Dashboard extends Component
     {
         $tAparelhos = $this->getTotalAparelhos();
         $tAcessorios = $this->getTotalAcessorios();
+        $tChips = $this->getTotalChips();
+        $tFranquia = $this->getTotalFranquia();
 
 
-        $total = $tAparelhos;
+        $total = $tAparelhos + $tChips + $tFranquia;
 
         return $total;
     }
@@ -491,7 +493,7 @@ class Dashboard extends Component
     public function getTotalFranquia()
     {
         $vendas = $this->getVendas();
-        return $vendas->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
+        return $vendas->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL', 'RECARGA ELETRONICA'])->sum('valor_caixa');
     }
 
     public function getTendencias()
