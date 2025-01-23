@@ -7,6 +7,7 @@ use App\Jobs\TransferImportJob;
 use App\Models\Datasys;
 use App\Models\Filial;
 use App\Models\Import;
+use App\Models\Plano;
 use App\Models\Vendedor;
 use Illuminate\Console\Command;
 
@@ -59,6 +60,8 @@ class TransferDataSysCommand extends Command
         $data = [];
         Import::where('transfered', false)->chunk(1000, function ($imports) {
             foreach ($imports as $item) {
+
+
                 $filial = $this->getFilial($item->filial);
 
                 $vendedor = $this->getVendedor(str_replace("'", '', $item->cpf_vendedor));
@@ -73,12 +76,12 @@ class TransferDataSysCommand extends Command
                     'numero_pv' => $item->numero_pv,
                     'data_pedido' => $item->data_pedido,
                     'tipo_pedido' => $item->tipo_pedido,
-                    'modalidade_venda' => $item->modalidade_venda,
+                    'modalidade_venda' => strtoupper($item->modalidade_venda),
                     'nota_fiscal' => $item->nota_fiscal,
                     'cod_produto' => $item->cod_produto,
-                    'descricao_comercial' => $item->descricao_comercial,
-                    'descricao' => $item->descricao,
-                    'grupo_estoque' => $item->grupo_estoque,
+                    'descricao_comercial' => strtoupper($item->descricao_comercial),
+                    'descricao' => strtoupper($item->descricao),
+                    'grupo_estoque' => strtoupper($item->grupo_estoque),
                     'sub_grupo' => $item->sub_grupo,
                     'familia' => $item->familia,
                     'fabricante' => $item->fabricante,
@@ -92,7 +95,7 @@ class TransferDataSysCommand extends Command
                     'descontos' => $item->descontos,
                     'juros' => $item->juros,
                     'total_item' => $item->total_item,
-                    'valor_franquia' => $item->valor_franquia,
+                    'valor_franquia' => $this->getValorFranquia($item->plano_habilitacao) ?? $item->valor_franquia,
                     'desconto_compra' => $item->desconto_compra,
                     'custo_total' => $item->custo_total,
                     'cpf_cliente' => $item->cpf_cliente,
@@ -100,7 +103,7 @@ class TransferDataSysCommand extends Command
                     'uf_cliente'    => $item->uf_cliente,
                     'cidade_cliente' => $item->cidade_cliente,
                     'fone_cliente' => $item->fone_cliente,
-                    'plano_habilitacao' => $item->plano_habilitacao,
+                    'plano_habilitacao' => strtoupper($item->plano_habilitacao),
                     'valor_pre' => $item->valor_pre,
                     'combo' => $item->combo,
                     'valor_plano_anterior' => $item->valor_plano_anterior,
@@ -133,10 +136,10 @@ class TransferDataSysCommand extends Command
                     'tipo_pedido' => $item->Tipo_x0020_Pedido,
                     'nota_fiscal' => $item->Nota_x0020_Fiscal,
                     'cod_produto' => $item->Cod_x0020_produto,
-                    'modalidade_venda' => $item->Modalidade_x0020_Venda,
-                    'descricao_comercial' => $item->Descr_x0020_Comercial,
-                    'descricao' => $item->Descricao,
-                    'grupo_estoque' => $item->Grupo_x0020_Estoque,
+                    'modalidade_venda' => strtoupper($item->Modalidade_x0020_Venda),
+                    'descricao_comercial' => strtoupper($item->Descr_x0020_Comercial),
+                    'descricao' => strtoupper($item->Descricao),
+                    'grupo_estoque' => strtoupper($item->Grupo_x0020_Estoque),
                     'sub_grupo' => $item->SubGrupo,
                     'familia' => $item->Familia,
                     'fabricante' => $item->Fabricante,
@@ -150,7 +153,7 @@ class TransferDataSysCommand extends Command
                     'descontos' => $item->Descontos,
                     'juros' => $item->Juros,
                     'total_item' => $item->Total_x0020_Item,
-                    'valor_franquia' => $item->ValorFranquia,
+                    'valor_franquia' => $this->getValorFranquia($item->Plano_x0020_Habilitacao) ?? $item->ValorFranquia,
                     'desconto_compra' => $item->Descontos_x0020_Compra,
                     'custo_total' => $item->Custo_x0020_Total,
                     'cpf_cliente' => $item->CPF_x0020_Cliente,
@@ -158,7 +161,7 @@ class TransferDataSysCommand extends Command
                     'uf_cliente'    => $item->UF_x0020_Cliente,
                     'cidade_cliente' => $item->Cidade_x0020_Cliente,
                     'fone_cliente' => $item->Fone_x0020_Cliente,
-                    'plano_habilitacao' => $item->Plano_x0020_Habilitacao,
+                    'plano_habilitacao' => strtoupper($item->Plano_x0020_Habilitacao),
                     'valor_pre' => $item->VALOR_x0020_PRE,
                     'combo' => $item->COMBO,
                     'valor_plano_anterior' => $item->Valor_x0020_Plano_x0020_Anterior,
@@ -174,5 +177,15 @@ class TransferDataSysCommand extends Command
                 TransferDatasysJob::dispatch($venda, $item->datasys_id);
             }
         });
+    }
+
+    public function getValorFranquia($plano_habilitado)
+    {
+        $plano = Plano::where('plano_habilitado', strtoupper($plano_habilitado))->first();
+
+        if ($plano === null) {
+            return false;
+        }
+        return $plano->valor;
     }
 }

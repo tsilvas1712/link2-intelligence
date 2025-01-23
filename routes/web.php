@@ -56,6 +56,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/filiais', \App\Livewire\Admin\Filiais\Main::class)->name('filiais');
         Route::get('/filiais/{id}', \App\Livewire\Admin\Filiais\Show::class)->name('filiais.show');
 
+        Route::get('/planos', \App\Livewire\Admin\Planos::class)->name('planos');
+
         Route::get('/vendedores', \App\Livewire\Admin\Vendedores\Main::class)->name('vendedores');
         Route::get('/vendedores/{id}', \App\Livewire\Admin\Vendedores\Show::class)->name('vendedores.show');
 

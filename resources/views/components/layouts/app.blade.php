@@ -30,8 +30,8 @@
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-primary lg:text-white">
 
             {{-- BRAND --}}
-            <div class="bg-white w-full h-18 p-2">
-                <img src="{{ asset('assets/logo.svg') }}" alt="Logo" class="w-full mx-auto my-4 h-16" />
+            <div class="w-full p-2 bg-white h-18">
+                <img src="{{ asset('assets/logo.svg') }}" alt="Logo" class="w-full h-16 mx-auto my-4" />
             </div>
 
 
@@ -56,6 +56,8 @@
                 <x-menu-item title="Home" icon="o-home" link="{{ route('admin.dashboard') }}" exact />
                 <x-menu-item title="Filiais" icon="o-building-storefront" link="{{ route('admin.filiais') }}" exact />
                 <x-menu-item title="Vendedores" icon="o-calculator" link="{{ route('admin.vendedores') }}" exact />
+                <x-menu-item title="Valores de Planos" icon="o-currency-dollar" link="{{ route('admin.planos') }}"
+                    exact />
                 <x-menu-item title="Grupos" icon="o-rectangle-group" link="{{ route('admin.groups') }}" exact />
                 <x-menu-item title="Usuários" icon="o-users" link="{{ route('admin.usuarios') }}" exact />
                 <x-menu-separator />
@@ -67,7 +69,7 @@
 
         {{-- The `$slot` goes here --}}
         <x-slot:content>
-            <div class="w-full bg-white shadow h-full p-4 rounded">
+            <div class="w-full h-full p-4 bg-white rounded shadow">
                 {{ $slot }}
             </div>
         </x-slot:content>

@@ -853,28 +853,8 @@ class Dashboard extends Component
                 ->get();
 
 
-            $gross = VendaModel::query()
-                ->selectRaw('count(*) as gross')
-                ->whereIn('modalidade_venda', $modalidade)
-                ->when($this->mesSelecionado, function ($query) {
-                    $query->whereMonth('data_pedido', $this->mesSelecionado);
-                })
-                ->when($this->anoSelecionado, function ($query) {
-                    $query->whereYear('data_pedido', $this->anoSelecionado);
-                })
-                ->when(!$this->mesSelecionado, function ($query) {
-                    $query->whereMonth('data_pedido', $this->mes);
-                })
-                ->when(!$this->anoSelecionado, function ($query) {
-                    $query->whereYear('data_pedido', $this->ano);
-                })
-                ->when($this->filiais_id, function ($query) {
-                    $query->whereIn('filial_id', $this->filiais_id);
-                })
-                ->get();
-
             $vendas = VendaModel::query()
-                ->selectRaw('sum(' . $campo_valor . ') as total')
+                ->selectRaw('sum(' . $campo_valor . ') as total, count(gsm) as gross')
                 ->whereIn('modalidade_venda', $modalidade)
                 ->whereIn('plano_habilitacao', $plano_habilitacao)
                 ->when($this->mesSelecionado, function ($query) {
@@ -894,12 +874,14 @@ class Dashboard extends Component
                 })
                 ->get();
 
+
+
             $nome_campo = explode(' ', $this->tirarAcentos($plano->nome));
 
             $grupos[] = [
                 'id' => $plano->id,
                 'grupo' => $plano->nome,
-                'gross' => $gross[0]->gross,
+                'gross' => $vendas[0]->gross,
                 'meta_gross' => $metas[0]['total_meta_gross_' . $nome_campo[1]] ?? 0,
                 'total' => $vendas[0]->total,
                 'meta_plano' => $metas[0]['total_meta_' . $nome_campo[1]],
