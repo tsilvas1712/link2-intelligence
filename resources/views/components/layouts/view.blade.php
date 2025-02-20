@@ -8,30 +8,30 @@
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 
 </head>
 
 <body class="min-h-screen font-sans antialiased">
-
-
-    <div class="lg:max-w-7xl flex flex-col m-auto bg-gray-100 p-2 rounded gap-2">
-        <header class="flex justify-between bg-white shadow rounded p-2">
+    <div class="flex flex-col gap-2 p-2 m-auto bg-gray-100 rounded lg:max-w-7xl">
+        <header class="flex justify-between p-2 bg-white rounded shadow">
             <div class="!justify-end">
-                <x-button class="btn-primary  " icon="o-home" label="Home" link="{{ route('dashboard') }}" />
-                <x-button disabled class="btn-primary hidden " icon="o-building-storefront" label="Filiais"
+                <x-button class="btn-primary " icon="o-home" label="Home" link="{{ route('dashboard') }}" />
+                <x-button disabled class="hidden btn-primary " icon="o-building-storefront" label="Filiais"
                     link="{{ route('filiais.dashboard') }}" />
-                <x-button disabled class="btn-primary hidden " icon="o-users" label="Vendedores"
+                <x-button disabled class="hidden btn-primary " icon="o-users" label="Vendedores"
                     link="{{ route('vendedores.dashboard') }}" />
-                <x-button disabled class="btn-primary hidden " icon="o-cursor-arrow-ripple" label="Planos" />
+                <x-button disabled class="hidden btn-primary " icon="o-cursor-arrow-ripple" label="Planos" />
 
             </div>
             <div>
                 @if (auth()->user()->cargo === 'admin')
-                    <x-button class="btn bg-gray-500 hover:bg-secondary " icon="o-cog" label="Painel"
+                    <x-button class="bg-gray-500 btn hover:bg-secondary " icon="o-cog" label="Painel"
                         link="{{ route('admin.dashboard') }}" />
                 @endif
-                <x-button class="btn bg-red-500 " icon="o-arrow-right-end-on-rectangle" label="Sair"
+                <x-button class="bg-red-500 btn " icon="o-arrow-right-end-on-rectangle" label="Sair"
                     link="{{ route('logout') }}" />
             </div>
         </header>
