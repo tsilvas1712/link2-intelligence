@@ -1,23 +1,20 @@
 <div class="w-full">
-
     <x-header title="Dashboard" subtitle="{{ $meses[$mes - 1]['name'] . '/' . $ano }}" separator>
-
         <x-slot:middle>
-            <div class="flex flex-col lg:flex-row gap-2 w-full items-center">
+            <div class="flex flex-col items-center w-full gap-2 lg:flex-row">
                 <x-loading class="text-primary loading-lg loading-dots" wire:loading />
-
                 <div class="w-full" wire:loading.remove>
                     <x-choices label="Filiais" wire:model="filiais_id" :options="$this->getFiliais()">
                         @scope('item', $filial)
                             <x-list-item :item="$filial" sub-value="bio">
                                 <x-slot:avatar>
-                                    <x-icon name="o-home" class="bg-orange-100 p-2 w-8 h8 rounded-full" />
+                                    <x-icon name="o-home" class="w-8 p-2 bg-orange-100 rounded-full h8" />
                                 </x-slot:avatar>
                             </x-list-item>
                         @endscope
                     </x-choices>
                 </div>
-                <div class="flex w-full flex-row gap-2 items-center" wire:loading.remove>
+                <div class="flex flex-row items-center w-full gap-2" wire:loading.remove>
                     <x-select label="Mês" icon="o-calendar" placeholder="Selecione o Mês" :options="$meses"
                         wire:model="mesSelecionado" class="w-2/4" />
                     <x-select label="Ano" icon="o-calendar" placeholder="Selecione o Ano" :options="$anos"
@@ -33,18 +30,17 @@
     </x-header>
 
     <div class="flex flex-col w-full gap-4 ">
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 w-full rounded shadow gap-2">
-            <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
+        <div class="grid w-full grid-cols-1 gap-2 rounded shadow lg:grid-cols-3">
+            <div class="flex flex-col items-center gap-2 p-2 bg-white rounded">
                 <span class="text-lg font-bold">Faturamento Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($faturamentoTotal, 2, ',', '.') }}</span>
-                <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
+                <div class="flex justify-between w-full gap-2">
+                    <div class="flex flex-col items-center w-2/5 p-2 rounded shadow bg-primary">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($tendenciaFaturamento, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/5">
+                    <div class="flex flex-col items-center w-1/5 p-2">
                         @php
                             $meta = number_format(
                                 $faturamentoTotal === 0 || $metas[0]['meta_faturamento'] === null
@@ -64,7 +60,7 @@
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
                         @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
+                    <div class="flex flex-col items-center w-2/5 p-2 bg-orange-400 rounded shadow">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($metas[0]['meta_faturamento'], 2, ',', '.') }}</span>
@@ -74,16 +70,16 @@
 
             </div>
 
-            <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
+            <div class="flex flex-col items-center gap-2 p-2 bg-white rounded">
                 <span class="text-lg font-bold">Aparelhos Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($aparelhosTotal, 2, ',', '.') }}</span>
-                <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
+                <div class="flex justify-between w-full gap-2">
+                    <div class="flex flex-col items-center w-2/5 p-2 rounded shadow bg-primary">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($tendenciaAparelhosTotal, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/5">
+                    <div class="flex flex-col items-center w-1/5 p-2">
                         @php
                             $meta = number_format(
                                 $aparelhosTotal === 0 || $metas[0]['meta_aparelhos'] === null
@@ -103,7 +99,7 @@
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
                         @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
+                    <div class="flex flex-col items-center w-2/5 p-2 bg-orange-400 rounded shadow">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($metas[0]['meta_aparelhos'], 2, ',', '.') }}</span>
@@ -113,16 +109,16 @@
 
             </div>
 
-            <div class="bg-white rounded p-2 flex flex-col items-center  gap-2">
+            <div class="flex flex-col items-center gap-2 p-2 bg-white rounded">
                 <span class="text-lg font-bold">Acessórios Total</span>
                 <span class="text-2xl font-black">R$ {{ number_format($acessoriosTotal, 2, ',', '.') }}</span>
-                <div class="flex justify-between gap-2 w-full">
-                    <div class="bg-primary rounded shadow flex flex-col items-center p-2 w-2/5">
+                <div class="flex justify-between w-full gap-2">
+                    <div class="flex flex-col items-center w-2/5 p-2 rounded shadow bg-primary">
                         <span class="text-xs font-bold text-white">Tendência</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($tendenciaAcessorioTotal, 2, ',', '.') }}</span>
                     </div>
-                    <div class="flex flex-col items-center p-2 w-1/5">
+                    <div class="flex flex-col items-center w-1/5 p-2">
                         @php
                             $meta = number_format(
                                 $acessoriosTotal === 0 || $metas[0]['meta_acessorios'] === null
@@ -142,7 +138,7 @@
                             <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
                         @endif
                     </div>
-                    <div class="bg-orange-400 rounded shadow flex flex-col items-center p-2 w-2/5">
+                    <div class="flex flex-col items-center w-2/5 p-2 bg-orange-400 rounded shadow">
                         <span class="text-xs font-bold text-white">Meta</span>
                         <span class="text-xs font-bold text-white">R$
                             {{ number_format($metas[0]['meta_acessorios'], 2, ',', '.') }}</span>
@@ -154,122 +150,137 @@
         </div>
 
 
+
+        <!-- CHARTS RANKING E FABRICANTES -->
         <div class="flex flex-col gap-2 ">
-            <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
-                <span class="text-3xl font-bold italic">Total de {{ $ano }}</span>
+            <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
+                <span class="text-3xl italic font-bold">Total de {{ $ano }}</span>
                 <div class="w-full ">
-                    <x-chart wire:model="chartMetas" />
+                    <livewire:charts.apex-bars :data="$chartMetas" />
                 </div>
+            </div>
+            <div class="flex flex-col h-full gap-2 lg:flex-row">
+                <div class="flex flex-col w-full gap-2 lg:w-1/2">
+                    <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
+                        <span class="text-3xl italic font-bold">Ranking de Filiais</span>
+                        <div class="w-full ">
+                            <livewire:charts.ranking-filiais :data="$chartFiliais" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
+                        <span class="text-3xl italic font-bold">Ranking de Vendedores</span>
+                        <div class="w-full ">
+                            <livewire:charts.ranking-vendedores :data="$chartVendedores" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="flex flex-col items-center justify-center w-full max-h-screen lg:w-1/2">
+                    <livewire:charts.apex-pie :data="$chartFabricante" />
+                </div>
+
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-2">
-                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
-                    <x-chart wire:model="chartPlanosValor" />
-                </div>
-                <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
-                    <x-chart wire:model="chartPlanosGross" />
-                </div>
-            </div>
-            <div class="bg-white rounded shadow w-full p-2 flex flex-col gap-4">
-                <span class="text-xl font-bold italic text-center w-full">Total de Franquia {{ $ano }}</span>
-                <div class="flex  flex-col lg:flex-row justify-center gap-4">
+        </div>
+
+        <div class="flex flex-col w-full gap-4 p-2 bg-white rounded shadow">
+            <span class="w-full text-xl italic font-bold text-center">Produtos
+                {{ $ano }}</span>
+            <div class="flex flex-col justify-center gap-4 lg:flex-row">
+                @if ($planos)
                     @foreach ($planos as $plano)
-                        <div class=" w-full lg:w-1/3 bg-gray-100 rounded shadow p-2 items-center gap-4 flex flex-col ">
+                        <div class="flex flex-col items-center w-full gap-4 p-2 bg-gray-100 rounded shadow lg:w-1/3">
                             <a href="{{ route('detalhes.grupos', $plano['id']) }}"
-                                class="w-full flex flex-col items-center">
-                                <span class="font-bold text-lg">{{ $plano['grupo'] }}</span>
+                                class="flex flex-col items-center w-full">
+                                <span class="text-lg font-bold">{{ $plano['grupo'] }}</span>
                                 <div class="flex flex-row justify-between w-full gap-4">
                                     <div class="flex flex-col items-center w-full gap-2">
                                         <span>Total Plano</span>
-                                        <span class="p-2 bg-white font-bold rounded shadow w-full text-xs">R$
+                                        <span class="w-full p-2 text-xs font-bold bg-white rounded shadow">R$
                                             {{ number_format($plano['total'], 2, ',', '.') }}</span>
-                                        <span class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">R$
+                                        <span class="w-full p-2 text-xs font-bold bg-orange-200 rounded shadow">R$
                                             {{ number_format($plano['meta_plano'], 2, ',', '.') }}</span>
                                     </div>
                                     <div class="flex flex-col items-center w-full gap-2">
                                         <span>Total Gross</span>
                                         <span
-                                            class="p-2 bg-white font-bold rounded shadow w-full text-xs">{{ $plano['gross'] }}</span>
+                                            class="w-full p-2 text-xs font-bold bg-white rounded shadow">{{ $plano['gross'] }}</span>
                                         <span
-                                            class="p-2 bg-orange-200 font-bold rounded shadow w-full text-xs">{{ $plano['meta_gross'] }}</span>
+                                            class="w-full p-2 text-xs font-bold bg-orange-200 rounded shadow">{{ $plano['meta_gross'] }}</span>
                                     </div>
                                 </div>
                             </a>
                         </div>
                     @endforeach
+                @endif
 
+            </div>
+
+            <div class="flex flex-row gap-4">
+                <div class="flex flex-col items-center w-1/2">
+                    <span class="text-xl italic font-bold text-center">Vendas</span>
+                    <livewire:charts.produtos :data="$chartPlanosValor" />
+                </div>
+                <div class="flex flex-col items-center w-1/2">
+                    <span class="text-xl italic font-bold text-center">Gross</span>
+                    <livewire:charts.produtos-gross :data="$chartPlanosGross" />
                 </div>
 
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-2">
-                <div class="flex flex-col gap-2 w-full lg:w-1/2">
-                    <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
-                        <span class="text-3xl font-bold italic">Ranking de Filiais</span>
-                        <div class="w-full ">
-                            <x-chart wire:model="chartFiliais" />
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center w-full gap-4 bg-white shadow rounded p-2">
-                        <span class="text-3xl font-bold italic">Ranking de Vendedores</span>
-                        <div class="w-full ">
-                            <x-chart wire:model="chartVendedores" />
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="flex flex-col items-center w-full lg:w-1/2 gap-4 bg-white shadow rounded p-2">
-                    <span class="text-3xl font-bold italic">Fabricantes</span>
-                    <div class="w-full ">
-                        <x-chart wire:model="chartFabricante" />
-                    </div>
-                </div>
-            </div>
         </div>
 
+
+        <!-- FILIAIS -->
         <div class="flex gap-4">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full ">
-                @foreach ($filiais as $filial)
-                    <a href="{{ route('filial.dashboard', $filial['id']) }}">
-                        <div class="rounded shadow bg-white p-2 hover:bg-secondary">
-                            <div class="flex  justify-between">
-                                <span class="text-sm font-bold">{{ $filial['filial'] }}</span>
-                                @if ($filial['status'] === 'up')
-                                    <x-icon name="o-arrow-trending-up" class="w-6 h-6  text-green-500" />
-                                @endif
+            <div class="grid w-full grid-cols-2 gap-2 lg:grid-cols-4 ">
+                @if ($filiais)
+                    @foreach ($filiais as $filial)
+                        <a href="{{ route('filial.dashboard', $filial['id']) }}">
+                            <div class="p-2 bg-white rounded shadow hover:bg-secondary">
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-bold">{{ $filial['filial'] }}</span>
+                                    @if ($filial['status'] === 'up')
+                                        <x-icon name="o-arrow-trending-up" class="w-6 h-6 text-green-500" />
+                                    @endif
 
-                                @if ($filial['status'] === 'down')
-                                    <x-icon name="o-arrow-trending-down" class="w-6 h-6  text-red-500" />
-                                @endif
+                                    @if ($filial['status'] === 'down')
+                                        <x-icon name="o-arrow-trending-down" class="w-6 h-6 text-red-500" />
+                                    @endif
 
-                                @if ($filial['status'] === 'ok')
-                                    <x-icon name="o-arrow-right" class="w-6 h-6  text-blue-500" />
-                                @endif
-                            </div>
-
-                            <di class="flex flex-col items-center gap-2">
-                                <span class="font-bold">R$
-                                    {{ number_format($filial['faturamento'], 2, ',', '.') }}</span>
-                                <div class="flex flex-col gap-2 lg:flex-row justify-between w-full">
-                                    <span class="text-xs text-center font-bold p-2 rounded-xl bg-blue-200 shadow">R$
-                                        {{ number_format($filial['tendencia'], 2, ',', '.') }}</span>
-                                    <span class="text-xs text-center font-bold p-2 rounded-xl bg-orange-200 shadow">R$
-                                        {{ number_format($filial['meta'], 2, ',', '.') }}</span>
+                                    @if ($filial['status'] === 'ok')
+                                        <x-icon name="o-arrow-right" class="w-6 h-6 text-blue-500" />
+                                    @endif
                                 </div>
 
-                            </di>
+                                <di class="flex flex-col items-center gap-2">
+                                    <span class="font-bold">R$
+                                        {{ number_format($filial['faturamento'], 2, ',', '.') }}</span>
+                                    <div class="flex flex-col justify-between w-full gap-2 lg:flex-row">
+                                        <span
+                                            class="p-2 text-xs font-bold text-center bg-blue-200 shadow rounded-xl">R$
+                                            {{ number_format($filial['tendencia'], 2, ',', '.') }}</span>
+                                        <span
+                                            class="p-2 text-xs font-bold text-center bg-orange-200 shadow rounded-xl">R$
+                                            {{ number_format($filial['meta'], 2, ',', '.') }}</span>
+                                    </div>
 
-                        </div>
-                    </a>
-                @endforeach
+                                </di>
+
+                            </div>
+                        </a>
+                    @endforeach
+                @endif
             </div>
 
 
         </div>
-
-
-
     </div>
+
+
+
+
+
+
 </div>
