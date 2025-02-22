@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Jobs\ProcessDatasys;
 use App\Jobs\ProcessDatasysJob;
+use App\Models\SyncError;
 use Carbon\Carbon;
-use Illuminate\Container\Attributes\Log;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use SimpleXMLElement;
 
 class DatasysService
@@ -23,14 +25,12 @@ class DatasysService
         //
     }
 
-    public function getDatasysData($day = 1)
+    public function getDatasysData($date)
     {
 
-        $dateInicial = Carbon::parse('2025-01-01')->subDays($day)->format('Y-m-d');
-        $dateFinal = Carbon::parse('2025-01-01')->subDays($day)->format('Y-m-d');
 
-
-
+        $dateInicial = Carbon::parse($date)->format('Y-m-d');
+        $dateFinal = Carbon::parse($date)->format('Y-m-d');
 
         $curl = curl_init();
 
@@ -62,19 +62,33 @@ class DatasysService
 
         $res = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response);
 
-
         curl_close($curl);
         $xml = new SimpleXMLElement($res);
         $body = $xml->xpath('//soapBody')[0];
         $array = json_decode(json_encode((array)$body), true);
 
-        $responseArray = $array['BaixarVendasResponse']['BaixarVendasResult']['NewDataSet']['Table'];
+        try {
+            $responseArray = $array['BaixarVendasResponse']['BaixarVendasResult']['NewDataSet']['Table'];
+            foreach ($responseArray as $record) {
+                ProcessDatasysJob::dispatch($record);
+            }
+            $sync =  SyncError::where('date_sync', $date)->first();
+            if ($sync) {
+                $sync->sync = true;
+                $sync->save();
+            }
+        } catch (Exception $e) {
+            $syncExist =  SyncError::where('date_sync', $date)->first();
+            if ($syncExist) {
+                $syncExist->error = $e->getMessage();
+                $syncExist->save();
+                return;
+            }
 
-
-        foreach ($responseArray as $record) {
-
-
-            ProcessDatasysJob::dispatch($record);
+            $syncError = new SyncError();
+            $syncError->date_sync = $date;
+            $syncError->error = $e->getMessage();
+            $syncError->save();
         }
     }
 }

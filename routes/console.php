@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Schedule;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command('datasys:import')->dailyAt('22:39');
+Schedule::command('datasys:import')->dailyAt(time: '0:30');
+
+Schedule::command('datasys:gerar-dados')->dailyAt(time: '2:30');
+Schedule::command('datasys:transfer')->dailyAt(time: '3:30');

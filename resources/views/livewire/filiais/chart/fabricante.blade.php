@@ -1,6 +1,6 @@
 <div class="flex flex-col items-center justify-between w-full h-full p-4 bg-white rounded shadow">
     <span class="text-3xl italic font-bold">Fabricantes</span>
-    <div id="chartFab" class="w-full h-24 bg-white">
+    <div id="chartFabFilial" class="w-full h-24 bg-white">
         {{-- The Master doesn't talk, he acts. --}}
     </div>
 </div>
@@ -168,6 +168,6 @@
 
     };
 
-    var chart = new ApexCharts(document.querySelector("#chartFab"), options);
+    var chart = new ApexCharts(document.querySelector("#chartFabFilial"), options);
     chart.render();
 </script>

@@ -41,7 +41,6 @@ class ProcessDatasysJob implements ShouldQueue
         }
 
         try {
-
             $datasys->save();
         } catch (Exception $e) {
             Log::error('Erro ao importar: ' . $this->data['Numero_x0020_Pedido'] . ' - ' . $e->getMessage());
@@ -184,6 +183,4 @@ class ProcessDatasysJob implements ShouldQueue
         }
         return $valor;
     }
-
-    
 }

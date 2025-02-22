@@ -10,6 +10,7 @@ use App\Models\Vendedor;
 use App\Services\ImagemTelecomService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Sleep;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -18,7 +19,9 @@ class Dashboard extends Component
 {
     public $chartMetas;
     public $chartFiliais;
+    public $chartFiliaisDown;
     public $chartVendedores;
+    public $chartVendedoresDown;
     public $chartFabricante;
     public $filiais;
     public $vendedores;
@@ -55,22 +58,35 @@ class Dashboard extends Component
 
     public $loading = true;
 
+    public $selectedTab = 0;
+    public $selectedTabV = 0;
+
 
     public function mount()
     {
-        $this->ano = '2024'; //Carbon::now()->format('Y');
-        $this->mes = '12'; //Carbon::now()->format('m');
+        $this->ano = Carbon::now()->format('Y');
+        $this->mes = Carbon::now()->format('m');
         $this->meses = $this->getMeses();
         $this->anos = $this->getAnos();
+        $this->selectedTab = 'filial-up';
+        $this->selectedTabV = 'vendedores-up';
+        //Sleep::for(10)->seconds();
+
+        //$this->init();
+    }
+    #[Layout('components.layouts.view')]
+    public function render()
+    {
         $this->init();
+        $this->loading = true;
+        return view('livewire.metas.dashboard');
     }
 
     public function init()
     {
-
-
-        $this->ano = '2024'; //Carbon::now()->format('Y');
-        $this->mes = '12'; //Carbon::now()->format('m');
+        $this->ano = Carbon::now()->format('Y');
+        $this->mes = Carbon::now()->format('m');
+        $this->loading = true;
 
         $vendaModel = new VendaModel();
         $imagemTelecom = new ImagemTelecomService($vendaModel);
@@ -186,8 +202,10 @@ class Dashboard extends Component
 
 
         $this->chartFiliais = $this->rankingFiliais();
+        $this->chartFiliaisDown = $this->rankingFiliaisDown();
 
         $this->chartVendedores = $this->rankingVendedores();
+        $this->chartVendedoresDown = $this->rankingVendedoresDown();
 
         $this->loading = false;
     }
@@ -207,7 +225,9 @@ class Dashboard extends Component
         $this->filiais = $this->getVendasFiliais();
         $this->chartMetas = $this->getChartMetas();
         $this->chartFiliais = $this->rankingFiliais();
+        $this->chartFiliaisDown = $this->rankingFiliaisDown();
         $this->chartVendedores = $this->rankingVendedores();
+        $this->chartVendedoresDown = $this->rankingVendedoresDown();
         $this->chartFabricante = $this->rankingFabricantes();
         $this->planos = $this->totalPlanos();
 
@@ -618,11 +638,8 @@ class Dashboard extends Component
         return $filiais;
     }
 
-    #[Layout('components.layouts.view')]
-    public function render()
-    {
-        return view('livewire.metas.dashboard');
-    }
+
+
 
     public function getGrupos()
     {
@@ -674,6 +691,49 @@ class Dashboard extends Component
         ];
     }
 
+    public function rankingVendedoresDown()
+    {
+
+        $rankingVendedores = VendaModel::query()
+            ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
+            })
+            ->groupBy('vendedor_id')
+            ->orderBy('total', direction: 'asc')
+            ->limit(10)
+            ->get();
+
+
+        foreach ($rankingVendedores as $vendedor) {
+            if ($vendedor->total) {
+                $vendedoresData[] = $vendedor->vendedor->nome;
+                $vendedorFaturamento[] = $vendedor->total;
+            }
+        }
+
+        return [
+            'type' => 'bar',
+            'data' => [
+                'labels' => $vendedoresData ?? null,
+                'datasets' => $vendedorFaturamento ?? null,
+            ],
+            'horizontal' => true,
+        ];
+    }
+
     public function rankingFiliais()
     {
         $rankingFiliais = VendaModel::query()
@@ -696,6 +756,44 @@ class Dashboard extends Component
             })
             ->groupBy('filial_id')
             ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get();
+        foreach ($rankingFiliais as $filial) {
+            $filialData[] = $filial->filial->filial;
+            $filialFaturamento[] = $filial->total;
+        }
+
+
+        return [
+            'data' => [
+                'labels' => $filialData,
+                'datasets' => $filialFaturamento,
+            ],
+            'horizontal' => true,
+        ];
+    }
+    public function rankingFiliaisDown()
+    {
+        $rankingFiliais = VendaModel::query()
+            ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
+            ->where('tipo_pedido', 'Venda')
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->when($this->filiais_id, function ($query) {
+                $query->whereIn('filial_id', $this->filiais_id);
+            })
+            ->groupBy('filial_id')
+            ->orderBy('total', direction: 'asc')
             ->limit(10)
             ->get();
         foreach ($rankingFiliais as $filial) {

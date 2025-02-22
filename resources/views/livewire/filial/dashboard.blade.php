@@ -128,15 +128,15 @@
         <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
             <span class="text-3xl italic font-bold">Progressão Mensal</span>
             <div class="w-full ">
-                <x-chart wire:model="chartProgressao" />
+                <livewire:filiais.chart.progressao-mensal :data="$chartProgressao" />
             </div>
         </div>
         <div class="flex flex-col w-full gap-2 lg:flex-row">
-            <div class="w-full p-2 bg-white rounded shadow">
-                <x-chart wire:model="chartAparelhos" />
+            <div class="w-full p-2 bg-white rounded shadow lg:w-1/2">
+                <livewire:filiais.chart.aparelhos :data="$chartAparelhos" />
             </div>
-            <div class="w-full p-2 bg-white rounded shadow">
-                <x-chart wire:model="chartAcessorios" />
+            <div class="w-full p-2 bg-white rounded shadow lg:w-1/2">
+                <livewire:filiais.chart.acessorios :data="$chartAcessorios" />
             </div>
 
 
@@ -171,30 +171,42 @@
                 @endforeach
 
             </div>
-            <div class="flex flex-col gap-2 lg:flex-row">
-                <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
-                    <x-chart wire:model="chartPlanosValor" />
+            <div class="flex flex-col w-full gap-4 lg:flex-row">
+                <div class="flex flex-col items-center w-full lg:w-1/2">
+                    <span class="text-xl italic font-bold text-center">Vendas</span>
+                    <livewire:charts.produtos :data="$chartPlanosValor" />
                 </div>
-                <div class="flex flex-col items-center w-full gap-4 p-2 bg-white rounded shadow">
-                    <x-chart wire:model="chartPlanosGross" />
+                <div class="flex flex-col items-center w-full lg:w-1/2">
+                    <span class="text-xl italic font-bold text-center">Gross</span>
+                    <livewire:charts.produtos-gross :data="$chartPlanosGross" />
                 </div>
+
             </div>
+
 
         </div>
         <div class="w-full border-b-2 border-primary">
             <span class="text-xl font-bold text-center ">Ranking</span>
         </div>
         <div class="flex flex-col gap-4 lg:flex-row ">
-            <div class="flex flex-col items-center justify-center p-2 bg-white rounded shadow lg:w-1/2">
-                <span class="text-xl italic font-bold ">Fabricantes</span>
-                <div class="w-full ">
-                    <x-chart wire:model="chartFabricante" />
-                </div>
+            <div class="flex flex-col items-center justify-center w-full max-h-screen lg:w-1/2">
+                <livewire:filiais.chart.fabricante :data="$chartFabricante" />
             </div>
             <div class="flex flex-col items-center justify-center w-full p-2 bg-white rounded shadow lg:w-1/2">
                 <span class="text-xl italic font-bold">Ranking Vendedores</span>
                 <div class="w-full ">
-                    <x-chart wire:model="chartVendedores" />
+                    <x-tabs wire:model="selectedTabV">
+                        <x-tab name="vendedores-up" label="10" icon="s-arrow-trending-up">
+                            <div class="w-full ">
+                                <livewire:charts.ranking-vendedores :data="$chartVendedores" />
+                            </div>
+                        </x-tab>
+                        <x-tab name="vendedores-down" label="10" icon="s-arrow-trending-down">
+                            <div class="w-full ">
+                                <livewire:charts.ranking-vendedores-down :data="$chartVendedoresDown" />
+                            </div>
+                        </x-tab>
+                    </x-tabs>
                 </div>
             </div>
         </div>

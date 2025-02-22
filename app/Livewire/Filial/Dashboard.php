@@ -58,10 +58,13 @@ class Dashboard extends Component
     public $planos;
     public $chartFabricante;
     public $chartVendedores;
+    public $chartVendedoresDown;
 
     public $chartPlanosValor;
 
     public $chartPlanosGross;
+
+    public $selectedTabV;
 
 
 
@@ -69,8 +72,8 @@ class Dashboard extends Component
     public function mount($id)
     {
         $imagemTelecom = new ImagemTelecomService(new Venda());
-        $this->mes =  '12'; //Carbon::now()->format('m');
-        $this->ano = '2024'; //Carbon::now()->format("Y");
+        $this->mes =  Carbon::now()->format('m');
+        $this->ano = Carbon::now()->format("Y");
         $this->meses = $this->getMeses();
 
         $this->anos = $this->getAnos();
@@ -83,6 +86,8 @@ class Dashboard extends Component
         $this->chartAcessorios = $this->chartAcessoriosData();
         $this->chartFranquia = $this->chartFranquiaData();
         $this->chartVendedores = $this->rankingVendedores();
+        $this->chartVendedoresDown = $this->rankingVendedoresDown();
+        $this->selectedTabV = 'vendedores-up';
 
         $this->meta = $this->getMetas();
 
@@ -145,22 +150,19 @@ class Dashboard extends Component
                 'labels' =>  $chartProgressaoLabels,
                 'datasets' => [
                     [
-                        'label' => 'Tendência',
+                        'name' => 'Tendência',
                         'data' => $chartProgressaoDatasetsTendencia,
-                        'borderColor' => '#2C5494',
-                        'backgroundColor' => '#849CBC',
+
                     ],
                     [
-                        'label' => 'Vendas',
+                        'name' => 'Vendas',
                         'data' => $chartProgressaoDatasets,
-                        'borderColor' => '#6FAD28',
-                        'backgroundColor' => '#8CD4C4',
+
                     ],
                     [
-                        'label' => 'Meta',
+                        'name' => 'Meta',
                         'data' => $chartProgressaoDatasetsMeta,
-                        'borderColor' => '#FCA4A4',
-                        'backgroundColor' => '#FCA4A4',
+
                     ],
 
                 ],
@@ -171,40 +173,24 @@ class Dashboard extends Component
         $chartPlanosLabel = [];
         $chartPlanosGross = [];
         $chartPlanosTotal = [];
+        $TotalVendas = 0;
+        $totalGross = 0;
 
         foreach ($planos as $plano) {
             $chartPlanosLabel[] = $plano['grupo'];
-            $chartPlanosTotal[] = $plano['total'];
+            $chartPlanosTotal[] = floatval($plano['total']);
             $chartPlanosGross[] = $plano['gross'];
+            $TotalVendas += $plano['total'];
+            $totalGross += floatval($plano['gross']);
         }
 
         $this->chartPlanosValor = [
             'type' => 'bar',
-            'options' => [
-                'responsive' => true,
-                'maintainAspectRatio' => false,
-
-                'legend' => [
-                    'display' => true,
-
-                ],
-
-
-            ],
             'data' => [
                 'labels' =>  $chartPlanosLabel,
-                'datasets' => [
-                    [
-                        'label' => 'Total em Planos',
-                        'data' => $chartPlanosTotal,
-                        'borderColor' => '#2C5494',
-                        'backgroundColor' => '#849CBC',
-                    ],
-
-
-                ],
-
-            ]
+                'datasets' => $chartPlanosTotal
+            ],
+            'total' => floatval($TotalVendas),
         ];
 
         $this->chartPlanosGross = [
@@ -222,18 +208,10 @@ class Dashboard extends Component
             ],
             'data' => [
                 'labels' =>  $chartPlanosLabel,
-                'datasets' => [
-                    [
-                        'label' => 'Gross Total',
-                        'data' => $chartPlanosGross,
-                        'borderColor' => '#2C5494',
-                        'backgroundColor' => '#849CBC',
-                    ],
+                'datasets' => $chartPlanosGross,
 
-
-                ],
-
-            ]
+            ],
+            'total' => floatval($totalGross),
         ];
     }
     #[Layout("components.layouts.view")]
@@ -290,6 +268,7 @@ class Dashboard extends Component
         $this->aparelhosTotal = $this->getTotalAparelhos();
         $this->acessoriosTotal = $this->getTotalAcessorios();
         $this->chartVendedores = $this->rankingVendedores();
+        $this->chartVendedoresDown = $this->rankingVendedoresDown();
 
         $this->tendenciaFaturamento = $imagemTelecom->tendencia($this->faturamentoTotal);
         $this->tendenciaAcessorioTotal = $imagemTelecom->tendencia($this->acessoriosTotal);
@@ -1018,22 +997,17 @@ class Dashboard extends Component
                 'labels' =>  $chartData['label'],
                 'datasets' => [
                     [
-                        'label' => 'Total em Aparelhos',
+                        'name' => 'Total em Aparelhos',
                         'data' => $chartData['dataset'],
-                        'borderColor' => '#F5620F',
-                        'backgroundColor' => '#F5620F',
                     ],
                     [
-                        'label' => 'Meta Aparelhos',
+                        'name' => 'Meta Aparelhos',
                         'data' => $chartData['datasetMeta'],
-                        'borderColor' => '##eab308',
-                        'backgroundColor' => '#eab308',
-
                     ],
 
-
                 ]
-            ]
+            ],
+            'total' => 0
         ];
 
 
@@ -1081,28 +1055,20 @@ class Dashboard extends Component
             ],
             'data' => [
                 'labels' =>  $chartData['label'],
-
                 'datasets' => [
                     [
-                        'label' => 'Total em Acessórios',
+                        'name' => 'Total em Aparelhos',
                         'data' => $chartData['dataset'],
-                        'borderColor' => '#54B48C',
-                        'backgroundColor' => '#54B48C',
-
                     ],
                     [
-                        'label' => 'Meta Acessórios',
+                        'name' => 'Meta Aparelhos',
                         'data' => $chartData['datasetMeta'],
-                        'borderColor' => '##eab308',
-                        'backgroundColor' => '#eab308',
-
                     ],
 
-
                 ]
-            ]
+            ],
+            'total' => 0
         ];
-
 
 
         return $chart;
@@ -1331,7 +1297,7 @@ class Dashboard extends Component
 
         foreach ($rankingFabricantes as $ranking) {
             $fabricanteLabels[] = $ranking->fabricante;
-            $fabricanteDatasets[] = $ranking->total;
+            $fabricanteDatasets[] = floatval($ranking->total);
         }
 
 
@@ -1339,12 +1305,7 @@ class Dashboard extends Component
             'type' => 'pie',
             'data' => [
                 'labels' => $fabricanteLabels ?? null,
-                'datasets' => [
-                    [
-                        'label' => 'R$',
-                        'data' => $fabricanteDatasets ?? null,
-                    ]
-                ]
+                'datasets' => $fabricanteDatasets ?? null
             ]
         ];
     }
@@ -1374,30 +1335,52 @@ class Dashboard extends Component
 
         foreach ($rankingVendedores as $vendedor) {
             $vendedoresData[] = $vendedor->vendedor->nome;
-            $vendedorFaturamento[] = $vendedor->total;
+            $vendedorFaturamento[] = floatval($vendedor->total);
         }
 
         return [
             'type' => 'bar',
-            'options' => [
-                'responsive' => true,
-                'indexAxis' => 'y',
-
-                'legend' => [
-                    'display' => true,
-                ],
-
-            ],
             'data' => [
                 'labels' => $vendedoresData ?? null,
-                'datasets' => [
-                    [
-                        'label' => 'Total em Vendas',
-                        'data' => $vendedorFaturamento ?? null,
-                    ],
+                'datasets' => $vendedorFaturamento ?? null,
+            ],
+        ];
+    }
 
-                ]
-            ]
+    public function rankingVendedoresDown()
+    {
+
+        $rankingVendedores = Venda::query()
+            ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
+            ->when($this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mesSelecionado);
+            })
+            ->when($this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->anoSelecionado);
+            })
+            ->when(!$this->mesSelecionado, function ($query) {
+                $query->whereMonth('data_pedido', $this->mes);
+            })
+            ->when(!$this->anoSelecionado, function ($query) {
+                $query->whereYear('data_pedido', $this->ano);
+            })
+            ->where('filial_id', $this->filial->id)
+            ->groupBy('vendedor_id')
+            ->orderBy('total', direction: 'asc')
+
+            ->get();
+
+        foreach ($rankingVendedores as $vendedor) {
+            $vendedoresData[] = $vendedor->vendedor->nome;
+            $vendedorFaturamento[] = floatval($vendedor->total);
+        }
+
+        return [
+            'type' => 'bar',
+            'data' => [
+                'labels' => $vendedoresData ?? null,
+                'datasets' => $vendedorFaturamento ?? null,
+            ],
         ];
     }
 
