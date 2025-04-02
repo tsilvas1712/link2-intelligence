@@ -53,6 +53,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::prefix('/admin')->name('admin.')->group(function () {
+        Route::get('/datasys',\App\Livewire\Admin\Datasys\Api::class)->name('datasys.api');
         Route::get('/filiais', \App\Livewire\Admin\Filiais\Main::class)->name('filiais');
         Route::get('/filiais/{id}', \App\Livewire\Admin\Filiais\Show::class)->name('filiais.show');
 

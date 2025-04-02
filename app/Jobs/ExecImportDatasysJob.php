@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Certificado;
 use App\Services\DatasysService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -26,7 +27,8 @@ class ExecImportDatasysJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $datasys = new DatasysService();
+        $certificado = new Certificado();
+        $datasys = new DatasysService($certificado);
         $datasys->getDatasysData($this->date);
     }
 }

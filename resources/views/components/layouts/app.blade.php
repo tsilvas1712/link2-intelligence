@@ -3,23 +3,23 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" name="viewport">
+    <meta content="{{ csrf_token() }}" name="csrf-token">
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
+<body class="min-h-screen bg-base-200/50 font-sans antialiased dark:bg-base-200">
 
     {{-- NAVBAR mobile only --}}
-    <x-nav sticky class="lg:hidden">
+    <x-nav class="lg:hidden" sticky>
         <x-slot:brand>
 
         </x-slot:brand>
         <x-slot:actions>
-            <label for="main-drawer" class="lg:hidden me-3">
-                <x-icon name="o-bars-3" class="cursor-pointer" />
+            <label class="me-3 lg:hidden" for="main-drawer">
+                <x-icon class="cursor-pointer" name="o-bars-3" />
             </label>
         </x-slot:actions>
     </x-nav>
@@ -27,11 +27,11 @@
     {{-- MAIN --}}
     <x-main full-width>
         {{-- SIDEBAR --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-primary lg:text-white">
+        <x-slot:sidebar class="bg-base-100 lg:bg-primary lg:text-white" collapsible drawer="main-drawer">
 
             {{-- BRAND --}}
-            <div class="w-full p-2 bg-white h-18">
-                <img src="{{ asset('assets/logo.svg') }}" alt="Logo" class="w-full h-16 mx-auto my-4" />
+            <div class="h-18 w-full bg-white p-2">
+                <img alt="Logo" class="mx-auto my-4 h-16 w-full" src="{{ asset('assets/logo.svg') }}" />
             </div>
 
 
@@ -42,34 +42,35 @@
                 @if ($user = auth()->user())
                     <x-menu-separator />
 
-                    <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover
-                        class="-mx-2 !-my-2 rounded">
+                    <x-list-item :item="$user" class="!-my-2 -mx-2 rounded" no-hover no-separator sub-value="email"
+                        value="name">
                         <x-slot:actions>
-                            <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff"
-                                no-wire-navigate link="/logout" />
+                            <x-button class="btn-circle btn-ghost btn-xs" icon="o-power" link="/logout" no-wire-navigate
+                                tooltip-left="logoff" />
                         </x-slot:actions>
                     </x-list-item>
 
                     <x-menu-separator />
                 @endif
 
-                <x-menu-item title="Home" icon="o-home" link="{{ route('admin.dashboard') }}" exact />
-                <x-menu-item title="Filiais" icon="o-building-storefront" link="{{ route('admin.filiais') }}" exact />
-                <x-menu-item title="Vendedores" icon="o-calculator" link="{{ route('admin.vendedores') }}" exact />
-                <x-menu-item title="Valores de Planos" icon="o-currency-dollar" link="{{ route('admin.planos') }}"
-                    exact />
-                <x-menu-item title="Grupos" icon="o-rectangle-group" link="{{ route('admin.groups') }}" exact />
-                <x-menu-item title="Usuários" icon="o-users" link="{{ route('admin.usuarios') }}" exact />
+                <x-menu-item exact icon="o-home" link="{{ route('admin.dashboard') }}" title="Home" />
+                <x-menu-item exact icon="o-key" link="{{ route('admin.datasys.api') }}" title="Certificado Datasys" />
+                <x-menu-item exact icon="o-building-storefront" link="{{ route('admin.filiais') }}" title="Filiais" />
+                <x-menu-item exact icon="o-calculator" link="{{ route('admin.vendedores') }}" title="Vendedores" />
+                <x-menu-item exact icon="o-currency-dollar" link="{{ route('admin.planos') }}"
+                    title="Valores de Planos" />
+                <x-menu-item exact icon="o-rectangle-group" link="{{ route('admin.groups') }}" title="Grupos" />
+                <x-menu-item exact icon="o-users" link="{{ route('admin.usuarios') }}" title="Usuários" />
                 <x-menu-separator />
-                <x-menu-item title="Painel de Vendas" icon="o-presentation-chart-line" link="{{ route('dashboard') }}"
-                    exact />
+                <x-menu-item exact icon="o-presentation-chart-line" link="{{ route('dashboard') }}"
+                    title="Painel de Vendas" />
 
             </x-menu>
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
         <x-slot:content>
-            <div class="w-full h-full p-4 bg-white rounded shadow">
+            <div class="h-full w-full rounded bg-white p-4 shadow">
                 {{ $slot }}
             </div>
         </x-slot:content>

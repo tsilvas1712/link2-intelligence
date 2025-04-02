@@ -103,6 +103,7 @@ class Main extends Component
             ->where('filial', $full)
             ->first();
 
+
         if (!$getFilial) {
             $getFilial = Filial::create([
                 'filial' => $full

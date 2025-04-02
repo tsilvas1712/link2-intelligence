@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\ProcessDatasys;
 use App\Jobs\ProcessDatasysJob;
+use App\Models\Certificado;
 use App\Models\SyncError;
 use Carbon\Carbon;
 use Exception;
@@ -15,13 +16,15 @@ class DatasysService
     private $datasysUrl;
     private $datasysToken;
 
+
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(Certificado $certificado)
     {
+        $api = $certificado->first();
         $this->datasysUrl = env('DATASYS_URL');
-        $this->datasysToken = env('DATASYS_TOKEN');
+        $this->datasysToken = $api->api_key;
         //
     }
 

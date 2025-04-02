@@ -64,8 +64,8 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $this->ano = Carbon::now()->format('Y');
-        $this->mes = Carbon::now()->format('m');
+        $this->ano = Carbon::now()->subDay(1)->format('Y');
+        $this->mes = Carbon::now()->subDay(1)->format('m');
         $this->meses = $this->getMeses();
         $this->anos = $this->getAnos();
         $this->selectedTab = 'filial-up';
@@ -84,8 +84,8 @@ class Dashboard extends Component
 
     public function init()
     {
-        $this->ano = Carbon::now()->format('Y');
-        $this->mes = Carbon::now()->format('m');
+        $this->ano = Carbon::now()->subDay(0)->format('Y');
+        $this->mes = Carbon::now()->subDay(0)->format('m');
         $this->loading = true;
 
         $vendaModel = new VendaModel();
@@ -497,7 +497,6 @@ class Dashboard extends Component
                         $query->whereIn('filial_id', $this->filiais_id);
                     }
                 )
-
                 ->get();
 
 
@@ -758,6 +757,7 @@ class Dashboard extends Component
             ->orderBy('total', 'desc')
             ->limit(10)
             ->get();
+
         foreach ($rankingFiliais as $filial) {
             $filialData[] = $filial->filial->filial;
             $filialFaturamento[] = $filial->total;
@@ -766,8 +766,8 @@ class Dashboard extends Component
 
         return [
             'data' => [
-                'labels' => $filialData,
-                'datasets' => $filialFaturamento,
+                'labels' => $filialData ?? [],
+                'datasets' => $filialFaturamento ?? [],
             ],
             'horizontal' => true,
         ];
@@ -796,6 +796,7 @@ class Dashboard extends Component
             ->orderBy('total', direction: 'asc')
             ->limit(10)
             ->get();
+
         foreach ($rankingFiliais as $filial) {
             $filialData[] = $filial->filial->filial;
             $filialFaturamento[] = $filial->total;
@@ -804,8 +805,8 @@ class Dashboard extends Component
 
         return [
             'data' => [
-                'labels' => $filialData,
-                'datasets' => $filialFaturamento,
+                'labels' => $filialData ?? [],
+                'datasets' => $filialFaturamento ?? [],
             ],
             'horizontal' => true,
         ];

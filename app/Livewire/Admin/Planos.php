@@ -89,7 +89,6 @@ class Planos extends Component
 
         foreach ($csvFile as $record) {
 
-
             $isUpdated = $this->updatePlano($record['plano_habilitado'], $record['valor_franquia']);
 
             if (!$isUpdated) {
