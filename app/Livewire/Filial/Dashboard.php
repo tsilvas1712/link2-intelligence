@@ -378,7 +378,7 @@ class Dashboard extends Component
             ->when(!$this->anoSelecionado, function ($query) {
                 $query->whereYear('data_pedido', $this->ano);
             })
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->where('filial_id', $this->filial->id)
             ->get();
     }
@@ -422,7 +422,7 @@ class Dashboard extends Component
                 $query->whereYear('data_pedido', $this->ano);
             })
             ->where('filial_id', $this->filial->id)
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->groupBy('grupo_estoque')
             ->orderBy('total', 'desc')
             ->get();
@@ -871,7 +871,7 @@ class Dashboard extends Component
                 $query->whereYear('data_pedido', $this->ano);
             })
             ->where('filial_id', $this->filial->id)
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->get();
 
         $vendedores_id = $vendas->pluck('vendedor')->unique();
@@ -1134,7 +1134,7 @@ class Dashboard extends Component
     {
         return Venda::query()
             ->selectRaw('filial_id, count(*) as aparelho,sum(base_faturamento_compra) as total')
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -1157,7 +1157,7 @@ class Dashboard extends Component
     {
         return Venda::query()
             ->selectRaw('filial_id,sum(valor_caixa) as total')
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -1272,7 +1272,7 @@ class Dashboard extends Component
 
         $rankingFabricantes = Venda::query()
             ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })

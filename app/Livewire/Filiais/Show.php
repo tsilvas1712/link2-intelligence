@@ -33,7 +33,7 @@ class Show extends Component
     public function getData(): LengthAwarePaginator
     {
         return Venda::query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->orderBy('data_pedido', 'desc')
             ->paginate();
     }

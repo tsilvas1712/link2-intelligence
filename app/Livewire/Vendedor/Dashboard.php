@@ -367,7 +367,7 @@ class Dashboard extends Component
     public function getVendas()
     {
         return Venda::query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -1173,7 +1173,7 @@ class Dashboard extends Component
 
         $rankingFabricantes = Venda::query()
             ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })

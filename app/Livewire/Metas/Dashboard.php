@@ -408,7 +408,7 @@ class Dashboard extends Component
     {
         $filiais_ids = VendaModel::query()
             ->select('filial_id')
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -454,7 +454,7 @@ class Dashboard extends Component
     {
         $vendas = $this->getVendas();
         return $vendas
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->where('grupo_estoque', 'APARELHO')
             ->sum('base_faturamento_compra');
     }
@@ -462,7 +462,7 @@ class Dashboard extends Component
     public function getTotalAcessorios()
     {
         $vendas = $this->getVendas();
-        return $vendas->where('tipo_pedido', 'Venda')->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])->sum('valor_caixa');
+        return $vendas->whereIn('tipo_pedido', ['Venda', 'VENDA'])->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])->sum('valor_caixa');
     }
 
     public function getChartMetas()
@@ -483,7 +483,7 @@ class Dashboard extends Component
         ];
         foreach ($this->meses as $mes) {
             $vendas =  VendaModel::query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->whereMonth('data_pedido', $mes)
                 ->when($this->anoSelecionado, function ($query) {
                     $query->whereYear('data_pedido', $this->anoSelecionado);
@@ -559,13 +559,13 @@ class Dashboard extends Component
     public function getTotalChips()
     {
         $vendas = $this->getVendas();
-        return $vendas->where('tipo_pedido', 'Venda')->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
+        return $vendas->whereIn('tipo_pedido', ['Venda', 'VENDA'])->whereIn('grupo_estoque', ['CHIP'])->sum('valor_caixa');
     }
 
     public function getTotalRecarga()
     {
         $vendas = $this->getVendas();
-        return $vendas->where('tipo_pedido', 'Venda')->whereIn('grupo_estoque', ['RECARGA ELETRONICA', 'RECARGA GWCEL'])->sum('valor_caixa');
+        return $vendas->whereIn('tipo_pedido', ['Venda', 'VENDA'])->whereIn('grupo_estoque', ['RECARGA ELETRONICA', 'RECARGA GWCEL'])->sum('valor_caixa');
     }
 
     public function getTotalFranquia()
@@ -737,7 +737,7 @@ class Dashboard extends Component
     {
         $rankingFiliais = VendaModel::query()
             ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -776,7 +776,7 @@ class Dashboard extends Component
     {
         $rankingFiliais = VendaModel::query()
             ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })
@@ -817,7 +817,7 @@ class Dashboard extends Component
 
         $rankingFabricantes = VendaModel::query()
             ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->when($this->mesSelecionado, function ($query) {
                 $query->whereMonth('data_pedido', $this->mesSelecionado);
             })

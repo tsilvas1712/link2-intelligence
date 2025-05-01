@@ -36,7 +36,7 @@ class ImagemTelecomService
             ->get();
 
 
-        $media = floatVal($total) / count($totalDias);
+        $media = count($totalDias) > 0 ? (floatVal($total) / count($totalDias)) : 0;
 
         return $media * count($totalDias);
     }
@@ -45,7 +45,7 @@ class ImagemTelecomService
     {
         $filiais_ids = Venda::query()
             ->select('filial_id')
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereMonth('data_pedido', '=', $mes)
             ->whereYear('data_pedido', '=', $ano)
             ->groupBy('filial_id')
@@ -94,7 +94,7 @@ class ImagemTelecomService
     {
         return $this->vendas->query()
             ->select('filial_id', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereMonth('data_pedido', '=', '05')
             ->groupBy('filial_id')
             ->orderBy('total', 'desc')
@@ -106,7 +106,7 @@ class ImagemTelecomService
     {
         return $this->vendas->query()
             ->select('fabricante', DB::raw('sum(valor_caixa) as Total'))
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->where('grupo_estoque', 'APARELHO')
             ->where('fabricante', '<>', '')
             ->whereMonth('data_pedido', '=', '05')
@@ -119,7 +119,7 @@ class ImagemTelecomService
     public function faturamento($mes, $ano): float
     {
         $total =  $this->vendas->query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereMonth('data_pedido', '=', $mes)
             ->whereYear('data_pedido', '=', $ano)
             ->sum('valor_caixa');
@@ -358,7 +358,7 @@ class ImagemTelecomService
     {
         $total = Cache::remember('totalChip', 60, function () {
             return $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->where('grupo_estoque', 'CHIP')
                 ->whereMonth('data_pedido', '=', $this->mes)
                 ->whereYear('data_pedido', '=', $this->ano)
@@ -373,7 +373,7 @@ class ImagemTelecomService
 
         $total = Cache::remember('acessoriosFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
             return $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->where('filial_id', $filial)
                 ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
                 ->whereMonth('data_pedido', '=', $mes)
@@ -389,7 +389,7 @@ class ImagemTelecomService
 
         $total = Cache::remember('aparelhosFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
             return $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->where('filial_id', $filial)
                 ->where('grupo_estoque', 'APARELHO')
                 ->whereMonth('data_pedido', '=', $mes)
@@ -405,7 +405,7 @@ class ImagemTelecomService
 
         $total = Cache::remember('chipsFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
             return $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->where('filial_id', $filial)
                 ->where('grupo_estoque', 'CHIP')
                 ->whereMonth('data_pedido', '=', $mes)
@@ -421,7 +421,7 @@ class ImagemTelecomService
 
         $total = Cache::remember('recargaFilial_' . $filial . '-' . $mes . '-' . $ano, 60, function () use ($filial, $mes, $ano) {
             return $this->vendas->query()
-                ->where('tipo_pedido', 'Venda')
+                ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->where('filial_id', $filial)
                 ->whereIn('grupo_estoque', ['RECARGA', 'RECARGA GWCEL'])
                 ->whereMonth('data_pedido', '=', $mes)
@@ -435,7 +435,7 @@ class ImagemTelecomService
     public function totalRecarga()
     {
         return $this->vendas->query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereIn('grupo_estoque', ['RECARGA ELETRONICA', 'RECARGA GWCEL'])
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
@@ -445,7 +445,7 @@ class ImagemTelecomService
     public function totalFranquia()
     {
         return $this->vendas->query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
             ->sum('valor_franquia');
@@ -454,7 +454,7 @@ class ImagemTelecomService
     public function totalAcessorios()
     {
         return $this->vendas->query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->whereIn('grupo_estoque', ['ACESSORIOS', 'ACESSORIOS TIM'])
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)
@@ -464,7 +464,7 @@ class ImagemTelecomService
     public function totalAparelhos()
     {
         return $this->vendas->query()
-            ->where('tipo_pedido', 'Venda')
+            ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
             ->where('grupo_estoque', 'APARELHO')
             ->whereMonth('data_pedido', '=', $this->mes)
             ->whereYear('data_pedido', '=', $this->ano)

@@ -129,7 +129,7 @@ class TransferDataSysCommand extends Command
                     'filial_id' => $filial->id,
                     'vendedor_id' => $vendedor->id,
                     'gsm' => $item->GSM,
-                    'gsm_portado' => $item->GSMPortado,
+                    'gsm_portado' => $item->GSMPortado ?? null,
                     'contrato' => $item->Contrato,
                     'numero_pv' => $item->Numero_x0020_Pedido,
                     'data_pedido' => $item->Data_x0020_pedido,
