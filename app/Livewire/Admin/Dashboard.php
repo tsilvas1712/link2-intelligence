@@ -4,19 +4,15 @@ namespace App\Livewire\Admin;
 
 use App\Models\Filial;
 use App\Models\Grupo;
+use App\Models\GrupoEstoque;
 use App\Models\SyncMongo;
 use App\Models\User;
 use App\Models\Venda;
 use App\Models\Vendedor;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
-
-use function MongoDB\object;
 
 class Dashboard extends Component
 {
@@ -39,17 +35,26 @@ class Dashboard extends Component
         $this->notClassificate();
     }
 
-    public function render()
-    {
-        return view('livewire.admin.dashboard');
-    }
-
     #[Computed]
     public function notClassificate(): LengthAwarePaginator
     {
         $filiais = Filial::select('id')->get();
         $aFiliais = [];
-        $grupo_estoque = ['APARELHO', 'CHIP', 'ACESSORIOS', 'ACESSORIOS TIM', 'RECARGA ELETRONICA', 'RECARGA GWCEL'];
+        $grupos = Grupo::all();
+        $grupo_ids = [];
+        foreach ($grupos as $grupo) {
+            foreach (explode(';',$grupo->grupo_estoque) as $grupo_estoque) {
+                $grupo_ids[] = $grupo_estoque;
+            }
+        }
+
+        $g_estoque = GrupoEstoque::query()
+            ->whereIn('id', $grupo_ids)
+            ->pluck('nome')
+            ->toArray();
+
+
+        $grupo_estoque =$g_estoque;
         foreach ($filiais as $filial) {
             $aFiliais[] = $filial->id;
         }
@@ -61,6 +66,12 @@ class Dashboard extends Component
 
         return $vendas;
     }
+
+    public function render()
+    {
+        return view('livewire.admin.dashboard');
+    }
+
     public function headers()
     {
         return [

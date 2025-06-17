@@ -2,7 +2,6 @@
 
 use App\Livewire\Dashboard;
 use App\Livewire\Login;
-use App\Livewire\Welcome;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 
 Route::get('/login', Login::class)->name('login');
 
@@ -30,7 +28,7 @@ Route::get('/logout', function () {
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dash', Dashboard::class)->name('dash');
-    Route::get('/', \App\Livewire\Metas\Dashboard::class)->name('dashboard');
+    Route::get('/', \App\Livewire\App\Dashboard::class)->name('dashboard');
     Route::prefix('/detalhes')->name('detalhes.')->group(function () {
         Route::get('/grupos/{id}', \App\Livewire\Detalhamento\Grupos::class)->name('grupos');
     });
@@ -49,11 +47,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('/filiais')->name('filiais.')->group(function () {
         Route::get('', \App\Livewire\Filiais\Dashboard::class)->name('dashboard');
         Route::get('/{id}', \App\Livewire\Filiais\Filial::class)->name('show');
-        //Route::get('relatorio/{id}', \App\Livewire\Filiais\show::class)->name('relatorio');
+        // Route::get('relatorio/{id}', \App\Livewire\Filiais\show::class)->name('relatorio');
     });
 
     Route::prefix('/admin')->name('admin.')->group(function () {
-        Route::get('/datasys',\App\Livewire\Admin\Datasys\Api::class)->name('datasys.api');
+        Route::get('/datasys', \App\Livewire\Admin\Datasys\Api::class)->name('datasys.api');
         Route::get('/filiais', \App\Livewire\Admin\Filiais\Main::class)->name('filiais');
         Route::get('/filiais/{id}', \App\Livewire\Admin\Filiais\Show::class)->name('filiais.show');
 

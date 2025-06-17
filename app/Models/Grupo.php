@@ -21,4 +21,9 @@ class Grupo extends Model
     {
         return $this->belongsTo(Filial::class);
     }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

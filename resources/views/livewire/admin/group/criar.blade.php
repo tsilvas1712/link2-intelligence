@@ -13,14 +13,15 @@
                 <x-form wire:submit="save">
                     <x-input label="Nome do Grupo" wire:model="nome" />
                     <x-input label="Descrição" wire:model="descricao" />
-                    <x-textarea label="Modalidade de Vendas" wire:model="modalidades_vendas"
-                        placeholder="Separar as modalidades de vendas por ';'" hint="Max 1000 chars" rows="5"
-                        inline />
-                    <x-textarea label="Planos Habilitados" wire:model="planos_habilitados"
-                        placeholder="Separar os Planos Habilitados por ';'" hint="Max 1000 chars" rows="5"
-                        inline />
+                    <x-choices label="Grupos De Estoques" wire:model="selected_grupo_estoque" :options="$this->getGrupoEstoque()" placeholder="Buscar..."  >
+                    </x-choices>
 
-                    <x-input label="Grupo de Estoque" wire:model="grupo_estoque" />
+                    <x-choices label="Modalidade de Vendas" wire:model="selected_modalidade_vendas" :options="$this->getModalidadeVendas()" placeholder="Buscar..."  >
+                    </x-choices>
+
+                    <x-choices label="Planos Habilitados" wire:model="selected_plano_habilitados" :options="$this->getPlanoHabilitados()" placeholder="Buscar..."  >
+                    </x-choices>
+
                     <x-input label="Campo de Referência" wire:model="campo_valor" />
 
                     <x-slot:actions>
