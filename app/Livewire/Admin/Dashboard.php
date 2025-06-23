@@ -5,6 +5,8 @@ namespace App\Livewire\Admin;
 use App\Models\Filial;
 use App\Models\Grupo;
 use App\Models\GrupoEstoque;
+use App\Models\ModalidadeVenda;
+use App\Models\PlanoHabilitacao;
 use App\Models\SyncMongo;
 use App\Models\User;
 use App\Models\Venda;
@@ -23,7 +25,13 @@ class Dashboard extends Component
     public $planos;
     public $meses;
     public $vendas;
-    public $selectedTab = 'sync-tab';
+    public $grupos_estoque;
+    public $modalidades_vendas;
+    public $planos_habilitados;
+    public $collection_grupos_estoques;
+    public $collection_modalidades_vendas;
+    public $collection_planos_habilitados;
+
 
     public function mount()
     {
@@ -32,7 +40,46 @@ class Dashboard extends Component
         $this->vendedores = Vendedor::count();
         $this->planos = Grupo::count();
         $this->vendas = Venda::count();
-        $this->notClassificate();
+
+        $grupos = Grupo::all();
+
+        $grupos_estoques = [];
+        $modalidades_vendas = [];
+        $planos_habilitados = [];
+        foreach ($grupos as $grupo) {
+           $array_grupo_estoque = explode(';', $grupo->grupo_estoque);
+            $array_modalidade_venda = explode(';', $grupo->modalidade_venda);
+            $array_plano_habilitacao = explode(';', $grupo->plano_habilitacao);
+
+            if (count($array_grupo_estoque) > 0 && $array_grupo_estoque[0] != '') {
+                foreach ($array_modalidade_venda as $row)
+            if ($row) {
+                $modalidades_vendas[] = $row;
+            }
+
+                foreach ($array_plano_habilitacao as $row)
+                if ($row) {
+                    $planos_habilitados[] = $row;
+                }
+
+            }
+           foreach ($array_grupo_estoque as $row)
+            if ($row) {
+                $grupos_estoques[] = $row;
+            }
+            }
+        $collection_grupos_estoques = GrupoEstoque::query()
+            ->whereNotIn('id', $grupos_estoques)
+        ->get();
+        $this->grupos_estoque = $collection_grupos_estoques;
+        $collection_modalidades_vendas = ModalidadeVenda::query()->whereNotIn('id', $modalidades_vendas)->get();
+        $this->modalidades_vendas = $collection_modalidades_vendas;
+        $collection_planos_habilitados = PlanoHabilitacao::query()
+            ->whereNotIn('id', $planos_habilitados)
+        ->get();
+        $this->planos_habilitados = $collection_planos_habilitados;
+
+        //$this->notClassificate();
     }
 
     #[Computed]
@@ -48,10 +95,11 @@ class Dashboard extends Component
             }
         }
 
+
         $g_estoque = GrupoEstoque::query()
             ->whereIn('id', $grupo_ids)
-            ->pluck('nome')
-            ->toArray();
+            ->get();
+        dd($g_estoque);
 
 
         $grupo_estoque =$g_estoque;
@@ -72,69 +120,8 @@ class Dashboard extends Component
         return view('livewire.admin.dashboard');
     }
 
-    public function headers()
-    {
-        return [
-            ['key' => 'id', 'label' => '#'],
-            ['key' => 'filial_id', 'label' => 'Filial'],
-            ['key' => 'vendedor_id', 'label' => 'Vendedor'],
-            ['key' => 'gsm', 'label' => 'GSM'],
-            ['key' => 'gsm_portado', 'label' => 'GSM Portado'],
-            ['key' => 'tipo_pedido', 'label' => 'Tipo Pedido'],
-            ['key' => 'descricao', 'label' => 'Descrição'],
-            ['key' => 'grupo_estoque', 'label' => 'Grupo de Estoque'],
-            ['key' => 'plano_habilitacao', 'label' => 'Plano Habilitação'],
-            ['key' => 'valor_caixa', 'label' => 'Valor Caixa'],
-            ['key' => 'valor_franquia', 'label' => 'Valor Franquia'],
-            ['key' => 'base_faturamento_compra', 'label' => 'Base Faturamento Compra'],
-            ['key' => 'modalidade_venda', 'label' => 'Modalidade de Venda'],
-            ['key' => 'status_linha', 'label' => 'Status Linha'],
-        ];
-    }
 
-    #[Computed]
-    public function dataMongo(): LengthAwarePaginator
-    {
-        $mongoDB = SyncMongo::query()
-            ->where('migrated', true)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
 
-        return $mongoDB;
-    }
 
-    public function headersMongo()
-    {
-        return [
-            ['key' => 'filial', 'label' => 'Filial'],
-            ['key' => 'data', 'label' => 'Número do Pedido'],
-            ['key' => 'pedido', 'label' => 'Data Pedido'],
-            ['key' => 'migrated', 'label' => 'Dado Migrado'],
-            ['key' => 'grupo_estoque', 'label' => 'Grupo de Estoque'],
-        ];
-    }
 
-    #[Computed]
-    public function errorMongo(): LengthAwarePaginator
-    {
-        $mongoDB = SyncMongo::query()
-            ->where('migrated', false)
-            ->orderBy('updated_at', 'desc')
-            ->paginate(10);
-
-        return $mongoDB;
-    }
-
-    public function headersErrors()
-    {
-        return [
-            ['key' => 'filial', 'label' => 'Filial'],
-            ['key' => 'data', 'label' => 'Número do Pedido'],
-            ['key' => 'pedido', 'label' => 'Data Pedido'],
-            ['key' => 'migrated', 'label' => 'Dado Migrado'],
-            ['key' => 'grupo_estoque', 'label' => 'Grupo de Estoque'],
-            ['key' => 'error_migrated', 'label' => 'Erro de Migração'],
-
-        ];
-    }
 }

@@ -12,6 +12,7 @@ use Mary\Traits\Toast;
 class Main extends Component
 {
     use WithPagination,Toast;
+    public $active = false;
     public $headers = [
         ['key' => 'id', 'label' => '#'],
         ['key' => 'nome', 'label' => 'Grupo'],

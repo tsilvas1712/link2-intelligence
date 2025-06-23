@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\GrupoEstoque;
 use App\Models\Venda;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class GrupoEstoqueCommand extends Command
@@ -37,10 +38,15 @@ class GrupoEstoqueCommand extends Command
             ->get();
 
         foreach ($vendas as $venda) {
-            $grupo = new GrupoEstoque();
-            $grupo->nome = Str::upper($venda->grupo_estoque);
-            $grupo->descricao = 'Grupo de estoque criado automaticamente a partir DATASYS: ' . $venda->id;
-            $grupo->save();
+            try{
+                $grupo = new GrupoEstoque();
+                $grupo->nome = Str::upper($venda->grupo_estoque);
+                $grupo->descricao = 'Grupo de estoque criado automaticamente a partir DATASYS: ' . $venda->id;
+                $grupo->save();
+            }catch (\Exception $e){
+                Log::error('Erro ao criar grupo de estoque: ' . $e->getMessage());
+            }
+
 
         }
 

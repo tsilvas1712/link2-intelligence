@@ -15,7 +15,7 @@
 </head>
 
 <body class="min-h-screen font-sans antialiased">
-    <div class="m-auto flex flex-col gap-2 rounded bg-gray-100 p-2 lg:max-w-7xl">
+    <div class="m-auto flex flex-col gap-2 rounded  p-2 lg:max-w-7xl">
         @php
             $certificado = \App\Models\Certificado::query()->first();
 

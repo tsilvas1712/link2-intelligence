@@ -54,7 +54,13 @@
                 @endif
 
                 <x-menu-item exact icon="o-home" link="{{ route('admin.dashboard') }}" title="Home" />
-                <x-menu-item exact icon="o-key" link="{{ route('admin.datasys.api') }}" title="Certificado Datasys" />
+
+                <x-menu-sub title="Datasys" icon="o-cog-6-tooth" icon-classes="text-warning">
+                    <x-menu-item exact icon="o-device-tablet" link="{{ route('admin.datasys.dashboard') }}" title="Painel Datasys" />
+                    <x-menu-item exact icon="o-key" link="{{ route('admin.datasys.api') }}" title="Certificado Datasys" />
+                </x-menu-sub>
+
+                <x-menu-item exact icon="o-rectangle-group" link="{{route('admin.categorias')}}" title="Categorias" />
                 <x-menu-item exact icon="o-building-storefront" link="{{ route('admin.filiais') }}" title="Filiais" />
                 <x-menu-item exact icon="o-calculator" link="{{ route('admin.vendedores') }}" title="Vendedores" />
                 <x-menu-item exact icon="o-currency-dollar" link="{{ route('admin.planos') }}"

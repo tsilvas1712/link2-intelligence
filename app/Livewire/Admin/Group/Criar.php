@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Group;
 
+use App\Models\Category;
 use App\Models\Grupo;
 use App\Models\GrupoEstoque;
 use App\Models\ModalidadeVenda;
@@ -16,6 +17,9 @@ class Criar extends Component
     public $campo_valor;
     public $modalidades_vendas;
     public $planos_habilitados;
+    public $selected_category = null;
+
+    public $categories;
 
     public $choice_grupo_estoque = [
         'id' => null,
@@ -27,9 +31,11 @@ class Criar extends Component
 
     public $selected_modalidade_vendas = [];
 
-
+    public $selected_campo_referencia;
+    public $campos_referencia = [];
 
     public $id;
+    public $active = false;
 
     public function mount($id = null)
     {
@@ -37,9 +43,12 @@ class Criar extends Component
         if ($id !== null) {
             $this->id = $id;
             $grupo = Grupo::find($id);
+            ds($grupo);
             $this->nome = $grupo->nome;
             $this->descricao = $grupo->descricao;
+            $this->active = $grupo->principal;
             $this->grupo_estoque = $grupo->grupo_estoque;
+            $this->selected_category = $grupo->category_id;
             $this->campo_valor = $grupo->campo_valor;
             $this->modalidades_vendas = $grupo->modalidade_venda;
             $this->planos_habilitados = $grupo->plano_habilitacao;
@@ -47,9 +56,29 @@ class Criar extends Component
             $this->selected_modalidade_vendas = $grupo->modalidade_venda ? explode(';', $grupo->modalidade_venda): [];
             $this->selected_plano_habilitados = $grupo->plano_habilitacao ? explode(';', $grupo->plano_habilitacao):[];
         }
+        $this->categories = Category::all();
+
+        $this->campos_referencia[] = [
+            'id' => 'valor_caixa',
+            'name' => 'Valor Caixa',
+        ];
+
+        $this->campos_referencia[] = [
+            'id' => 'base_faturamento_compra',
+            'name' => 'Base Faturamento Compra',
+        ];
+
+        $this->campos_referencia[] = [
+            'id' => 'valor_franquia',
+            'name' => 'Valor Franquia',
+        ];
+
+
+
     }
     public function render()
     {
+
 
         return view('livewire.admin.group.criar');
     }
@@ -72,6 +101,8 @@ class Criar extends Component
         if ($this->id !== null) {
             $grupo = Grupo::find($this->id);
             $grupo->nome = $this->nome;
+            $grupo->category_id = $this->selected_category;
+            $grupo->principal = $this->active;
             $grupo->descricao = $this->descricao;
             $grupo->modalidade_venda =count($this->selected_modalidade_vendas)>0 ? collect($this->selected_modalidade_vendas)->implode(';'): '';
             $grupo->plano_habilitacao =count($this->selected_plano_habilitados) > 0 ? collect($this->selected_plano_habilitados)->implode(';'): '';
@@ -82,6 +113,8 @@ class Criar extends Component
         } else {
             $grupo = new Grupo();
             $grupo->nome = $this->nome;
+            $grupo->category_id = $this->selected_category;
+            $grupo->principal = $this->active;
             $grupo->descricao = $this->descricao;
             $grupo->modalidade_venda =count($this->selected_modalidade_vendas)>0 ? collect($this->selected_modalidade_vendas)->implode(';'): '';
             $grupo->plano_habilitacao =count($this->selected_plano_habilitados) > 0 ? collect($this->selected_plano_habilitados)->implode(';'): '';

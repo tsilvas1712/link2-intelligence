@@ -154,13 +154,6 @@ class Dashboard extends Component
         $this->tendenciaFranquiaTotal = $imagemTelecom->tendencia($this->franquiaTotal);
         $this->tendenciaAparelhosTotal = $imagemTelecom->tendencia($this->aparelhosTotal);
 
-
-
-
-
-
-
-
         $this->chartMetas = $this->getChartMetas();
 
 

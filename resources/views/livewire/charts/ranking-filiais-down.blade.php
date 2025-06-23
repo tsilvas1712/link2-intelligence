@@ -5,6 +5,8 @@
     var labels = @json($data['data']['labels']);
     var datasets = @json($data['data']['datasets']);
 
+
+
     var horizontal = @json($data['horizontal'] ?? false);
     var type = @json($data['type'] ?? 'bar');
     var total = 150;

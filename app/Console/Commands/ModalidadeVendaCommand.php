@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ModalidadeVenda;
 use App\Models\Venda;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ModalidadeVendaCommand extends Command
 {
@@ -36,10 +37,15 @@ class ModalidadeVendaCommand extends Command
             ->get();
 
         foreach ($vendas as $venda) {
-            $modalidade = new ModalidadeVenda();
-            $modalidade->nome = $venda->modalidade_venda;
-            $modalidade->descricao = 'Modalidade de venda criada automaticamente a partir DATASYS: ' . $venda->id;
-            $modalidade->save();
+            try{
+                $modalidade = new ModalidadeVenda();
+                $modalidade->nome = $venda->modalidade_venda;
+                $modalidade->descricao = 'Modalidade de venda criada automaticamente a partir DATASYS: ' . $venda->id;
+                $modalidade->save();
+            }catch (\Exception $e){
+                Log::error('Erro ao criar modalidade de venda: ' . $e->getMessage());
+            }
+
         }
     }
 }

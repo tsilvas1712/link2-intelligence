@@ -51,7 +51,14 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::prefix('/admin')->name('admin.')->group(function () {
-        Route::get('/datasys', \App\Livewire\Admin\Datasys\Api::class)->name('datasys.api');
+        Route::get('/not-classificate/{slug}', \App\Livewire\Admin\NotClassificate::class)->name('not-classificate');
+        Route::get('/datasys/api', \App\Livewire\Admin\Datasys\Api::class)->name('datasys.api');
+        Route::get('/datasys', \App\Livewire\Admin\Datasys\Dashboard::class)->name('datasys.dashboard');
+
+        Route::get('/categorias', \App\Livewire\Admin\Categories\Main::class)->name('categorias');
+        Route::get('/categorias/new', \App\Livewire\Admin\Categories\NewCategory::class)->name('categorias.new');
+        Route::get('/categorias/edit/{id}', \App\Livewire\Admin\Categories\EditCategory::class)->name('categorias.edit');
+
         Route::get('/filiais', \App\Livewire\Admin\Filiais\Main::class)->name('filiais');
         Route::get('/filiais/{id}', \App\Livewire\Admin\Filiais\Show::class)->name('filiais.show');
 

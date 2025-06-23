@@ -173,7 +173,6 @@
                             <div class="flex w-full flex-col items-center gap-4 rounded bg-white p-2 shadow">
                                 <div class="flex gap-2">
                                     <span class="text-3xl font-bold italic">Ranking de Filiais</span>
-
                                 </div>
                                 <x-tabs wire:model="selectedTab">
                                     <x-tab icon="s-arrow-trending-up" label="10" name="filial-up">
@@ -187,7 +186,6 @@
                                         </div>
                                     </x-tab>
                                 </x-tabs>
-
                             </div>
 
                             <div class="flex w-full flex-col items-center gap-4 rounded bg-white p-2 shadow">
@@ -206,7 +204,6 @@
                                 </x-tabs>
 
                             </div>
-
                         </div>
                         <div class="flex max-h-screen w-full flex-col items-center justify-center lg:w-1/2">
                             <livewire:charts.apex-pie :data="$chartFabricante" />

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\PlanoHabilitacao;
 use App\Models\Venda;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class PlanoHabilitacoesCommand extends Command
 {
@@ -36,10 +37,15 @@ class PlanoHabilitacoesCommand extends Command
             ->get();
 
         foreach ($vendas as $venda) {
-            $plano = new PlanoHabilitacao();
-            $plano->nome = $venda->plano_habilitacao;
-            $plano->descricao = 'Plano de habilitação criado automaticamente a partir DATASYS: ' . $venda->id;
-            $plano->save();
+            try {
+                $plano = new PlanoHabilitacao();
+                $plano->nome = $venda->plano_habilitacao;
+                $plano->descricao = 'Plano de habilitação criado automaticamente a partir DATASYS: ' . $venda->id;
+                $plano->save();
+            }catch (\Exception $e){
+                Log::error('Erro ao criar plano de habilitação: ' . $e->getMessage());
+            }
+
         }
     }
 }
