@@ -46,6 +46,25 @@
 
                         </div>
                     </div>
+                    <div>
+                        <div class="flex w-full flex-col items-center gap-4 rounded lg:h-[500px] bg-white p-2 shadow">
+                            <span class="text-2xl font-bold italic">Vendas</span>
+                            <div class="flex w-full flex-row gap-2">
+                                <div class="w-full lg:w-1/3">
+                                    <livewire:charts.grupo-estoque/>
+                                </div>
+                                <div class="w-full lg:w-1/3">
+                                    <livewire:charts.aparelhos/>
+                                </div>
+                                <div class="w-full lg:w-1/3">
+                                    <livewire:charts.planos/>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </x-tab>
             <x-tab name="block" label="Totalizadores" icon="o-tv">

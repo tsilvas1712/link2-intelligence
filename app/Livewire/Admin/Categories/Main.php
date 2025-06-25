@@ -17,7 +17,7 @@ class Main extends Component
         return view('livewire.admin.categories.main');
     }
 
-    public function create():\Illuminate\Http\RedirectResponse
+    public function create()
     {
         return redirect()->route('admin.categorias.new');
     }

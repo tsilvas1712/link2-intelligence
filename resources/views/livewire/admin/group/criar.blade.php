@@ -21,13 +21,20 @@
                     </div>
 
                     <x-input label="Descrição" wire:model="descricao" />
-                    <x-choices label="Grupos De Estoques" wire:model="selected_grupo_estoque" :options="$this->getGrupoEstoque()" placeholder="Buscar..."  >
+                    <x-choices label="Grupos De Estoques" wire:model="selected_grupo_estoque" :options="$this->getGrupoEstoque()" placeholder="Buscar..."
+                               allow-all
+                               allow-all-text="Selecionar Todos"
+                               remove-all-text="Deletar Todos" />
+
+
+                    <x-choices label="Modalidade de Vendas" wire:model="selected_modalidade_vendas" :options="$this->getModalidadeVendas()" placeholder="Buscar..." allow-all
+                               allow-all-text="Selecionar Todos"
+                               remove-all-text="Deletar Todos" >
                     </x-choices>
 
-                    <x-choices label="Modalidade de Vendas" wire:model="selected_modalidade_vendas" :options="$this->getModalidadeVendas()" placeholder="Buscar..."  >
-                    </x-choices>
-
-                    <x-choices label="Planos Habilitados" wire:model="selected_plano_habilitados" :options="$this->getPlanoHabilitados()" placeholder="Buscar..."  >
+                    <x-choices label="Planos Habilitados" wire:model="selected_plano_habilitados" :options="$this->getPlanoHabilitados()" placeholder="Buscar..." allow-all
+                               allow-all-text="Selecionar Todos"
+                               remove-all-text="Deletar Todos" >
                     </x-choices>
 
                     <div class="flex justify-between items-center">

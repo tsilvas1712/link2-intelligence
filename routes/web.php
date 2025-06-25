@@ -29,6 +29,19 @@ Route::get('/logout', function () {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dash', Dashboard::class)->name('dash');
     Route::get('/', \App\Livewire\App\Dashboard::class)->name('dashboard');
+
+    Route::prefix('grupo-estoque')->name('grupo-estoque.')->group(function () {
+            Route::get('', \App\Livewire\App\GrupoEstoque\Main::class)->name('main');
+            Route::get('/{grupo}', \App\Livewire\App\GrupoEstoque\Show::class)->name('show');
+
+        }
+    );
+
+    Route::prefix('aparelhos')->name('aparelhos.')->group(function () {
+        Route::get('', \App\Livewire\App\Aparelhos\Main::class)->name('main');
+        Route::get('/{aparelho}', \App\Livewire\App\Aparelhos\Show::class)->name('show');
+    });
+
     Route::prefix('/detalhes')->name('detalhes.')->group(function () {
         Route::get('/grupos/{id}', \App\Livewire\Detalhamento\Grupos::class)->name('grupos');
     });
