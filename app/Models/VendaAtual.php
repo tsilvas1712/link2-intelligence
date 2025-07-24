@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Venda extends Model
+class VendaAtual extends Model
 {
+    /** @use HasFactory<\Database\Factories\VendaAtualFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'area',
         'regional',

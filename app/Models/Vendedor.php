@@ -19,6 +19,11 @@ class Vendedor extends Model
         return $this->hasMany(Venda::class);
     }
 
+    public function vendas_atual()
+    {
+        return $this->hasMany(VendaAtual::class);
+    }
+
     public function metas()
     {
         return $this->hasMany(MetasVendedores::class);

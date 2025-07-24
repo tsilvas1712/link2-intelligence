@@ -115,6 +115,12 @@ return [
             'driver' => 'mongodb',
             'dsn' => env('MONGODB_URI', 'mongodb://localhost:27017'),
             'database' => env('MONGODB_DATABASE', 'laravel_app'),
+            'options' => [
+                'transactions' => false,
+                'replicaSet' => 'rs0',
+                
+            ],
+            
         ],
     ],
 

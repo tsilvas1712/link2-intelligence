@@ -2,6 +2,9 @@
 
 namespace App\Livewire\App;
 
+use App\Imports\SyncMongoImport;
+use App\Imports\VendasAtualImport;
+use App\Imports\VendasImport;
 use App\Models\Category;
 use App\Models\Grupo;
 use App\Models\GrupoEstoque;
@@ -14,13 +17,18 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Dashboard extends Component
 {
+    use WithFileUploads;
+
     public $ano;
     public $mes;
     public $meses;
     public $anos;
+    public $file;
 
     public $selectedTab = 'charts';
 
@@ -38,7 +46,8 @@ class Dashboard extends Component
 
     public $chartMetas;
 
-    public function mount(){
+    public function mount()
+    {
         $this->ano = Carbon::now()->subDay(1)->format('Y');
         $this->mes = Carbon::now()->subDay(1)->format('m');
         $this->meses = $this->getMeses();
@@ -48,74 +57,6 @@ class Dashboard extends Component
         $this->chartFiliaisDown = $this->rankingFiliaisDown();
         $this->chartVendedores = $this->rankingVendedores();
         $this->chartVendedoresDown = $this->rankingVendedoresDown();
-    }
-
-    #[Layout('components.layouts.view')]
-    public function render()
-    {
-
-
-        $telas = Category::query()
-            ->where('active', 1)
-            ->orderBy('order', 'asc')
-            ->get();
-        return view('livewire.app.dashboard',[
-            'telas' => $telas,
-        ]);
-    }
-
-    public function getValores($id=null){
-        if(!$id){
-            return [];
-        }
-
-        $grupo = Grupo::find($id);
-        $grupo_estoque=null;
-        $plano_habilitado=null;
-        $modalidade_venda=null;
-
-        if($grupo->grupo_estoque) {
-            $grupo_estoque = GrupoEstoque::query()
-                ->whereIn('id', explode(';', $grupo->grupo_estoque))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        if($grupo->plano_habilitacao){
-            $plano_habilitado = PlanoHabilitacao::query()
-                ->whereIn('id', explode(';', $grupo->plano_habilitacao))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        if($grupo->modalidade_venda) {
-            $modalidade_venda = ModalidadeVenda::query()
-                ->whereIn('id', explode(';', $grupo->modalidade_venda))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        $campo_valor = $grupo->campo_valor;
-
-
-            $total = Venda::query()
-                ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
-                    return $query->whereIn('grupo_estoque', $grupo_estoque);
-                })
-                ->when($plano_habilitado, function ($query) use ($plano_habilitado) {
-                    return $query->whereIn('plano_habilitacao', $plano_habilitado);
-                })
-                ->when($modalidade_venda, function ($query) use ($modalidade_venda) {
-                    return $query->whereIn('modalidade_venda', $modalidade_venda);
-                })
-                ->whereYear('data_pedido', '=', $this->ano)
-                ->whereMonth('data_pedido', '=', $this->mes)
-                ->sum($campo_valor);
-
-        return $total;
-
-
-
     }
 
     public function getMeses()
@@ -144,7 +85,7 @@ class Dashboard extends Component
         for ($i = 0; $i < 10; $i++) {
             $anos[] = [
                 'id' => $anoInicial + $i,
-                'name' =>  $anoInicial + $i,
+                'name' => $anoInicial + $i,
             ];
         }
 
@@ -168,7 +109,7 @@ class Dashboard extends Component
             '12' => 'Dez'
         ];
         foreach ($this->meses as $mes) {
-            $vendas =  VendaModel::query()
+            $vendas = VendaModel::query()
                 ->whereIn('tipo_pedido', ['Venda', 'VENDA'])
                 ->whereMonth('data_pedido', $mes)
                 ->when($this->anoSelecionado, function ($query) {
@@ -184,7 +125,6 @@ class Dashboard extends Component
                     }
                 )
                 ->get();
-
 
 
             $meta = MetasFiliais::query()
@@ -217,7 +157,7 @@ class Dashboard extends Component
         return [
             'type' => 'bar',
             'data' => [
-                'labels' =>  $chartMetasLabels,
+                'labels' => $chartMetasLabels,
                 'datasets' => [
                     [
                         'name' => 'Tendência',
@@ -407,5 +347,82 @@ class Dashboard extends Component
             ],
             'horizontal' => true,
         ];
+    }
+
+    #[Layout('components.layouts.view')]
+    public function render()
+    {
+
+
+        $telas = Category::query()
+            ->where('active', 1)
+            ->orderBy('order', 'asc')
+            ->get();
+        return view('livewire.app.dashboard', [
+            'telas' => $telas,
+        ]);
+    }
+
+    public function getValores($id = null)
+    {
+        if (!$id) {
+            return [];
+        }
+
+        $grupo = Grupo::find($id);
+        $grupo_estoque = null;
+        $plano_habilitado = null;
+        $modalidade_venda = null;
+
+        if ($grupo->grupo_estoque) {
+            $grupo_estoque = GrupoEstoque::query()
+                ->whereIn('id', explode(';', $grupo->grupo_estoque))
+                ->pluck('nome')
+                ->toArray();
+        }
+
+        if ($grupo->plano_habilitacao) {
+            $plano_habilitado = PlanoHabilitacao::query()
+                ->whereIn('id', explode(';', $grupo->plano_habilitacao))
+                ->pluck('nome')
+                ->toArray();
+        }
+
+        if ($grupo->modalidade_venda) {
+            $modalidade_venda = ModalidadeVenda::query()
+                ->whereIn('id', explode(';', $grupo->modalidade_venda))
+                ->pluck('nome')
+                ->toArray();
+        }
+
+        $campo_valor = $grupo->campo_valor;
+
+
+        $total = Venda::query()
+            ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
+                return $query->whereIn('grupo_estoque', $grupo_estoque);
+            })
+            ->when($plano_habilitado, function ($query) use ($plano_habilitado) {
+                return $query->whereIn('plano_habilitacao', $plano_habilitado);
+            })
+            ->when($modalidade_venda, function ($query) use ($modalidade_venda) {
+                return $query->whereIn('modalidade_venda', $modalidade_venda);
+            })
+            ->whereYear('data_pedido', '=', $this->ano)
+            ->whereMonth('data_pedido', '=', $this->mes)
+            ->sum($campo_valor);
+
+        ds($total);
+
+        return $total;
+
+
+    }
+
+    public function uploadFile()
+    {
+
+        Excel::import(new VendasImport(), $this->file->getRealPath());
+        Excel::import(new VendasAtualImport(), $this->file->getRealPath());
     }
 }
