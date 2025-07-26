@@ -2,14 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Models\Plano;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
 class ETLDatasysJob implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, Batchable;
+
+    public $timeout = 600;
 
     protected $data;
     protected $id_mongo;
@@ -22,6 +24,7 @@ class ETLDatasysJob implements ShouldQueue
 
         $this->id_mongo = $id_mongo;
         $this->data = $data;
+
     }
 
     /**
@@ -29,15 +32,12 @@ class ETLDatasysJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $filial = trim(str_replace(' ', '', $this->data['Filial']));
-        $cpf_vendedor = trim(str_replace(' ', '', $this->data['CPF_x0020_Vendedor']));
-
-
-
+        $filial = trim(str_replace(' ', '', $this->data['Filial'] ?? $this->data['filial']));
+        $cpf_vendedor = trim(str_replace(' ', '', $this->data['CPF_x0020_Vendedor'] ?? $this->data['cpf_vendedor']));
 
 
         $filial_id = $this->getFilialId($filial);
-        $nome_vendedor = trim($this->data['Nome_x0020_Vendedor']);
+        $nome_vendedor = trim($this->data['Nome_x0020_Vendedor'] ?? $this->data['nome_vendedor'] ?? '');
         $vendedor_id = $this->getVendedorId($cpf_vendedor, $nome_vendedor);
 
         if (!$filial_id) {
@@ -53,46 +53,46 @@ class ETLDatasysJob implements ShouldQueue
         $venda = [
             'filial_id' => $filial_id,
             'vendedor_id' => $vendedor_id,
-            'gsm' => $this->data['GSM'],
-            'gsm_portado' => $this->data['GSMPortado'] ?? null,
-            'contrato' => $this->data['Contrato'] ?? null,
-            'numero_pv' => $this->data['Numero_x0020_Pedido'] ?? null,
-            'data_pedido' => $this->data['Data_x0020_pedido'] ?? null,
-            'tipo_pedido' => $this->data['Tipo_x0020_Pedido'] ?? null,
-            'cod_produto' => $this->data['Cod_x0020_produto'] ?? null,
-            'modalidade_venda' => $this->data['Modalidade_x0020_Venda'] ?? null,
-            'descricao_comercial' => $this->data['Descr_x0020_Comercial'] ?? null,
-            'descricao' => $this->data['Descricao'] ?? null,
-            'grupo_estoque' => $this->data['Grupo_x0020_Estoque'] ?? null,
-            'sub_grupo' => $this->data['SubGrupo'] ?? null ?? null,
-            'familia' => $this->data['Familia'] ?? null ?? null,
-            'fabricante' => $this->data['Fabricante'] ?? null ?? null,
-            'categoria' => $this->data['Categoria'] ?? null ?? null,
-            'tipo_produto'  => $this->data['Tipo_x0020_Produto'] ?? null,
-            'serial' => $this->data['Serial'] ?? null,
-            'qtde' => $this->data['Qtde'] ?? null,
-            'valor_tabela' => $this->data['Valor_x0020_Tabela'] ?? null,
-            'valor_plano' => $this->data['Valor_x0020_Plano'] ?? null,
-            'valor_caixa'   => $this->data['Valor_x0020_Caixa'] ?? null ?? null,
-            'descontos' => $this->data['Descontos'] ?? null,
-            'juros' => $this->data['Juros'] ?? null,
-            'total_item' => $this->data['Total_x0020_Item'] ?? null,
-            'valor_franquia' => $this->data['ValorFranquia'] ?? null,
-            'desconto_compra' => $this->data['Descontos_x0020_Compra'] ?? null,
-            'custo_total' => $this->data['Custo_x0020_Total'] ?? null,
-            'cpf_cliente' => $this->data['CPF_x0020_Cliente'] ?? null,
-            'nome_cliente' => $this->data['Nome_x0020_Cliente'] ?? null,
-            'uf_cliente'    => $this->data['UF_x0020_Cliente'] ?? null,
-            'cidade_cliente' => $this->data['Cidade_x0020_Cliente'] ?? null,
-            'fone_cliente' => $this->data['Fone_x0020_Cliente'] ?? null,
+            'gsm' => $this->data['GSM'] ?? $this->data['gsm'],
+            'gsm_portado' => $this->data['GSMPortado'] ?? $this->data['gsm_portado'] ?? null,
+            'contrato' => $this->data['Contrato'] ?? $this->data['contrato'] ?? null,
+            'numero_pv' => $this->data['Numero_x0020_Pedido'] ?? $this->data['numero_pv'] ?? null,
+            'data_pedido' => $this->data['Data_x0020_pedido'] ?? $this->data['data_pedido'] ?? null,
+            'tipo_pedido' => $this->data['Tipo_x0020_Pedido'] ?? $this->data['tipo_pedido'] ?? null,
+            'cod_produto' => $this->data['Cod_x0020_produto'] ?? $this->data['cod_produto'] ?? null,
+            'modalidade_venda' => $this->data['Modalidade_x0020_Venda'] ?? $this->data['modalidade_venda'] ?? null,
+            'descricao_comercial' => $this->data['Descr_x0020_Comercial'] ?? $this->data['descricao_comercial'] ?? null,
+            'descricao' => $this->data['Descricao'] ?? $this->data['descricao'] ?? null,
+            'grupo_estoque' => $this->data['Grupo_x0020_Estoque'] ?? $this->data['grupo_estoque'] ?? null,
+            'sub_grupo' => $this->data['SubGrupo'] ?? $this->data['sub_grupo'] ?? null,
+            'familia' => $this->data['Familia'] ?? $this->data['familia'] ?? null,
+            'fabricante' => $this->data['Fabricante'] ?? $this->data['fabricante'] ?? null,
+            'categoria' => $this->data['Categoria'] ?? $this->data['categoria'] ?? null,
+            'tipo_produto' => $this->data['Tipo_x0020_Produto'] ?? $this->data['tipo_produto'] ?? null,
+            'serial' => $this->data['Serial'] ?? $this->data['serial'] ?? null,
+            'qtde' => $this->data['Qtde'] ?? $this->data['qtde'] ?? null,
+            'valor_tabela' => $this->data['Valor_x0020_Tabela'] ?? $this->data['valor_tabela'] ?? null,
+            'valor_plano' => $this->data['Valor_x0020_Plano'] ?? $this->data['valor_plano'] ?? null,
+            'valor_caixa' => $this->data['Valor_x0020_Caixa'] ?? $this->data['valor_caixa'] ?? null,
+            'descontos' => $this->data['Descontos'] ?? $this->data['descontos'] ?? null,
+            'juros' => $this->data['Juros'] ?? $this->data['juros'] ?? null,
+            'total_item' => $this->data['Total_x0020_Item'] ?? $this->data['total_item'] ?? null,
+            'valor_franquia' => $this->data['ValorFranquia'] ?? $this->data['valor_franquia'] ?? null,
+            'desconto_compra' => $this->data['Descontos_x0020_Compra'] ?? $this->data['desconto_compra'] ?? null,
+            'custo_total' => $this->data['Custo_x0020_Total'] ?? $this->data['custo_total'] ?? null,
+            'cpf_cliente' => $this->data['CPF_x0020_Cliente'] ?? $this->data['cpf_cliente'] ?? null,
+            'nome_cliente' => $this->data['Nome_x0020_Cliente'] ?? $this->data['nome_cliente'] ?? null,
+            'uf_cliente' => $this->data['UF_x0020_Cliente'] ?? $this->data['uf_cliente'] ?? null,
+            'cidade_cliente' => $this->data['Cidade_x0020_Cliente'] ?? $this->data['cidade_cliente'] ?? null,
+            'fone_cliente' => $this->data['Fone_x0020_Cliente'] ?? $this->data['fone_cliente'] ?? null,
             'plano_habilitacao' => $this->data['Plano_x0020_Habilitacao'] ?? null,
-            'valor_pre' => $this->data['VALOR_x0020_PRE'] ?? null,
-            'combo' => $this->data['COMBO'] ?? null,
-            'valor_plano_anterior' => $this->data['Valor_x0020_Plano_x0020_Anterior'] ?? null,
-            'qtde_pontos' => $this->data['Qtde_x0020_Pontos'] ?? null,
-            'base_faturamento_compra' => $this->data['BASE_x0020_FATURAMENTO_x0020_COMPRA'] ?? null,
-            'base_faturamento_venda' => $this->data['BASE_x0020_FATURAMENTO_x0020_VENDA'] ?? null,
-            'valor_unitario' => $this->data['Valor_x0020_Unitario'] ?? null,
+            'valor_pre' => $this->data['VALOR_x0020_PRE'] ?? $this->data['valor_pre'] ?? null,
+            'combo' => $this->data['COMBO'] ?? $this->data['combo'] ?? null,
+            'valor_plano_anterior' => $this->data['Valor_x0020_Plano_x0020_Anterior'] ?? $this->data['valor_plano_anterior'] ?? null,
+            'qtde_pontos' => $this->data['Qtde_x0020_Pontos'] ?? $this->data['qtde_pontos'] ?? null,
+            'base_faturamento_compra' => $this->data['BASE_x0020_FATURAMENTO_x0020_COMPRA'] ?? $this->data['base_faturamento_compra'] ?? null,
+            'base_faturamento_venda' => $this->data['BASE_x0020_FATURAMENTO_x0020_VENDA'] ?? $this->data['base_faturamento_venda'] ?? null,
+            'valor_unitario' => $this->data['Valor_x0020_Unitario'] ?? $this->data['valor_unitario'] ?? null,
 
             //'status_linha' => $item->status_linha,
         ];

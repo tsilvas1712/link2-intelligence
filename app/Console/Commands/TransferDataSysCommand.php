@@ -32,27 +32,8 @@ class TransferDataSysCommand extends Command
      */
     public function handle()
     {
-        $this->transferData();
-    }
 
-
-    public function getFilial($filial)
-    {
-        $filial_id = Filial::where('filial', $filial)->first();
-
-        if ($filial === null) {
-            dd($filial);
-        }
-        return $filial_id;
-    }
-
-    public function getVendedor($vendedor)
-    {
-        $vendedor_id = Vendedor::where('cpf', $vendedor)->first();
-        if ($vendedor_id === null) {
-            dd($vendedor);
-        }
-        return $vendedor_id;
+        dd($this->transferData());
     }
 
     public function transferData()
@@ -86,12 +67,12 @@ class TransferDataSysCommand extends Command
                     'familia' => $item->familia,
                     'fabricante' => $item->fabricante,
                     'categoria' => $item->categoria,
-                    'tipo_produto'  => $item->tipo_produto,
+                    'tipo_produto' => $item->tipo_produto,
                     'serial' => $item->serial,
                     'qtde' => $item->qtde,
                     'valor_tabela' => $item->valor_tabela,
                     'valor_plano' => $item->valor_plano,
-                    'valor_caixa'   => $item->valor_caixa,
+                    'valor_caixa' => $item->valor_caixa,
                     'descontos' => $item->descontos,
                     'juros' => $item->juros,
                     'total_item' => $item->total_item,
@@ -100,7 +81,7 @@ class TransferDataSysCommand extends Command
                     'custo_total' => $item->custo_total,
                     'cpf_cliente' => $item->cpf_cliente,
                     'nome_cliente' => $item->nome_cliente,
-                    'uf_cliente'    => $item->uf_cliente,
+                    'uf_cliente' => $item->uf_cliente,
                     'cidade_cliente' => $item->cidade_cliente,
                     'fone_cliente' => $item->fone_cliente,
                     'plano_habilitacao' => strtoupper($item->plano_habilitacao),
@@ -144,12 +125,12 @@ class TransferDataSysCommand extends Command
                     'familia' => $item->Familia,
                     'fabricante' => $item->Fabricante,
                     'categoria' => $item->Categoria,
-                    'tipo_produto'  => $item->Tipo_x0020_Produto,
+                    'tipo_produto' => $item->Tipo_x0020_Produto,
                     'serial' => $item->Serial,
                     'qtde' => $item->Qtde,
                     'valor_tabela' => $item->Valor_x0020_Tabela,
                     'valor_plano' => $item->Valor_x0020_Plano,
-                    'valor_caixa'   => $item->Valor_x0020_Caixa,
+                    'valor_caixa' => $item->Valor_x0020_Caixa,
                     'descontos' => $item->Descontos,
                     'juros' => $item->Juros,
                     'total_item' => $item->Total_x0020_Item,
@@ -158,7 +139,7 @@ class TransferDataSysCommand extends Command
                     'custo_total' => $item->Custo_x0020_Total,
                     'cpf_cliente' => $item->CPF_x0020_Cliente,
                     'nome_cliente' => $item->Nome_x0020_Cliente,
-                    'uf_cliente'    => $item->UF_x0020_Cliente,
+                    'uf_cliente' => $item->UF_x0020_Cliente,
                     'cidade_cliente' => $item->Cidade_x0020_Cliente,
                     'fone_cliente' => $item->Fone_x0020_Cliente,
                     'plano_habilitacao' => strtoupper($item->Plano_x0020_Habilitacao),
@@ -177,6 +158,25 @@ class TransferDataSysCommand extends Command
                 TransferDatasysJob::dispatch($venda, $item->datasys_id);
             }
         });
+    }
+
+    public function getFilial($filial)
+    {
+        $filial_id = Filial::where('filial', $filial)->first();
+
+        if ($filial === null) {
+            dd($filial);
+        }
+        return $filial_id;
+    }
+
+    public function getVendedor($vendedor)
+    {
+        $vendedor_id = Vendedor::where('cpf', $vendedor)->first();
+        if ($vendedor_id === null) {
+            dd($vendedor);
+        }
+        return $vendedor_id;
     }
 
     public function getValorFranquia($plano_habilitado)

@@ -15,56 +15,59 @@
 </head>
 
 <body class="min-h-screen font-sans antialiased">
-    <div class="m-auto flex flex-col gap-2 rounded  p-2 lg:max-w-7xl">
-        @php
-            $certificado = \App\Models\Certificado::query()->first();
-
+<div class="m-auto flex flex-col gap-2 rounded  p-2 lg:max-w-7xl">
+    @php
+        $certificado = \App\Models\Certificado::query()->first();
+        if($certificado){
             $validate_at = Carbon\Carbon::parse($certificado->validateAt)->format('Y-m-d');
             $now = Carbon\Carbon::now()->format('Y-m-d');
             $expirate_in = Carbon\Carbon::parse($now)->diffInDays($validate_at);
+        }
 
-        @endphp
+    @endphp
+    @if($certificado)
         @if ($expirate_in <= 2)
             <x-alert class="bg-red-500" description="Sua chave de API Está Vencendo" dismissible
-                icon="o-exclamation-triangle" title="Datasys" />
+                     icon="o-exclamation-triangle" title="Datasys"/>
         @endif
         @if ($expirate_in <= 5 && $expirate_in > 2)
             <x-alert class="bg-yellow-400" description="Sua chave de API irá Expirar em Breve" dismissible
-                icon="o-exclamation-triangle" title="Datasys" />
+                     icon="o-exclamation-triangle" title="Datasys"/>
         @endif
+    @endif
 
-        <header class="flex justify-between rounded bg-white p-2 shadow">
-            <div class="!justify-end">
-                <x-button class="btn-primary" icon="o-home" label="Home" link="{{ route('dashboard') }}" />
-                <x-button class="btn-primary hidden" disabled icon="o-building-storefront" label="Filiais"
-                    link="{{ route('filiais.dashboard') }}" />
-                <x-button class="btn-primary hidden" disabled icon="o-users" label="Vendedores"
-                    link="{{ route('vendedores.dashboard') }}" />
-                <x-button class="btn-primary hidden" disabled icon="o-cursor-arrow-ripple" label="Planos" />
+    <header class="flex justify-between rounded bg-white p-2 shadow">
+        <div class="!justify-end">
+            <x-button class="btn-primary" icon="o-home" label="Home" link="{{ route('dashboard') }}"/>
+            <x-button class="btn-primary hidden" disabled icon="o-building-storefront" label="Filiais"
+                      link="{{ route('filiais.dashboard') }}"/>
+            <x-button class="btn-primary hidden" disabled icon="o-users" label="Vendedores"
+                      link="{{ route('vendedores.dashboard') }}"/>
+            <x-button class="btn-primary hidden" disabled icon="o-cursor-arrow-ripple" label="Planos"/>
 
-            </div>
-            <div>
-                @if (auth()->user()->cargo === 'admin')
-                    <x-button class="btn bg-gray-500 hover:bg-secondary" icon="o-cog" label="Painel"
-                        link="{{ route('admin.dashboard') }}" />
-                @endif
-                <x-button class="btn bg-red-500" icon="o-arrow-right-end-on-rectangle" label="Sair"
-                    link="{{ route('logout') }}" />
-            </div>
-        </header>
-        {{-- MAIN --}}
-        <x-main full-width>
+        </div>
+        <div>
+            @if (auth()->user()->cargo === 'admin')
+                <x-button class="btn bg-gray-500 hover:bg-secondary" icon="o-cog" label="Painel"
+                          link="{{ route('admin.dashboard') }}"/>
+            @endif
+            <x-button class="btn bg-red-500" icon="o-arrow-right-end-on-rectangle" label="Sair"
+                      link="{{ route('logout') }}"/>
+        </div>
+    </header>
+    {{-- MAIN --}}
+    <x-main full-width>
 
-            <x-slot:content>
+        <x-slot:content>
 
-                {{ $slot }}
-            </x-slot:content>
-        </x-main>
+            {{ $slot }}
+        </x-slot:content>
+    </x-main>
 
-        {{--  TOAST area --}}
-        <x-toast />
+    {{--  TOAST area --}}
+    <x-toast/>
 
-    </div>
+</div>
 
 
 </body>

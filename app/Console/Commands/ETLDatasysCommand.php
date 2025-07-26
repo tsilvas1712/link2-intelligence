@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\ETLDatasysJob;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 
 class ETLDatasysCommand extends Command
 {
@@ -30,8 +31,18 @@ class ETLDatasysCommand extends Command
             ->where('migrated', false)
             ->get();
 
+        $batchs = [];
+
         foreach ($mongoData as $data) {
-            ETLDatasysJob::dispatch($data->data, $data->id);
+            $job = new ETLDatasysJob($data->data, $data->id);
+            $batchs[] = $job;
+            //ETLDatasysJob::dispatch($data->data, $data->id)->onQueue('processing');
         }
+
+        Bus::batch($batchs)->then(function () {
+            \Artisan::call('datasys:grupo-estoque');
+            \Artisan::call('datasys:modalidade-venda');
+            \Artisan::call('datasys:plano-habilitacoes');
+        })->dispatch();
     }
 }

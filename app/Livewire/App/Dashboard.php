@@ -2,8 +2,6 @@
 
 namespace App\Livewire\App;
 
-use App\Imports\SyncMongoImport;
-use App\Imports\VendasAtualImport;
 use App\Imports\VendasImport;
 use App\Models\Category;
 use App\Models\Grupo;
@@ -15,6 +13,7 @@ use App\Models\Venda;
 use App\Models\Venda as VendaModel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -28,7 +27,7 @@ class Dashboard extends Component
     public $mes;
     public $meses;
     public $anos;
-    public $file;
+    public $file = null;
 
     public $selectedTab = 'charts';
 
@@ -42,12 +41,31 @@ class Dashboard extends Component
     public $chartVendedoresDown;
     public $selectedTabF = 'filial-up';
     public $selectedTabV = 'vendedores-up';
+    public $isLoading = false;
+    public $isProcessing = false;
 
 
     public $chartMetas;
 
     public function mount()
     {
+
+        $connection = 'queue';
+        $queueName = 'default';
+
+        $size = Queue::size('import_vendas');
+        $processing = Queue::size('default');
+
+        $this->isLoading = $size;
+        $this->isProcessing = $processing > 0;
+
+        //$jobChunks = new Job::class();
+        //link2datai_database_ZdlWlHMNV6Z0SNgMhl416RBzu2IDe6lLkvcIepls
+        //$totalQueuedLeads = Redis::mget();
+        //->zcount('queues:' . $queueName . ':delayed', '-inf', '+inf');
+
+        //dd($size);
+
         $this->ano = Carbon::now()->subDay(1)->format('Y');
         $this->mes = Carbon::now()->subDay(1)->format('m');
         $this->meses = $this->getMeses();
@@ -422,7 +440,9 @@ class Dashboard extends Component
     public function uploadFile()
     {
 
-        Excel::import(new VendasImport(), $this->file->getRealPath());
-        Excel::import(new VendasAtualImport(), $this->file->getRealPath());
+        Excel::import(new VendasImport(), $this->file->getRealPath())->allOnQueue('import_vendas');
+
+        return redirect()->route('dashboard');
+
     }
 }

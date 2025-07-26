@@ -1,12 +1,40 @@
 <div class="w-full flex flex-col gap-4">
-    <div class="w-full bg-white p-2">
-        <x-form wire:submit="uploadFile" class="w-full flex justify-between">
-            <x-file wire:model="file" label="Upload para Atualização" hint="Somente  XLSX" />
+    @if(!$isLoading && !$isProcessing)
+        <div class="w-full bg-white p-2">
+            <x-form wire:submit="uploadFile" class="w-full flex justify-between">
+                <x-file wire:model="file" label="Upload para Atualização" hint="Somente  XLSX"/>
 
-            <x-button label="Enviar Arquivo" class="btn-primary" type="submit" spinner="uploadFile" />
+                <x-button label="Enviar Arquivo" class="btn-primary" type="submit" spinner="uploadFile"/>
 
-        </x-form>
-    </div>
+            </x-form>
+        </div>
+    @endif
+
+    @if($isLoading)
+        <div class="w-full bg-white p-2">
+            <h3 class="text-2xl text-center text-primary font-black">Seu arquivo está sendo processado, em uma base de
+                segurança</h3>
+            <div class="flex justify-center w-full p-8">
+                <x-loading class="loading-bars loading-lg text-primary"/>
+            </div>
+
+        </div>
+    @endif
+
+    @if($isProcessing)
+        <div class="w-full flex flex-col gap-8 items-center bg-white p-2">
+            <h3 class="text-2xl text-center text-primary font-black">Os Dados estão sendo Processados em sua base de
+                dados</h3>
+
+            <div class="flex justify-center items-center  p-2 gap-4 bg-primary rounded-lg w-1/3">
+                <span class="font-bold text-white">Por Favor aguarde um momento</span>
+                <x-loading class="loading-dots loading-lg text-white"/>
+            </div>
+
+        </div>
+
+    @endif
+
 
     <div class="w-full bg-white p-2">
         <x-tabs class="bg-base-200" wire:model="selectedTab">
@@ -15,7 +43,7 @@
                     <div class="flex w-full flex-col items-center gap-4 rounded bg-white p-2 shadow">
                         <span class="text-3xl font-bold italic">Total de {{ $ano }}</span>
                         <div class="w-full">
-                            <livewire:charts.apex-bars :data="$chartMetas" />
+                            <livewire:charts.apex-bars :data="$chartMetas"/>
                         </div>
                     </div>
                     <div class="flex w-full flex-col lg:flex-row gap-2 ">
@@ -26,12 +54,12 @@
                             <x-tabs wire:model="selectedTabF">
                                 <x-tab icon="s-arrow-trending-up" label="10" name="filial-up">
                                     <div class="w-full">
-                                        <livewire:charts.ranking-filiais :data="$chartFiliais" />
+                                        <livewire:charts.ranking-filiais :data="$chartFiliais"/>
                                     </div>
                                 </x-tab>
                                 <x-tab icon="s-arrow-trending-down" label="10" name="filial-down">
                                     <div class="w-full">
-                                        <livewire:charts.ranking-filiais-down :data="$chartFiliaisDown" />
+                                        <livewire:charts.ranking-filiais-down :data="$chartFiliaisDown"/>
                                     </div>
                                 </x-tab>
                             </x-tabs>
@@ -42,12 +70,12 @@
                             <x-tabs wire:model="selectedTabV">
                                 <x-tab icon="s-arrow-trending-up" label="10" name="vendedores-up">
                                     <div class="w-full">
-                                        <livewire:charts.ranking-vendedores :data="$chartVendedores" />
+                                        <livewire:charts.ranking-vendedores :data="$chartVendedores"/>
                                     </div>
                                 </x-tab>
                                 <x-tab icon="s-arrow-trending-down" label="10" name="vendedores-down">
                                     <div class="w-full">
-                                        <livewire:charts.ranking-vendedores-down :data="$chartVendedoresDown" />
+                                        <livewire:charts.ranking-vendedores-down :data="$chartVendedoresDown"/>
                                     </div>
                                 </x-tab>
                             </x-tabs>
@@ -59,13 +87,13 @@
                             <span class="text-2xl font-bold italic">Vendas</span>
                             <div class="flex w-full flex-row gap-2">
                                 <div class="w-full lg:w-1/3">
-                                    <livewire:charts.grupo-estoque />
+                                    <livewire:charts.grupo-estoque/>
                                 </div>
                                 <div class="w-full lg:w-1/3">
-                                    <livewire:charts.aparelhos />
+                                    <livewire:charts.aparelhos/>
                                 </div>
                                 <div class="w-full lg:w-1/3">
-                                    <livewire:charts.planos />
+                                    <livewire:charts.planos/>
                                 </div>
 
 
@@ -96,11 +124,11 @@
                                         <div class="flex w-1/5 flex-col items-center p-2">
                                             <span class="text-lg font-bold">{{ $meta }}%</span>
                                             @if (floatVal($meta) > 100.0)
-                                                <x-icon class="h-6 w-6 text-green-500" name="o-arrow-trending-up" />
+                                                <x-icon class="h-6 w-6 text-green-500" name="o-arrow-trending-up"/>
                                             @elseif (floatVal($meta) > 65.0 && floatVal($meta) < 100.0)
-                                                <x-icon class="h-6 w-6 text-blue-500" name="o-arrow-right" />
+                                                <x-icon class="h-6 w-6 text-blue-500" name="o-arrow-right"/>
                                             @else
-                                                <x-icon class="h-6 w-6 text-red-500" name="o-arrow-trending-down" />
+                                                <x-icon class="h-6 w-6 text-red-500" name="o-arrow-trending-down"/>
                                             @endif
                                         </div>
                                         <div class="flex w-2/5 flex-col items-center rounded bg-orange-400 p-2 shadow">
