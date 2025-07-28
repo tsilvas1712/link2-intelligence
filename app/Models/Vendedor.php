@@ -26,6 +26,6 @@ class Vendedor extends Model
 
     public function metas()
     {
-        return $this->hasMany(MetasVendedores::class);
+        return $this->hasMany(MetaGroup::class);
     }
 }

@@ -4,16 +4,15 @@ namespace App\Livewire\App;
 
 use App\Imports\VendasImport;
 use App\Models\Category;
-use App\Models\Grupo;
-use App\Models\GrupoEstoque;
+use App\Models\Filial;
 use App\Models\MetasFiliais;
-use App\Models\ModalidadeVenda;
-use App\Models\PlanoHabilitacao;
 use App\Models\Venda;
 use App\Models\Venda as VendaModel;
+use App\Models\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -43,6 +42,13 @@ class Dashboard extends Component
     public $selectedTabV = 'vendedores-up';
     public $isLoading = false;
     public $isProcessing = false;
+    public $dt_start;
+    public $dt_end;
+
+    public $selectedFiliais = [];
+    public $selectedVendedores = [];
+    public $filiais = [];
+    public $vendedores = [];
 
 
     public $chartMetas;
@@ -59,15 +65,11 @@ class Dashboard extends Component
         $this->isLoading = $size;
         $this->isProcessing = $processing > 0;
 
-        //$jobChunks = new Job::class();
-        //link2datai_database_ZdlWlHMNV6Z0SNgMhl416RBzu2IDe6lLkvcIepls
-        //$totalQueuedLeads = Redis::mget();
-        //->zcount('queues:' . $queueName . ':delayed', '-inf', '+inf');
-
-        //dd($size);
 
         $this->ano = Carbon::now()->subDay(1)->format('Y');
         $this->mes = Carbon::now()->subDay(1)->format('m');
+        $this->dt_start = Carbon::now()->subDay(1)->startOfMonth()->format('Y-m-d');
+        $this->dt_end = Carbon::now()->subDay(1)->endOfMonth()->format('Y-m-d');
         $this->meses = $this->getMeses();
         $this->anos = $this->getAnos();
         $this->chartMetas = $this->getChartMetas();
@@ -75,6 +77,13 @@ class Dashboard extends Component
         $this->chartFiliaisDown = $this->rankingFiliaisDown();
         $this->chartVendedores = $this->rankingVendedores();
         $this->chartVendedoresDown = $this->rankingVendedoresDown();
+
+        $this->filiais = Filial::all();
+
+
+        $this->vendedores = $this->getVendedores() ?? [];
+
+        //dd($this->vendedores);
     }
 
     public function getMeses()
@@ -367,74 +376,44 @@ class Dashboard extends Component
         ];
     }
 
+    #[Computed]
+    public function getVendedores()
+    {
+        $vendas = Venda::query()
+            ->select('vendedor_id')
+            ->whereIn('filial_id', $this->selectedFiliais)
+            ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
+            ->groupBy('vendedor_id')
+            ->get();
+
+
+        if ($vendas->count() > 0) {
+            return Vendedor::query()
+                ->when($vendas->count() > 0, function ($query) use ($vendas) {
+                    $query->whereIn('id', $vendas->pluck('vendedor_id'));
+                })
+                ->get();
+        }
+
+        return Vendedor::all();
+
+
+    }
+
     #[Layout('components.layouts.view')]
     public function render()
     {
 
 
-        $telas = Category::query()
+        $categories = Category::query()
             ->where('active', 1)
             ->orderBy('order', 'asc')
             ->get();
+
+
         return view('livewire.app.dashboard', [
-            'telas' => $telas,
+            'categories' => $categories,
         ]);
-    }
-
-    public function getValores($id = null)
-    {
-        if (!$id) {
-            return [];
-        }
-
-        $grupo = Grupo::find($id);
-        $grupo_estoque = null;
-        $plano_habilitado = null;
-        $modalidade_venda = null;
-
-        if ($grupo->grupo_estoque) {
-            $grupo_estoque = GrupoEstoque::query()
-                ->whereIn('id', explode(';', $grupo->grupo_estoque))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        if ($grupo->plano_habilitacao) {
-            $plano_habilitado = PlanoHabilitacao::query()
-                ->whereIn('id', explode(';', $grupo->plano_habilitacao))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        if ($grupo->modalidade_venda) {
-            $modalidade_venda = ModalidadeVenda::query()
-                ->whereIn('id', explode(';', $grupo->modalidade_venda))
-                ->pluck('nome')
-                ->toArray();
-        }
-
-        $campo_valor = $grupo->campo_valor;
-
-
-        $total = Venda::query()
-            ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
-                return $query->whereIn('grupo_estoque', $grupo_estoque);
-            })
-            ->when($plano_habilitado, function ($query) use ($plano_habilitado) {
-                return $query->whereIn('plano_habilitacao', $plano_habilitado);
-            })
-            ->when($modalidade_venda, function ($query) use ($modalidade_venda) {
-                return $query->whereIn('modalidade_venda', $modalidade_venda);
-            })
-            ->whereYear('data_pedido', '=', $this->ano)
-            ->whereMonth('data_pedido', '=', $this->mes)
-            ->sum($campo_valor);
-
-        ds($total);
-
-        return $total;
-
-
     }
 
     public function uploadFile()
@@ -444,5 +423,16 @@ class Dashboard extends Component
 
         return redirect()->route('dashboard');
 
+    }
+
+    public function updateDash()
+    {
+        $this->getVendedores();
+        $this->dispatch('update-dash', [
+            'date_start' => $this->dt_start,
+            'date_end' => $this->dt_end,
+            'filiais_id' => $this->selectedFiliais,
+            'vendedores_id' => $this->selectedVendedores,
+        ]);
     }
 }

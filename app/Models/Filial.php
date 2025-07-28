@@ -3,13 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\DadoFilial;
 
 class Filial extends Model
 {
     protected $table = 'filials';
     protected $fillable = ['filial'];
-
 
 
     public function venda()
@@ -22,8 +20,8 @@ class Filial extends Model
         return $this->hasOne(VendaAtual::class);
     }
 
-    public function meta()
+    public function metas()
     {
-        return $this->hasMany(MetasFiliais::class);
+        return $this->hasMany(MetaGroup::class);
     }
 }

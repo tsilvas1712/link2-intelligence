@@ -26,4 +26,9 @@ class Grupo extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function metas()
+    {
+        return $this->hasMany(MetaGroup::class, 'grupo_id');
+    }
 }
