@@ -29,11 +29,12 @@ Route::get('/logout', function () {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dash', Dashboard::class)->name('dash');
     Route::get('/', \App\Livewire\App\Dashboard::class)->name('dashboard');
+    Route::get('/detalhamento', \App\Livewire\App\Detalhamento::class)->name('detalhamento');
 
-    Route::prefix('grupo-estoque')->name('grupo-estoque.')->group(function () {
+    Route::prefix('grupo-estoque')->name('grupo-estoque.')->group(
+        function () {
             Route::get('', \App\Livewire\App\GrupoEstoque\Main::class)->name('main');
             Route::get('/{grupo}', \App\Livewire\App\GrupoEstoque\Show::class)->name('show');
-
         }
     );
 

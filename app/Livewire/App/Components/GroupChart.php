@@ -26,7 +26,6 @@ class GroupChart extends Component
 
     public function render()
     {
-
         return view('livewire.app.components.group-chart');
     }
 
@@ -100,17 +99,15 @@ class GroupChart extends Component
                 return $query->whereIn('modalidade_venda', $modalidade_venda);
             })
             ->when($this->selectedFilial, function ($query) {
-
                 return $query->whereIn('filial_id', $this->selectedFilial);
             })
             ->when($this->selectedFilial, function ($query) {
                 return $query->groupBy('filial_id');
-
             })
             ->when($this->selectedVendedor, function ($query) {
                 return $query->whereIn('vendedor_id', $this->selectedVendedor);
             })
-            ->whereBetween('data_pedido', ['2025-06-01', $this->dt_end])
+            ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
             ->get();
 
 
@@ -144,15 +141,15 @@ class GroupChart extends Component
                         'x' => [
                             'title' => [
                                 'display' => false,
-                                'text' => 'Período'
+                                'text' => 'Período',
                             ],
                             'grid' => [
                                 'display' => false,
                             ],
                             'legends' => [
                                 'display' => false,
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                 ],
                 'data' => [
@@ -163,9 +160,9 @@ class GroupChart extends Component
                             'legend' => false,
                             'backgroundColor' => ['#213152', '#26B7ED', '#077FF8'],
                             'data' => [$vendas[0]->total, $meta, $tendencia],
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ];
         }
 
@@ -192,7 +189,6 @@ class GroupChart extends Component
         $dataset = [];
 
         foreach ($dataVendas as $venda) {
-
             $dataset[] =
                 [
                     'label' => $venda['filial'],
@@ -200,7 +196,6 @@ class GroupChart extends Component
                     'backgroundColor' => ['#213152', '#26B7ED', '#077FF8'],
                     'data' => [$venda['total'], $venda['meta'], $venda['tendencia']],
                 ];
-
         }
 
         return [
@@ -226,36 +221,31 @@ class GroupChart extends Component
                     'x' => [
                         'title' => [
                             'display' => false,
-                            'text' => 'Período'
+                            'text' => 'Período',
                         ],
                         'grid' => [
                             'display' => false,
                         ],
                         'legends' => [
                             'display' => false,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
             ],
             'data' => [
                 'labels' => ['Total', 'Meta', 'Tendência'],
                 'datasets' => $dataset,
-            ]
+            ],
         ];
-
-
     }
 
     #[On('update-dash')]
     public function updatedDateStart($data)
     {
-
         $this->dt_start = $data['date_start'];
         $this->dt_end = $data['date_end'];
         $this->selectedFilial = $data['filiais_id'];
         $this->selectedVendedor = $data['vendedores_id'];
         $this->chart = $this->getValores();
-
     }
-
 }

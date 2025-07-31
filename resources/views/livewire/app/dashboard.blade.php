@@ -71,13 +71,24 @@
     </div>
 
     <div class="w-full bg-white p-2 flex flex-col gap-4">
+        
 
         <x-tabs class="bg-base-200" wire:model="selectedTab">
             <x-tab name="charts" label="Gráficos" icon="o-chart-bar" active>
                 @foreach ($categories as $category)
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-2">
                         @foreach($category->grupos->where('principal',true) as $grupo)
+                            @php
+                                $data = [];
+                                $data['grupo_id'] = $grupo->id;
+                                $data['dt_start'] = $dt_start;
+                                $data['dt_end'] = $dt_end;
+                                $data['filiais'] = $selectedFiliais;
+                                $data['vendedores'] = $selectedVendedores;
+                            @endphp
+                        <a href="{{ route('detalhamento',$data) }}">
                             <livewire:app.components.group-chart :group_id="$grupo->id" :wire:key="$grupo->id"/>
+                                </a>
                         @endforeach
                     </div>
                 @endforeach
@@ -92,7 +103,9 @@
                         <div
                             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-2">
                             @foreach($category->grupos->where('principal',true) as $grupo)
+                            <a href="{{ route('detalhamento',$data) }}">
                                 <livewire:app.components.group-total :group_id="$grupo->id" :wire:key="$grupo->nome"/>
+                                    </a>
                             @endforeach
                         </div>
                     </div>
