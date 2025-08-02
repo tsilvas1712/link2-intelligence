@@ -55,7 +55,6 @@ class Dashboard extends Component
 
     public function mount()
     {
-
         $connection = 'queue';
         $queueName = 'default';
 
@@ -70,18 +69,18 @@ class Dashboard extends Component
         $this->mes = Carbon::now()->subDay(1)->format('m');
         $this->dt_start = Carbon::now()->subDay(1)->startOfMonth()->format('Y-m-d');
         $this->dt_end = Carbon::now()->subDay(1)->endOfMonth()->format('Y-m-d');
-        $this->meses = $this->getMeses();
-        $this->anos = $this->getAnos();
-        $this->chartMetas = $this->getChartMetas();
-        $this->chartFiliais = $this->rankingFiliais();
-        $this->chartFiliaisDown = $this->rankingFiliaisDown();
-        $this->chartVendedores = $this->rankingVendedores();
-        $this->chartVendedoresDown = $this->rankingVendedoresDown();
+        //$this->meses = $this->getMeses();
+        //$this->anos = $this->getAnos();
+        //$this->chartMetas = $this->getChartMetas();
+        //$this->chartFiliais = $this->rankingFiliais();
+        //$this->chartFiliaisDown = $this->rankingFiliaisDown();
+        //$this->chartVendedores = $this->rankingVendedores();
+        //$this->chartVendedoresDown = $this->rankingVendedoresDown();
 
-        $this->filiais = Filial::all();
+        //$this->filiais = Filial::all();
 
 
-        $this->vendedores = $this->getVendedores() ?? [];
+        //$this->vendedores = $this->getVendedores() ?? [];
 
         //dd($this->vendedores);
     }
@@ -133,7 +132,7 @@ class Dashboard extends Component
             '09' => 'Set',
             '10' => 'Out',
             '11' => 'Nov',
-            '12' => 'Dez'
+            '12' => 'Dez',
         ];
         foreach ($this->meses as $mes) {
             $vendas = VendaModel::query()
@@ -292,7 +291,6 @@ class Dashboard extends Component
 
     public function rankingVendedores()
     {
-
         $rankingVendedores = VendaModel::query()
             ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
             ->when($this->mesSelecionado, function ($query) {
@@ -335,7 +333,6 @@ class Dashboard extends Component
 
     public function rankingVendedoresDown()
     {
-
         $rankingVendedores = VendaModel::query()
             ->select('vendedor_id', DB::raw('sum(valor_caixa) as Total'))
             ->when($this->mesSelecionado, function ($query) {
@@ -396,15 +393,11 @@ class Dashboard extends Component
         }
 
         return Vendedor::all();
-
-
     }
 
     #[Layout('components.layouts.view')]
     public function render()
     {
-
-
         $categories = Category::query()
             ->where('active', 1)
             ->orderBy('order', 'asc')
@@ -418,11 +411,9 @@ class Dashboard extends Component
 
     public function uploadFile()
     {
-
         Excel::import(new VendasImport(), $this->file->getRealPath())->allOnQueue('import_vendas');
 
         return redirect()->route('dashboard');
-
     }
 
     public function updateDash()
