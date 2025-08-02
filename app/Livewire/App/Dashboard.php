@@ -47,7 +47,7 @@ class Dashboard extends Component
 
     public $selectedFiliais = [];
     public $selectedVendedores = [];
-    public $filiais = [];
+    //public $filiais = [];
     public $vendedores = [];
 
 
@@ -398,14 +398,31 @@ class Dashboard extends Component
     #[Layout('components.layouts.view')]
     public function render()
     {
-        $categories = Category::query()
-            ->where('active', 1)
-            ->orderBy('order', 'asc')
-            ->get();
+        $categories = cache()->remember(
+            'categories',
+            60 * 60 * 24, // Cache for 24 hours
+            function () {
+                return Category::query()
+                    ->where('active', 1)
+                    ->orderBy('order', 'asc')
+                    ->get();
+            }
+        );
+
+        $filiais = cache()->remember(
+            'filiais',
+            60 * 60 * 24, // Cache for 24 hours
+            function () {
+                return Filial::all();
+            }
+        );
+
+
 
 
         return view('livewire.app.dashboard', [
             'categories' => $categories,
+            'filiais' => $filiais,
         ]);
     }
 
