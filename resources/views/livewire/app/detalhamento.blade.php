@@ -67,14 +67,15 @@
             <h2 class="text-lg font-bold">Total por Vendedor</h2>
             <hr />
             <div class="flex flex-warp  w-full gap-4">
-                @foreach ($vendedores as $vendodor)
+          
+                @foreach ($data_vendedores as $vendedor)
                     <a href="#" class="hover:text-white w-full">
                         <div class="flex flex-col w-full rounded-md p-4 hover:bg-primary bg-gray-100 shadow-md">
                             <div>
-                                <span class="text-lg font-bold">{{ $this->getVendedor($vendedor) }}</span>
+                                <span class="text-lg font-bold">{{ $vendedor->nome }}</span>
                             </div>
                             <span class="text-lg font-bold">
-                                R${{ number_format($this->totalVendedor($vendedor), 2, ',', '.') }}
+                                R${{ number_format($this->totalVendedor($vendedor->id), 2, ',', '.') }}
                             </span>
                         </div>
                     </a>

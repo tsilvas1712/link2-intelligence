@@ -13,37 +13,156 @@
             width: '75%',
             type: 'donut',
         },
-        plotOptions: {
-            pie: {
-                startAngle: -90,
-                endAngle: 270
-            }
-        },
-        dataLabels: {
-            enabled: false
+ legend: {
+            show: true,
+            showForSingleSeries: false,
+            showForNullSeries: true,
+            showForZeroSeries: true,
+            position: 'right',
+            horizontalAlign: 'center',
+            floating: false,
+            fontSize: '14px',
+            fontFamily: 'Helvetica, Arial',
+            fontWeight: 400,
+            formatter: undefined,
+            inverseOrder: false,
+            width: undefined,
+            height: undefined,
+            tooltipHoverFormatter: undefined,
+            customLegendItems: [],
+            clusterGroupedSeries: true,
+            clusterGroupedSeriesOrientation: 'vertical',
+            offsetX: 0,
+            offsetY: 0,
+            labels: {
+                colors: undefined,
+                useSeriesColors: false
+            },
         },
         fill: {
             type: 'gradient',
         },
-        legend: {
-           
-               
-   
-        },
-        title: {
-            text: 'Comparativo de Vendas por Filial',
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: {
-                    width: 200
-                },
-                legend: {
-                    position: 'bottom'
+        plotOptions: {
+            pie: {
+                donut: {
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '32px',
+                            fontBold: true,
+                            fontFamily: 'Helvetica, Arial, sans-serif',
+                            color: undefined,
+                            offsetY: -10,
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '24px',
+                            fontFamily: 'Helvetica, Arial, sans-serif',
+                            color: undefined,
+                            offsetY: 16,
+                            formatter: function(val) {
+                                const fValor = parseFloat(val).toLocaleString('pt-br', {
+                                    style: 'currency',
+                                    currency: 'BRL'
+                                })
+                                console.log('VALOR', fValor)
+                                return fValor;
+                            }
+                        },
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            color: '#373d3f',
+                            formatter: function(w) {
+                                const valor = w.globals.seriesTotals.reduce((a, b) => {
+                                    return a + b
+                                }, 0)
+
+                                return valor.toLocaleString('pt-br', {
+                                    style: 'currency',
+                                    currency: 'BRL'
+                                })
+                            }
+                        }
+                    }
                 }
             }
-        }]
+        },
+        responsive: [{
+            breakpoint: 500,
+            options: {
+                chart: {
+                    width: '100%',
+                },
+                grid: {
+                    show: false,
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            labels: {
+                                show: true,
+                                name: {
+                                    show: true,
+                                    fontSize: '16px',
+                                    fontBold: true,
+                                    fontFamily: 'Helvetica, Arial, sans-serif',
+                                    color: undefined,
+                                    offsetY: -10,
+                                },
+                                value: {
+                                    show: true,
+                                    fontSize: '16px',
+                                    fontFamily: 'Helvetica, Arial, sans-serif',
+                                    color: undefined,
+                                    offsetY: 16,
+                                    formatter: function(val) {
+                                        const fValor = parseFloat(val).toLocaleString('pt-br', {
+                                            style: 'currency',
+                                            currency: 'BRL'
+                                        })
+                                        console.log('VALOR', fValor)
+                                        return fValor;
+                                    }
+                                },
+                                total: {
+                                    show: true,
+                                    label: 'TOTAL',
+                                    fontBold: true,
+                                    fontSize: '16px',
+                                    color: '#373d3f',
+                                    formatter: function(w) {
+                                        const valor = w.globals.seriesTotals.reduce((a, b) => {
+                                            return a + b
+                                        }, 0)
+
+                                        return valor.toLocaleString('pt-br', {
+                                            style: 'currency',
+                                            currency: 'BRL'
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+        }],
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val.toLocaleString('pt-br', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    });
+                }
+            }
+
+        },
     };
 
     var chart = new ApexCharts(document.querySelector("#chartPieFiliais"), options);

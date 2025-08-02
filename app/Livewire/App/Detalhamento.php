@@ -49,12 +49,18 @@ class Detalhamento extends Component
         $data_fim = Carbon::parse($this->dt_end)->format('d/m/Y');
         $filiais = [];
         $vendedores = [];
+
         if ($this->filiais) {
             $filiais = Filial::query()->whereIn('id', $this->filiais)->get() ?? [];
         }
         if ($this->vendedores) {
-            $vendedores = Vendedor::query()->whereIn('id', $this->vendedores)->get() ?? [];
+            foreach ($this->vendedores as $vendedor) {
+                $vendedores[] = Vendedor::find($vendedor);
+            }
+            //
         }
+
+
 
 
         return view('livewire.app.detalhamento', [

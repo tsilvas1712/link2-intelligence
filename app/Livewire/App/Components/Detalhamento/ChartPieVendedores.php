@@ -41,7 +41,7 @@ class ChartPieVendedores extends Component
         ]);
     }
 
-    public function totalVendedor($filial_id)
+    public function totalVendedor($vendedor_id)
     {
         $vendas = Venda::query()
             ->whereBetween('data_pedido', [$this->dt_inicio, $this->dt_fim])
@@ -87,7 +87,7 @@ class ChartPieVendedores extends Component
         ->when($grupo->modalidade_venda, function ($query) use ($modalidade_venda) {
             return $query->whereIn('modalidade_venda', $modalidade_venda);
         })
-        ->where('filial_id', $filial_id)
+        ->where('vendedor_id', $vendedor_id)
         ->sum($grupo->campo_valor);
 
         return $totalVendas;
