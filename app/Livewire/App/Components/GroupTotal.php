@@ -9,6 +9,7 @@ use App\Models\ModalidadeVenda;
 use App\Models\PlanoHabilitacao;
 use App\Models\Venda;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -31,22 +32,23 @@ class GroupTotal extends Component
     public function render()
     {
         $group = Grupo::find($this->group_id);
-        return view('livewire.app.components.group-total',
+
+        return view(
+            'livewire.app.components.group-total',
             [
                 'grupo' => $group,
 
-            ]);
+            ]
+        );
     }
 
     #[On('update-dash')]
     public function updatedDateStart($data)
     {
-
         $this->dt_start = $data['date_start'];
         $this->dt_end = $data['date_end'];
         $this->selectedFilial = $data['filiais_id'];
         $this->selectedVendedor = $data['vendedores_id'];
-
     }
 
     #[Computed]
@@ -57,7 +59,11 @@ class GroupTotal extends Component
         $plano_habilitado = null;
         $modalidade_venda = null;
 
-        $meta = MetaGroup::query()
+        $meta = cache()->remember(
+            "meta_group_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+            60 * 60 * 24, // Cache for 24 hours
+            function () {
+                return MetaGroup::query()
             ->when($this->selectedFilial, function ($query) {
                 return $query->whereIn('filial_id', $this->selectedFilial);
             })
@@ -68,33 +74,58 @@ class GroupTotal extends Component
             ->whereBetween('ano', [Carbon::parse($this->dt_start)->year, Carbon::parse($this->dt_end)->year])
             ->where('grupo_id', $this->group_id)
             ->sum('valor_meta');
+            }
+        );
+
 
 
         if ($grupo->grupo_estoque) {
-            $grupo_estoque = GrupoEstoque::query()
+            $grupo_estoque = cache()->remember(
+                "grupo_estoque_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return GrupoEstoque::query()
                 ->whereIn('id', explode(';', $grupo->grupo_estoque))
                 ->pluck('nome')
                 ->toArray();
+                }
+            );
         }
 
         if ($grupo->plano_habilitacao) {
-            $plano_habilitado = PlanoHabilitacao::query()
+            $plano_habilitado = cache()->remember(
+                "plano_habilitacao_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return PlanoHabilitacao::query()
                 ->whereIn('id', explode(';', $grupo->plano_habilitacao))
                 ->pluck('nome')
                 ->toArray();
+                }
+            );
         }
 
         if ($grupo->modalidade_venda) {
-            $modalidade_venda = ModalidadeVenda::query()
+            $modalidade_venda = cache()->remember(
+                "modalidade_venda_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return ModalidadeVenda::query()
                 ->whereIn('id', explode(';', $grupo->modalidade_venda))
                 ->pluck('nome')
                 ->toArray();
+                }
+            );
         }
 
         $campo_valor = $grupo->campo_valor;
 
 
-        $total = Venda::query()
+        $total = cache()->remember(
+            "total_group_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+            60 * 60 * 24, // Cache for 24 hours
+            function () use ($grupo_estoque, $plano_habilitado, $modalidade_venda, $campo_valor) {
+                return Venda::query()
             ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
                 return $query->whereIn('grupo_estoque', $grupo_estoque);
             })
@@ -112,6 +143,9 @@ class GroupTotal extends Component
             })
             ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
             ->sum($campo_valor);
+            }
+        );
+
 
         $total_dias = Carbon::parse($this->dt_start)->diffInDays(Carbon::parse($this->dt_end)) + 1;
         $tendencia = ($total / $total_dias) * $total_dias;
@@ -120,7 +154,5 @@ class GroupTotal extends Component
 
 
         return ['total' => $total, 'meta_valor' => $meta, 'tendencia' => $tendencia, 'projecao' => $projecao];
-
-
     }
 }

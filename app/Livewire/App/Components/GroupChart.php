@@ -45,70 +45,101 @@ class GroupChart extends Component
         $plano_habilitado = null;
         $modalidade_venda = null;
 
-        $meta = MetaGroup::query()
-            ->when($this->selectedFilial, function ($query) {
-                return $query->whereIn('filial_id', $this->selectedFilial);
-            })
-            ->when($this->selectedVendedor, function ($query) {
-                return $query->whereIn('vendedor_id', $this->selectedVendedor);
-            })
-            ->whereBetween('mes', [Carbon::parse($this->dt_start)->month, Carbon::parse($this->dt_end)->month])
-            ->whereBetween('ano', [Carbon::parse($this->dt_start)->year, Carbon::parse($this->dt_end)->year])
-            ->where('grupo_id', $this->group_id)
-            ->sum('valor_meta');
+        $meta = cache()->remember(
+            "meta_group_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+            60 * 60 * 24, // Cache for 24 hours
+            function () {
+                return MetaGroup::query()
+                    ->when($this->selectedFilial, function ($query) {
+                        return $query->whereIn('filial_id', $this->selectedFilial);
+                    })
+                    ->when($this->selectedVendedor, function ($query) {
+                        return $query->whereIn('vendedor_id', $this->selectedVendedor);
+                    })
+                    ->whereBetween('mes', [Carbon::parse($this->dt_start)->month, Carbon::parse($this->dt_end)->month])
+                    ->whereBetween('ano', [Carbon::parse($this->dt_start)->year, Carbon::parse($this->dt_end)->year])
+                    ->where('grupo_id', $this->group_id)
+                    ->sum('valor_meta');
+            }
+        );
 
 
         if ($grupo->grupo_estoque) {
-            $grupo_estoque = GrupoEstoque::query()
-                ->whereIn('id', explode(';', $grupo->grupo_estoque))
-                ->pluck('nome')
-                ->toArray();
+            $grupo_estoque = cache()->remember(
+                "grupo_estoque_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return GrupoEstoque::query()
+                        ->whereIn('id', explode(';', $grupo->grupo_estoque))
+                        ->pluck('nome')
+                        ->toArray();
+                }
+            );
         }
 
         if ($grupo->plano_habilitacao) {
-            $plano_habilitado = PlanoHabilitacao::query()
-                ->whereIn('id', explode(';', $grupo->plano_habilitacao))
-                ->pluck('nome')
-                ->toArray();
+            $plano_habilitado = cache()->remember(
+                "plano_habilitacao_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return PlanoHabilitacao::query()
+                        ->whereIn('id', explode(';', $grupo->plano_habilitacao))
+                        ->pluck('nome')
+                        ->toArray();
+                }
+            );
         }
 
         if ($grupo->modalidade_venda) {
-            $modalidade_venda = ModalidadeVenda::query()
-                ->whereIn('id', explode(';', $grupo->modalidade_venda))
-                ->pluck('nome')
-                ->toArray();
+            $modalidade_venda = cache()->remember(
+                "modalidade_venda_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($grupo) {
+                    return ModalidadeVenda::query()
+                        ->whereIn('id', explode(';', $grupo->modalidade_venda))
+                        ->pluck('nome')
+                        ->toArray();
+                }
+            );
         }
 
         $campo_valor = $grupo->campo_valor;
 
 
-        $vendas = Venda::query()
-            ->when(!$this->selectedFilial, function ($query) use ($campo_valor) {
-                return $query->selectRaw('SUM(' . $campo_valor . ') as total');
-            })
-            ->when($this->selectedFilial, function ($query) use ($campo_valor) {
-                return $query->selectRaw('filial_id, SUM(' . $campo_valor . ') as total');
-            })
-            ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
-                return $query->whereIn('grupo_estoque', $grupo_estoque);
-            })
-            ->when($plano_habilitado, function ($query) use ($plano_habilitado) {
-                return $query->whereIn('plano_habilitacao', $plano_habilitado);
-            })
-            ->when($modalidade_venda, function ($query) use ($modalidade_venda) {
-                return $query->whereIn('modalidade_venda', $modalidade_venda);
-            })
-            ->when($this->selectedFilial, function ($query) {
-                return $query->whereIn('filial_id', $this->selectedFilial);
-            })
-            ->when($this->selectedFilial, function ($query) {
-                return $query->groupBy('filial_id');
-            })
-            ->when($this->selectedVendedor, function ($query) {
-                return $query->whereIn('vendedor_id', $this->selectedVendedor);
-            })
-            ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
-            ->get();
+        $vendas = cache()->remember(
+            "vendas_group_{$this->group_id}_{$this->dt_start}_{$this->dt_end}_" . implode('_', $this->selectedFilial ?? []) . '_' . implode('_', $this->selectedVendedor ?? []),
+            60 * 60 * 24, // Cache for 24 hours
+            function () use ($campo_valor, $grupo_estoque, $plano_habilitado, $modalidade_venda) {
+                return Venda::query()
+                    ->when(!$this->selectedFilial, function ($query) use ($campo_valor) {
+                        return $query->selectRaw('SUM(' . $campo_valor . ') as total');
+                    })
+                    ->when($this->selectedFilial, function ($query) use ($campo_valor) {
+                        return $query->selectRaw('filial_id, SUM(' . $campo_valor . ') as total');
+                    })
+                    ->when($grupo_estoque, function ($query) use ($grupo_estoque) {
+                        return $query->whereIn('grupo_estoque', $grupo_estoque);
+                    })
+                    ->when($plano_habilitado, function ($query) use ($plano_habilitado) {
+                        return $query->whereIn('plano_habilitacao', $plano_habilitado);
+                    })
+                    ->when($modalidade_venda, function ($query) use ($modalidade_venda) {
+                        return $query->whereIn('modalidade_venda', $modalidade_venda);
+                    })
+                    ->when($this->selectedFilial, function ($query) {
+                        return $query->whereIn('filial_id', $this->selectedFilial);
+                    })
+                    ->when($this->selectedFilial, function ($query) {
+                        return $query->groupBy('filial_id');
+                    })
+                    ->when($this->selectedVendedor, function ($query) {
+                        return $query->whereIn('vendedor_id', $this->selectedVendedor);
+                    })
+                    ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
+                    ->get();
+            }
+        );
+
 
 
         if (!$this->selectedFilial) {

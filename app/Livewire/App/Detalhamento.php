@@ -300,4 +300,11 @@ class Detalhamento extends Component
 
         return $totalVendas;
     }
+
+    public function getVendedor($vendedor_id)
+    {
+        $vendedor = Vendedor::find($vendedor_id);
+
+        return $vendedor;
+    }
 }

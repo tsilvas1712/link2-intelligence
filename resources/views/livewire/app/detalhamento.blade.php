@@ -64,18 +64,14 @@
 
     @if ($vendedores)
         <div class="flex flex-col  w-full gap-4">
-            <h2 class="text-lg font-bold">Total por Filial</h2>
+            <h2 class="text-lg font-bold">Total por Vendedor</h2>
             <hr />
             <div class="flex flex-warp  w-full gap-4">
                 @foreach ($vendedores as $vendodor)
                     <a href="#" class="hover:text-white w-full">
                         <div class="flex flex-col w-full rounded-md p-4 hover:bg-primary bg-gray-100 shadow-md">
-                            @php
-                                $v = App\Models\Vendedor::find($vendedor);
-                                
-                            @endphp
                             <div>
-                                <span class="text-lg font-bold">{{ $v[0]->nome }}</span>
+                                <span class="text-lg font-bold">{{ $this->getVendedor($vendedor) }}</span>
                             </div>
                             <span class="text-lg font-bold">
                                 R${{ number_format($this->totalVendedor($vendedor), 2, ',', '.') }}
