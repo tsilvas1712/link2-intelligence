@@ -2,18 +2,18 @@
     {{-- If your happiness depends on money, you will never be happy with yourself. --}}
 </div>
 <script>
-    
     var series = @json($data['series']);
     var labels = @json($data['labels']);
+
+    console.log('DATA', @json($data));
     var options = {
         series: series,
         labels: labels,
-        colors: ['#008FFB', '#00E396', '#FEB019'],
         chart: {
             width: '75%',
             type: 'donut',
         },
- legend: {
+        legend: {
             show: true,
             showForSingleSeries: false,
             showForNullSeries: true,

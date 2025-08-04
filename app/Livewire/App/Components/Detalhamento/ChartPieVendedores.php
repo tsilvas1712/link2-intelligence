@@ -26,6 +26,14 @@ class ChartPieVendedores extends Component
                 $series[] = $total;
                 $labels[] = $this->getVendedor($vendedor);
             }
+        } else {
+            $this->vendedores = $this->rankingVendedores();
+
+            foreach ($this->vendedores as $vendedor) {
+                $total = $vendedor->total_vendas;
+                $series[] = floatval($total);
+                $labels[] = $this->getVendedor($vendedor->vendedor_id);
+            }
         }
 
 
@@ -35,6 +43,8 @@ class ChartPieVendedores extends Component
             'labels' => $labels,
 
         ];
+
+
 
         return view('livewire.app.components.detalhamento.chart-pie-vendedores', [
             'data' => $data,
@@ -89,6 +99,60 @@ class ChartPieVendedores extends Component
         })
         ->where('vendedor_id', $vendedor_id)
         ->sum($grupo->campo_valor);
+
+        return $totalVendas;
+    }
+
+    public function rankingVendedores()
+    {
+        $meta = 0;
+        $grupo_estoque = [];
+        $plano_habilitado = [];
+        $modalidade_venda = [];
+
+        $grupo = Grupo::find($this->grupo_id);
+        if ($grupo->grupo_estoque) {
+            $grupo_estoque = GrupoEstoque::query()
+            ->whereIn('id', explode(';', $grupo->grupo_estoque) ?? [])
+            ->pluck('nome')
+            ->toArray();
+        }
+
+        if ($grupo->plano_habilitacao) {
+            $plano_habilitado = PlanoHabilitacao::query()
+                ->whereIn('id', explode(';', $grupo->plano_habilitacao) ?? [])
+                ->pluck('nome')
+                ->toArray();
+        }
+
+        if ($grupo->modalidade_venda) {
+            $modalidade_venda = ModalidadeVenda::query()
+                ->whereIn('id', explode(';', $grupo->modalidade_venda) ?? [])
+                ->pluck('nome')
+                ->toArray();
+        }
+
+
+        $totalVendas = Venda::query()
+            ->whereBetween('data_pedido', [$this->dt_inicio, $this->dt_fim])
+            ->groupBy('vendedor_id')
+         ->selectRaw('vendedor_id, SUM(' . $grupo->campo_valor . ') as total_vendas')
+        ->when($grupo->grupo_estoque, function ($query) use ($grupo_estoque) {
+            return $query->whereIn('grupo_estoque', $grupo_estoque);
+        })
+        ->when($grupo->plano_habilitacao, function ($query) use ($plano_habilitado) {
+            return $query->whereIn('plano_habilitacao', $plano_habilitado);
+        })
+        ->when($grupo->modalidade_venda, function ($query) use ($modalidade_venda) {
+            return $query->whereIn('modalidade_venda', $modalidade_venda);
+        })
+        ->orderBy('total_vendas', 'desc')
+        ->limit(10)
+        ->get();
+
+
+
+
 
         return $totalVendas;
     }

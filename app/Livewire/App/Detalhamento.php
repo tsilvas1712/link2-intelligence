@@ -26,6 +26,8 @@ class Detalhamento extends Component
     public ?string $dt_end = null;
     #[Url]
     public ?string $grupo_id = null;
+    public $visibilidadeFilial = null;
+    public $visibilidadeVendedor = null;
 
     public $meses;
     public $ano;
@@ -52,12 +54,21 @@ class Detalhamento extends Component
 
         if ($this->filiais) {
             $filiais = Filial::query()->whereIn('id', $this->filiais)->get() ?? [];
+        } else {
+            $filiais = Filial::query()->get() ?? [];
+            $this->filiais = $filiais->pluck('id')->toArray();
+            $this->visibilidadeFilial = 'todas';
         }
         if ($this->vendedores) {
             foreach ($this->vendedores as $vendedor) {
                 $vendedores[] = Vendedor::find($vendedor);
             }
             //
+        } else {
+            foreach ($this->rankingVendedores() as $vendedor) {
+                $vendedores[] = Vendedor::find($vendedor->vendedor_id);
+            }
+            $this->visibilidadeVendedor = 'todos';
         }
 
 
@@ -312,5 +323,59 @@ class Detalhamento extends Component
         $vendedor = Vendedor::find($vendedor_id);
 
         return $vendedor;
+    }
+
+    public function rankingVendedores()
+    {
+        $meta = 0;
+        $grupo_estoque = [];
+        $plano_habilitado = [];
+        $modalidade_venda = [];
+
+        $grupo = Grupo::find($this->grupo_id);
+        if ($grupo->grupo_estoque) {
+            $grupo_estoque = GrupoEstoque::query()
+            ->whereIn('id', explode(';', $grupo->grupo_estoque) ?? [])
+            ->pluck('nome')
+            ->toArray();
+        }
+
+        if ($grupo->plano_habilitacao) {
+            $plano_habilitado = PlanoHabilitacao::query()
+                ->whereIn('id', explode(';', $grupo->plano_habilitacao) ?? [])
+                ->pluck('nome')
+                ->toArray();
+        }
+
+        if ($grupo->modalidade_venda) {
+            $modalidade_venda = ModalidadeVenda::query()
+                ->whereIn('id', explode(';', $grupo->modalidade_venda) ?? [])
+                ->pluck('nome')
+                ->toArray();
+        }
+
+
+        $totalVendas = Venda::query()
+            ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
+            ->groupBy('vendedor_id')
+         ->selectRaw('vendedor_id, SUM(' . $grupo->campo_valor . ') as total_vendas')
+        ->when($grupo->grupo_estoque, function ($query) use ($grupo_estoque) {
+            return $query->whereIn('grupo_estoque', $grupo_estoque);
+        })
+        ->when($grupo->plano_habilitacao, function ($query) use ($plano_habilitado) {
+            return $query->whereIn('plano_habilitacao', $plano_habilitado);
+        })
+        ->when($grupo->modalidade_venda, function ($query) use ($modalidade_venda) {
+            return $query->whereIn('modalidade_venda', $modalidade_venda);
+        })
+        ->orderBy('total_vendas', 'desc')
+        ->limit(10)
+        ->get();
+
+
+
+
+
+        return $totalVendas;
     }
 }

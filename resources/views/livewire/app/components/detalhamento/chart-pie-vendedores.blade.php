@@ -2,9 +2,10 @@
     {{-- If your happiness depends on money, you will never be happy with yourself. --}}
 </div>
 <script>
-    
     var series = @json($data['series']);
     var labels = @json($data['labels']);
+    console.log('SERIES', series);
+    console.log('LABELS', labels);
     var options = {
         series: series,
         labels: labels,

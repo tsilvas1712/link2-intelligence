@@ -26,6 +26,16 @@ class ChartPieFiliais extends Component
                 $series[] = $total;
                 $labels[] = $this->getFilial($filial);
             }
+        } else {
+            $this->filiais = Filial::query()
+               ->pluck('id')
+                ->toArray();
+
+            foreach ($this->filiais as $filial) {
+                $total = $this->totalFilial($filial);
+                $series[] = $total;
+                $labels[] = $this->getFilial($filial);
+            }
         }
 
 
