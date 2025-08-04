@@ -145,7 +145,9 @@ class ChartPieRankingVendedores extends Component
                             ->get();
 
 
-                $totalVendas += floatval($vendas[0]->total) ?? 0;
+                $total = $vendas[0]->total ?? 0;
+
+                $totalVendas += floatval($total);
             }
 
 

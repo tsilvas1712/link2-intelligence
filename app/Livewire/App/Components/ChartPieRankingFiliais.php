@@ -132,8 +132,9 @@ class ChartPieRankingFiliais extends Component
                             ->whereBetween('data_pedido', [$this->dt_start, $this->dt_end])
                             ->get();
 
+                $total = $vendas[0]->total ?? 0;
 
-                $totalVendas += floatval($vendas[0]->total) ?? 0;
+                $totalVendas += floatval($total);
             }
 
 
